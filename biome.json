@@ -1,0 +1,113 @@
+{
+  "assist": {
+    "enabled": true,
+    "includes": ["**/*.{ts,tsx,js,jsx,css}"],
+    "actions": {
+      "source": {
+        "useSortedKeys": "off",
+        "organizeImports": "on"
+      }
+    }
+  },
+  "linter": {
+    "includes": [
+      "**",
+      "!**/@generated/**/*",
+      "!**/process.script.ts",
+      "!**/graphql-env.ts",
+      "!**/playwright-report/**",
+      "!**/test-results/**",
+      "!**/.turbo/cache"
+    ],
+    "rules": {
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error",
+        "noNestedComponentDefinitions": "off"
+      },
+      "style": {
+        "useImportType": "off",
+        "noParameterAssign": "error",
+        "useDefaultParameterLast": "error",
+        "useSingleVarDeclarator": "error",
+        "useConst": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error",
+        "useSelfClosingElements": "error",
+        "useNumberNamespace": "error",
+        "useAsConstAssertion": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useTemplate": "error",
+        "useEnumInitializers": "error"
+      },
+      "a11y": {
+        "useKeyWithClickEvents": "off",
+        "noStaticElementInteractions": "off"
+      },
+      "suspicious": {
+        "noVar": "on",
+        "noDocumentCookie": "off"
+      },
+      "complexity": {
+        "useDateNow": "off",
+        "noForEach": "off"
+      },
+      "performance": {
+        "noAccumulatingSpread": "off"
+      }
+    }
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!**/node_modules/**/*",
+      "!**/dist/**/*",
+      "!**/.next/**/*",
+      "!**/test-result/**/*",
+      "!**/playwright-report/**/*"
+    ]
+  },
+  "formatter": {
+    "formatWithErrors": true,
+    "indentStyle": "space"
+  },
+  "css": {
+    "formatter": {
+      "enabled": true,
+      "quoteStyle": "single",
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "lineWidth": 80,
+      "lineEnding": "lf"
+    },
+    "parser": {
+      "tailwindDirectives": true
+    },
+    "linter": {
+      "enabled": true
+    }
+  },
+  "javascript": {
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    },
+    "formatter": {
+      "enabled": true,
+      "quoteStyle": "single",
+      "semicolons": "asNeeded",
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "lineWidth": 80,
+      "lineEnding": "lf"
+    }
+  },
+  "json": {
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "lineWidth": 80,
+      "lineEnding": "lf"
+    }
+  }
+}

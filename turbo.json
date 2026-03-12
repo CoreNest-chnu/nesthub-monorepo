@@ -1,21 +1,37 @@
 {
-  "$schema": "https://turborepo.dev/schema.json",
-  "ui": "tui",
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "ui": "stream",
   "tasks": {
+    "ci:build:production": {
+      "dependsOn": ["^build"]
+    },
+    "ci:build:staging": {
+      "dependsOn": ["^build"]
+    },
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
-    "lint": {
-      "dependsOn": ["^lint"]
+    "lint": {},
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**",
+        "prisma/**",
+        "jest.config.ts",
+        "jest.setup.ts",
+        "tsconfig*.json",
+        ".env"
+      ],
+      "passThroughEnv": ["TEST_DATABASE_URL", "NODE_OPTIONS"]
     },
-    "check-types": {
-      "dependsOn": ["^check-types"]
-    },
-    "dev": {
+    "start:dev": {
       "cache": false,
       "persistent": true
-    }
+    },
+    "graphql:generate": {},
+    "db:start:docker": {},
+    "db:dump:start:docker": {}
   }
 }

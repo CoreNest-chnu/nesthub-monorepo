@@ -1,0 +1,15 @@
+{
+  "root": false,
+  "extends": "//",
+  "files": {
+    "includes": [
+      "**",
+      "!**/src/@generated/zod/**/*",
+      "!**/graphql-env.ts",
+      "!**/.next/**/*"
+    ]
+  },
+  "formatter": {
+    "formatWithErrors": true
+  }
+}

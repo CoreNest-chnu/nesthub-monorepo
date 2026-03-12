@@ -2,14 +2,20 @@
   "name": "nesthub-monorepo",
   "private": true,
   "scripts": {
+    "start:dev": "turbo run start:dev",
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "lint": "biome lint .",
+    "format": "biome format . --write",
+    "check": "biome check . --write"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
+    "@biomejs/biome": "^2.4.6",
+    "prisma": "^7.5.0",
     "turbo": "^2.8.16",
     "typescript": "5.9.2"
   },
