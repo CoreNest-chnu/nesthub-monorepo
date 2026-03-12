@@ -1,159 +1,163 @@
-# Turborepo starter
+# NestHub Monorepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+A full-stack monorepo using **NestJS** (API) and **Next.js** (Web), powered by **Turborepo** and **Bun**.
 
-## Using this example
+---
 
-Run the following command:
+## Stack
 
-```sh
-npx create-turbo@latest
+- [Bun](https://bun.sh) — package manager & runtime
+- [Turborepo](https://turbo.build) — monorepo build system
+- [NestJS](https://nestjs.com) — backend API
+- [Next.js](https://nextjs.org) — frontend
+- [Prisma](https://prisma.io) — ORM & database client
+- [Biome](https://biomejs.dev) — linter & formatter (replaces ESLint + Prettier)
+- [TanStack Query](https://tanstack.com/query) — data fetching & caching
+- [Orval](https://orval.dev) — auto-generates TanStack Query hooks from Swagger
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Make sure you have **Bun** installed:
+
+```bash
+curl -fsSL https://bun.sh/install | bash
 ```
 
-## What's inside?
+### Install dependencies
 
-This Turborepo includes the following packages/apps:
+From the root of the monorepo:
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+bun install
 ```
 
-Without global `turbo`, use your package manager:
+### Environment variables
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+Copy the example env file in `apps/api` and fill in your database URL:
+
+```bash
+cp apps/api/.env.example apps/api/.env
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/postgres"
 ```
 
-Without global `turbo`:
+### Database setup
 
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+bun prisma generate
+bun prisma db push
 ```
 
-### Develop
+---
 
-To develop all apps and packages, run the following command:
+## Development
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Start both `api` and `web` in watch mode:
 
-```sh
-cd my-turborepo
-turbo dev
+```bash
+bun turbo start:dev --filter=api --filter=web
 ```
 
-Without global `turbo`, use your package manager:
+Or start them individually:
 
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+bun turbo start:dev --filter=api
+bun turbo start:dev --filter=web
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+| App | URL |
+|-----|-----|
+| API (NestJS) | http://localhost:8000 |
+| Web (Next.js) | http://localhost:3000 |
+| Swagger docs | http://localhost:8000/docs |
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+> **Every time you start the app**, `@repo/api-client` waits for the API to boot, then uses Orval to auto-generate fully typed TanStack Query hooks from the Swagger schema. Your frontend always has up-to-date hooks.
 
-```sh
-turbo dev --filter=web
+---
+
+## API Client
+
+Hooks are auto-generated from the NestJS Swagger spec into `packages/api-client/src/generated/` on every dev start using Orval.
+
+### Adding a new endpoint
+
+1. Add the controller method in `apps/api` with proper `@ApiTags` decorator
+2. Restart the app with `bun turbo start:dev --filter=api --filter=web`
+3. Hooks are regenerated automatically and instantly available in `@repo/api-client`
+
+### NestJS controller example
+
+```typescript
+import { ApiTags } from '@nestjs/swagger'
+
+@ApiTags('users')
+@Controller('users')
+export class UsersController {
+  @Get()
+  findAll() { ... }
+
+  @Post()
+  create(@Body() dto: CreateUserDto) { ... }
+}
 ```
 
-Without global `turbo`:
+### Using generated hooks in Next.js
 
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+Orval generates hooks per Swagger tag — no need to write them manually:
+
+```typescript
+import { useGetUsers, useCreateUser } from '@repo/api-client'
+
+// In your component
+const { data } = useGetUsers()
+
+const { mutate: createUser } = useCreateUser()
+createUser({ name: 'John', email: 'john@example.com' })
 ```
 
-### Remote Caching
+---
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## Linting & Formatting
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+This project uses **Biome** instead of ESLint and Prettier.
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+```bash
+# Check and fix lint + format issues
+bun biome check . --write
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+# Lint only
+bun biome lint .
 
-```sh
-cd my-turborepo
-turbo login
+# Format only
+bun biome format . --write
 ```
 
-Without global `turbo`, use your package manager:
+Biome config is located at `biome.json` in the root.
 
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+---
+
+## Project Structure
+
 ```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
+nesthub-monorepo/
+├── apps/
+│   ├── api/                  # NestJS backend
+│   └── web/                  # Next.js frontend
+├── packages/
+│   └── api-client/           # Auto-generated TanStack Query hooks
+│       ├── scripts/
+│       │   └── generate.ts   # Waits for API, then runs Orval
+│       ├── orval.config.ts   # Orval config
+│       └── src/
+│           ├── generated/    # Auto-generated — do not edit manually
+│           └── index.ts      # Re-exports all generated hooks
+├── biome.json                # Biome config (lint + format)
+├── turbo.json                # Turborepo config
+└── package.json              # Root dependencies
 ```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
