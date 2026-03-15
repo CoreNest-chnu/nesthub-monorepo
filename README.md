@@ -24,7 +24,13 @@ A full-stack monorepo using **NestJS** (API) and **Next.js** (Web), powered by *
 Make sure you have **Bun** installed:
 
 ```bash
+
+``if u have windows:
+powershell -c "irm bun.sh/install.ps1 | iex"
+
+``if u have linux/mac:`
 curl -fsSL https://bun.sh/install | bash
+
 ```
 
 ### Install dependencies
@@ -71,11 +77,11 @@ bun turbo start:dev --filter=api
 bun turbo start:dev --filter=web
 ```
 
-| App | URL |
-|-----|-----|
-| API (NestJS) | http://localhost:8000 |
-| Web (Next.js) | http://localhost:3000 |
-| Swagger docs | http://localhost:8000/docs |
+| App           | URL                        |
+| ------------- | -------------------------- |
+| API (NestJS)  | http://localhost:8000      |
+| Web (Next.js) | http://localhost:3000      |
+| Swagger docs  | http://localhost:8000/docs |
 
 > **Every time you start the app**, `@repo/api-client` waits for the API to boot, then uses Orval to auto-generate fully typed TanStack Query hooks from the Swagger schema. Your frontend always has up-to-date hooks.
 
@@ -112,13 +118,13 @@ export class UsersController {
 Orval generates hooks per Swagger tag — no need to write them manually:
 
 ```typescript
-import { useGetUsers, useCreateUser } from '@repo/api-client'
+import { useGetUsers, useCreateUser } from "@repo/api-client";
 
 // In your component
-const { data } = useGetUsers()
+const { data } = useGetUsers();
 
-const { mutate: createUser } = useCreateUser()
-createUser({ name: 'John', email: 'john@example.com' })
+const { mutate: createUser } = useCreateUser();
+createUser({ name: "John", email: "john@example.com" });
 ```
 
 ---
