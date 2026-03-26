@@ -1,1 +1,1 @@
-Orobets Oleh - back-end dev.
+- Anastasia Yakovenko
