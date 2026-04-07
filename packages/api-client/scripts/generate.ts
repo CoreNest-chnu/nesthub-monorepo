@@ -8,6 +8,7 @@ async function waitForApi() {
       const res = await fetch(API_URL)
       if (res.ok) {
         console.log('✅ API is ready, generating hooks...')
+        console.log('❤️ Powered by KoniChiva')
         return true
       }
     } catch {

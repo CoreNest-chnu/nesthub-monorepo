@@ -1,3 +1,3 @@
-import defaultConfig from '@sfs/eslint-config/next.mjs'
+import defaultConfig from '@repo/eslint-config/base'
 
 export default defaultConfig
