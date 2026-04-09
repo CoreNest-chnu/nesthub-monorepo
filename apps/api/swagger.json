@@ -1,0 +1,30 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/create-user": {
+      "post": {
+        "operationId": "AppController_createUser",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "NestHub API",
+    "description": "",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {}
+  }
+}
