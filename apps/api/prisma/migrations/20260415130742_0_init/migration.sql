@@ -1,8 +1,8 @@
 -- CreateEnum
-CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE', 'OTHER');
+CREATE TYPE "Gender" AS ENUM ('male', 'female', 'other');
 
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'USER');
+CREATE TYPE "Role" AS ENUM ('admin', 'user');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -14,8 +14,8 @@ CREATE TABLE "User" (
     "phone" TEXT,
     "avatar" TEXT,
     "birthDate" TIMESTAMP(3),
-    "gender" "Gender",
-    "role" "Role" NOT NULL,
+    "gender" "Gender" DEFAULT 'other',
+    "role" "Role" NOT NULL DEFAULT 'user',
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
