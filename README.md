@@ -49,8 +49,32 @@ Copy the example env file in `apps/api` and fill in your database URL:
 cp apps/api/.env.example apps/api/.env
 ```
 
-```env
+```apps/api/env
 DATABASE_URL="postgresql://user:password@localhost:5432/postgres"
+```
+
+```env
+# ---- Database (PostgreSQL) ----
+DB_USER=postgres
+DB_PASS=corenest
+DB_NAME=postgres
+DB_PORT=5433
+
+# ---- pgAdmin ----
+PGADMIN_EMAIL=admin@nesthub.local
+PGADMIN_PASSWORD=admin
+PGADMIN_PORT=5050
+
+# ---- API (NestJS) ----
+API_PORT=8000
+
+# ---- Web (Next.js) ----
+WEB_PORT=3000
+```
+
+### Docker Run
+```bash
+bun run db:start:docker
 ```
 
 ### Database setup

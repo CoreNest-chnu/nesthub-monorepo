@@ -7,7 +7,9 @@
     "dev": "turbo run dev",
     "lint": "biome lint .",
     "format": "biome format . --write",
-    "check": "biome check . --write"
+    "check": "biome check . --write",
+    "db:start:docker": "bash ./bin/db-start-docker.sh",
+    "db:start:docker:compose": "docker compose up -d db pgadmin"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.5.0",
