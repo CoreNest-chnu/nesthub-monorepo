@@ -81,7 +81,7 @@ bun run db:start:docker
 ### Database setup
 
 ```bash
-bun prisma generate --schema apps/api/prisma/schema.prisma
+bun prisma generate
 bun prisma db push
 ```
 
