@@ -1,17 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { prisma } from "prisma/lib/prisma";
-import { UserCreateDTO } from "./dto/UserCreateDTO";
-import { generateSalt, hashPassword } from "./common";
 import { JwtService } from "@nestjs/jwt";
+import { prisma } from "prisma/lib/prisma";
+import { hashPassword } from "./auth.util";
+import { UserCreateDTO } from "./dto/user.dto";
 
 @Injectable()
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
   async registerUser(userCreateDto: UserCreateDTO) {
-    const salt = await generateSalt();
-
-    const hashedPassword = await hashPassword(userCreateDto.password, salt);
+    const hashedPassword = await hashPassword(userCreateDto.password);
 
     const user = await prisma.user.create({
       data: {
@@ -29,9 +27,7 @@ export class AuthService {
     });
 
     return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
+      user,
       token,
     };
   }
