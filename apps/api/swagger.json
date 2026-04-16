@@ -1,27 +1,17 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/auth/register": {
+    "/create-user": {
       "post": {
-        "operationId": "AuthController_createUser",
+        "operationId": "AppController_createUser",
         "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserCreateDTO"
-              }
-            }
-          }
-        },
         "responses": {
           "201": {
             "description": ""
           }
         },
         "tags": [
-          "Auth"
+          "App"
         ]
       }
     }
@@ -35,11 +25,6 @@
   "tags": [],
   "servers": [],
   "components": {
-    "schemas": {
-      "UserCreateDTO": {
-        "type": "object",
-        "properties": {}
-      }
-    }
+    "schemas": {}
   }
 }
