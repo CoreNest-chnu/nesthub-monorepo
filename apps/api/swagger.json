@@ -1,17 +1,34 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/create-user": {
+    "/auth/register": {
       "post": {
-        "operationId": "AppController_createUser",
+        "operationId": "AuthController_createUser",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCreateResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
-          "App"
+          "Auth"
         ]
       }
     }
@@ -25,6 +42,35 @@
   "tags": [],
   "servers": [],
   "components": {
-    "schemas": {}
+    "schemas": {
+      "UserCreateDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName"
+        ]
+      },
+      "UserCreateResponseDto": {
+        "type": "object",
+        "properties": {}
+      }
+    }
   }
 }
