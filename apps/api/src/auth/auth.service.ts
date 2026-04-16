@@ -6,8 +6,6 @@ import { UserCreateDTO } from "./dto/user.dto";
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
-
   async registerUser(userCreateDto: UserCreateDTO) {
     const hashedPassword = await hashPassword(userCreateDto.password);
 
@@ -18,13 +16,7 @@ export class AuthService {
         firstName: userCreateDto.firstName,
         lastName: userCreateDto.lastName,
       },
-    });
-
-    const token = await this.jwtService.sign({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    });
+    })
 
     return {
       user,
