@@ -1,25 +1,36 @@
 import { Injectable } from '@nestjs/common'
 import { prisma } from 'prisma/lib/prisma'
-import { hashPassword } from './auth.util'
-import { UserCreateDTO } from './dto/user.dto'
+import { hashPassword, signToken } from './util/auth.util'
+import { UserCreateDto } from './dto/user.dto'
 
 @Injectable()
 export class AuthService {
-  async registerUser(userCreateDto: UserCreateDTO) {
-    const hashedPassword = await hashPassword(userCreateDto.password)
+  async registerUser({
+    email: inputEmail,
+    password,
+    firstName,
+    lastName,
+  }: UserCreateDto) {
+    const hashedPassword = await hashPassword(password)
 
-    const user = await prisma.user.create({
+    const { id, email, role } = await prisma.user.create({
       data: {
-        email: userCreateDto.email,
+        email: inputEmail.toLowerCase(),
         password: hashedPassword,
-        firstName: userCreateDto.firstName,
-        lastName: userCreateDto.lastName,
+        firstName,
+        lastName,
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
       },
     })
 
+    const token = signToken({ id, email, role })
+
     return {
-      user,
-      // JWT  TO DEVELOP
+      token,
     }
   }
 }

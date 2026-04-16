@@ -10,14 +10,21 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserCreateDTO"
+                "$ref": "#/components/schemas/UserCreateDto"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCreateResponseDto"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -36,7 +43,31 @@
   "servers": [],
   "components": {
     "schemas": {
-      "UserCreateDTO": {
+      "UserCreateDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName"
+        ]
+      },
+      "UserCreateResponseDto": {
         "type": "object",
         "properties": {}
       }
