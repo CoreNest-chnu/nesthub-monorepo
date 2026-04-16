@@ -10,17 +10,26 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserCreateDTO"
+                "$ref": "#/components/schemas/UserCreateDto"
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCreateResponseDto"
+                }
+              }
+            }
           }
         },
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     }
   },
@@ -34,27 +43,33 @@
   "servers": [],
   "components": {
     "schemas": {
-      "UserCreateDTO": {
+      "UserCreateDto": {
         "type": "object",
         "properties": {
           "email": {
             "type": "string",
-            "example": "test@gmail.com"
+            "format": "email"
           },
           "password": {
-            "type": "string",
-            "example": "password123"
+            "type": "string"
           },
           "firstName": {
-            "type": "string",
-            "example": "John"
+            "type": "string"
           },
           "lastName": {
-            "type": "string",
-            "example": "Doe"
+            "type": "string"
           }
         },
-        "required": ["email", "password", "firstName", "lastName"]
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName"
+        ]
+      },
+      "UserCreateResponseDto": {
+        "type": "object",
+        "properties": {}
       }
     }
   }
