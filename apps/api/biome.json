@@ -2,7 +2,7 @@
   "root": false,
   "extends": "//",
   "files": {
-    "includes": ["**", "!**/src/@generated/**/*", "!**/dist/**/*", "!**/generated/**/*"]
+    "includes": ["**", "!**/src/@generated/**/*", "!**/dist/**/*"]
   },
   "formatter": {
     "formatWithErrors": true

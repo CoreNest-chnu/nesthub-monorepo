@@ -22,4 +22,4 @@ async function waitForApi() {
 await waitForApi()
 
 const { execSync } = await import('node:child_process')
-execSync('bun run generate', { stdio: 'inherit', cwd: `${import.meta.dir}/..` })
+execSync('bun run generate', { stdio: 'inherit', cwd: import.meta.dir + '/..' })

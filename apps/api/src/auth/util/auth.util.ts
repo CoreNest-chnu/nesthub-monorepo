@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
-import { Role, UserId } from 'generated/prisma/types'
 import jwt from 'jsonwebtoken'
+import { Role, UserId } from 'generated/prisma/types'
 
 type SignTokenArgs = {
   id: UserId

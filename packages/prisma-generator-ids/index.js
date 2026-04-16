@@ -66,9 +66,7 @@ generatorHandler({
       if (!idField) continue
 
       const tsType = PRISMA_TO_TS[idField.type] ?? 'string'
-      lines.push(
-        `export type ${model.name}Id = Flavor<${tsType}, '__${model.name}Id'>`,
-      )
+      lines.push(`export type ${model.name}Id = Flavor<${tsType}, '__${model.name}Id'>`)
     }
 
     // Enums
@@ -85,10 +83,8 @@ generatorHandler({
       for (const value of enumDef.values) {
         lines.push(`  ${value.name}: '${value.name}',`)
       }
-      lines.push('} as const')
-      lines.push(
-        `export type ${enumDef.name} = (typeof ${enumDef.name})[keyof typeof ${enumDef.name}]`,
-      )
+      lines.push(`} as const`)
+      lines.push(`export type ${enumDef.name} = (typeof ${enumDef.name})[keyof typeof ${enumDef.name}]`)
       lines.push('')
     }
 
@@ -106,11 +102,13 @@ generatorHandler({
         if (field.relationName) continue // skip relation fields
 
         const isId = field.isId
-        const tsType = isId ? `${model.name}Id` : toTsType(field, enums)
+        const tsType = isId
+          ? `${model.name}Id`
+          : toTsType(field, enums)
 
         lines.push(`  ${field.name}: ${tsType}`)
       }
-      lines.push('}')
+      lines.push(`}`)
       lines.push('')
     }
 
@@ -118,6 +116,6 @@ generatorHandler({
     if (!outputPath) throw new Error('No output path specified')
 
     fs.mkdirSync(path.dirname(outputPath), { recursive: true })
-    fs.writeFileSync(outputPath, `${lines.join('\n')}\n`)
+    fs.writeFileSync(outputPath, lines.join('\n') + '\n')
   },
 })
