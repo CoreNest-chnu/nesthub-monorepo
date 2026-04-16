@@ -1,0 +1,9 @@
+{
+  "name": "@repo/prisma-generator-ids",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "@prisma/generator-helper": "*"
+  }
+}

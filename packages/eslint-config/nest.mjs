@@ -16,6 +16,11 @@ export default typescriptEslint.config(
     },
   },
   {
+    // Config files live outside tsconfig — disable type-aware rules for them
+    files: ['*.config.js', '*.config.mjs', '*.config.ts', 'eslint.config.*'],
+    extends: [typescriptEslint.configs.disableTypeChecked],
+  },
+  {
     ignores: ['src/@generated/**/*', 'generated/**/*', 'dist/**'],
   },
 )

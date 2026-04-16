@@ -71,7 +71,7 @@ export default typescriptEslint.config(
       'jsx-a11y/anchor-is-valid': 'error',
       'jsx-a11y/no-noninteractive-element-interactions': 'error',
       'eol-last': 'error',
-      'no-warning-comments': 'warn',
+      'no-warning-comments': 'off',
       'react/jsx-no-bind': [
         'error',
         {
@@ -101,6 +101,16 @@ export default typescriptEslint.config(
     files: ['src/app/**/*'],
     rules: {
       'import/no-default-export': 'off',
+    },
+  },
+  {
+    // Config files live outside tsconfig — disable type-aware rules and
+    // relax import rules that don't apply to tooling files
+    files: ['*.config.js', '*.config.mjs', '*.config.ts', 'eslint.config.*'],
+    extends: [typescriptEslint.configs.disableTypeChecked],
+    rules: {
+      'import/no-default-export': 'off',
+      'import/no-extraneous-dependencies': 'off',
     },
   },
   {

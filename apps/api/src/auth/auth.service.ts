@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { prisma } from 'prisma/lib/prisma'
 import { hashPassword, signToken } from './util/auth.util'
 import { UserCreateDto } from './dto/user.dto'
+import { UserCreateResponseDto } from './dto/user.model'
 
 @Injectable()
 export class AuthService {
@@ -10,7 +11,7 @@ export class AuthService {
     password,
     firstName,
     lastName,
-  }: UserCreateDto) {
+  }: UserCreateDto): Promise<UserCreateResponseDto> {
     const hashedPassword = await hashPassword(password)
 
     const { id, email, role } = await prisma.user.create({
