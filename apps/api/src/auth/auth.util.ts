@@ -1,4 +1,5 @@
 import * as bcrypt from "bcrypt";
+import * as jwt from "jsonwebtoken";
 
 export const hashPassword = async (password: string): Promise<string> => {
   const rounds = 10;
@@ -9,4 +10,8 @@ export const hashPassword = async (password: string): Promise<string> => {
   }
 
   return bcrypt.hash(password + pepper, rounds);
+};
+
+export const signToken = (payload: object): string => {
+  return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: "1h" });
 };
