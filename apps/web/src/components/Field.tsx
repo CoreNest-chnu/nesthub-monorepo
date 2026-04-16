@@ -1,6 +1,6 @@
 "use client"
 
-interface FieldProps {
+type FieldProps = {
   htmlFor: string
   label: string
   error?: string

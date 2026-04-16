@@ -1,3 +1,3 @@
-import defaultConfig from '@repo/eslint-config/base'
+import nestConfig from '@repo/eslint-config/nest'
 
-export default defaultConfig
+export default nestConfig

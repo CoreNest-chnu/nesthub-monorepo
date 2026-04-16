@@ -5,6 +5,11 @@ generator client {
   moduleFormat = "commonjs"
 }
 
+generator ids {
+  provider = "node ../../packages/prisma-generator-ids/index.js"
+  output   = "../generated/prisma/types.ts"
+}
+
 datasource db {
   provider = "postgresql"
 }

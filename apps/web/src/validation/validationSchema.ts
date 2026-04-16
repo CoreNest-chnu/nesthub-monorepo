@@ -4,7 +4,7 @@ export const registerSchema = z
   .object({
     firstName: z.string().min(2, "Ім'я має містити мінімум 2 символи"),
     lastName: z.string().min(2, "Прізвище має містити мінімум 2 символи"),
-    email: z.string().email("Невалідний формат email"),
+    email: z.email("Невалідний формат email"),
     password: z
       .string()
       .min(8, "Пароль має містити мінімум 8 символів")
