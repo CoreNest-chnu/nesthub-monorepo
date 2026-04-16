@@ -13,6 +13,7 @@
     "includes": [
       "**",
       "!**/@generated/**/*",
+      "!**/generated/**/*",
       "!**/process.script.ts",
       "!**/graphql-env.ts",
       "!**/playwright-report/**",
