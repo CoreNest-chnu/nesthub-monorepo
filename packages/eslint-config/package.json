@@ -4,7 +4,9 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./base": "./base.js",
+    "./base": "./base.mjs",
+    "./nest": "./nest.mjs",
+    "./next": "./next.mjs",
     "./next-js": "./next.js",
     "./react-internal": "./react-internal.js"
   },
@@ -13,7 +15,11 @@
     "@next/eslint-plugin-next": "^15.5.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-diff": "^2.0.3",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-turbo": "^2.7.1",

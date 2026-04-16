@@ -27,9 +27,13 @@
       "passThroughEnv": ["TEST_DATABASE_URL", "NODE_OPTIONS"]
     },
     "start:dev": {
-      "dependsOn": ["^start:dev"],
+      "dependsOn": ["^start:dev", "generate"],
       "cache": false,
       "persistent": true
+    },
+    "generate": {
+      "inputs": ["prisma/schema.prisma"],
+      "outputs": ["generated/**", "node_modules/.prisma/**"]
     },
     "@repo/api-client#start:dev": {
       "cache": false,
