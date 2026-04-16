@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import omit from 'lodash/omit'
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
 import Link from 'next/link'
 import { useCallback } from 'react'
@@ -8,10 +9,9 @@ import { useForm } from 'react-hook-form'
 import { useToggle } from 'usehooks-ts'
 import { Field } from '@/src/components/Field'
 import {
-  registerSchema,
   type RegisterFormData,
+  registerSchema,
 } from '@/src/validation/validationSchema'
-import omit from 'lodash/omit'
 
 export const RegisterPage: React.FC = () => {
   const [isPending, setIsPending] = useToggle(false)

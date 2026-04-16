@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { prisma } from 'prisma/lib/prisma'
-import { hashPassword, signToken } from './util/auth.util'
 import { UserCreateDto } from './dto/user.dto'
 import { UserCreateResponseDto } from './dto/user.model'
+import { hashPassword, signToken } from './util/auth.util'
 
 @Injectable()
 export class AuthService {
