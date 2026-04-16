@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import { Providers } from './providers'
-import { Inter, Nunito_Sans } from 'next/font/google'
+import { Nunito_Sans } from 'next/font/google'
 import { cn } from '@/src/lib/utils'
 
-const nunitoSans = Nunito_Sans({subsets:['latin'],variable:'--font-sans'})
+const nunitoSans = Nunito_Sans({ subsets: ['latin'], variable: '--font-sans' })
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -27,7 +27,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={cn('font-sans', "font-sans", nunitoSans.variable)}>
+    <html
+      lang={'en'}
+      className={cn('font-sans', 'font-sans', nunitoSans.variable)}
+    >
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Providers>{children}</Providers>
       </body>
