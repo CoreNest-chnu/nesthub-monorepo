@@ -14,12 +14,7 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "lint": {
-      "inputs": [
-        "src/**",
-        "prisma/**",
-        "eslint.config.*",
-        "tsconfig*.json"
-      ]
+      "inputs": ["src/**", "prisma/**", "eslint.config.*", "tsconfig*.json"]
     },
     "test": {
       "dependsOn": ["^build"],

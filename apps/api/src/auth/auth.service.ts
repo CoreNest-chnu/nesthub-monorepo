@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "prisma/lib/prisma";
-import { hashPassword, signToken } from "./util/auth.util";
-import { UserCreateDto } from "./dto/user.dto";
-import { UserCreateResponseDto } from "./dto/user.model";
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from 'prisma/lib/prisma'
+import { hashPassword, signToken } from './util/auth.util'
+import { UserCreateDto } from './dto/user.dto'
+import { UserCreateResponseDto } from './dto/user.model'
 
 @Injectable()
 export class AuthService {
@@ -14,7 +14,7 @@ export class AuthService {
     firstName,
     lastName,
   }: UserCreateDto): Promise<UserCreateResponseDto> {
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(password)
 
     const { id, email, role } = await this.prisma.user.create({
       data: {
@@ -28,12 +28,12 @@ export class AuthService {
         email: true,
         role: true,
       },
-    });
+    })
 
-    const token = signToken({ id, email, role });
+    const token = signToken({ id, email, role })
 
     return {
       token,
-    };
+    }
   }
 }
