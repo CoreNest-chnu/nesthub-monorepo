@@ -3,9 +3,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
 
-export const Providers: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+type ProvidersProps = {
+  children: React.ReactNode
+}
+
+export const Providers: React.FC<ProvidersProps> = ({ children }) => {
   const [queryClient] = useState(() => new QueryClient())
 
   return (

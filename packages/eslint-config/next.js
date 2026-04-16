@@ -79,6 +79,7 @@ export const nextJsConfig = [
           children: 'always',
         },
       ],
+      'react/prop-types': 'off',
     },
   },
 ]
