@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
-import { compare } from 'bcrypt'
+import { compare, hash } from 'bcrypt'
 import { PrismaService } from 'prisma/lib/prisma'
 import { UserCreateDto, UserLoginDTO } from './dto/user.dto'
-import { UserCreateResponseDto } from './dto/user.model'
+import { UserCreateResponseDto, UserLoginResponseDto } from './dto/user.model'
 import { hashPassword, signToken } from './util/auth.util'
 
 @Injectable()
@@ -41,7 +41,7 @@ export class AuthService {
   async loginUser({
     email,
     password,
-  }: UserLoginDTO): Promise<UserCreateResponseDto> {
+  }: UserLoginDTO): Promise<UserLoginResponseDto> {
     const user = await this.prisma.user.findFirst({
       where: { email: email.toLowerCase() },
     })
@@ -50,7 +50,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email')
     }
 
-    const isValid = compare(await hashPassword(password), user.password)
+    const pepper = process.env.STATIC_SALT
+    if (!pepper) {
+      throw new Error('STATIC_SALT is not defined')
+    }
+    const isValid = await compare(password + pepper, user.password)
 
     if (!isValid) {
       throw new UnauthorizedException('Invalid password')
