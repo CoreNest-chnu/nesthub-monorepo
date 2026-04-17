@@ -22,6 +22,6 @@ export class UserLoginDTO {
   @IsEmail()
   email!: string
 
-  @MinLength(2)
+  @MinLength(8)
   password!: string
 }
