@@ -17,3 +17,11 @@ export class UserCreateDto {
   @Matches(/[0-9]/, { message: "Password must contain at least one digit" })
   password!: string;
 }
+
+export class UserLoginDTO {
+  @IsEmail()
+  email!: string;
+
+  @MinLength(2)
+  password!: string;
+}

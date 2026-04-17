@@ -1,9 +1,8 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "prisma/lib/prisma";
 import { hashPassword, signToken } from "./util/auth.util";
-import { UserCreateDto } from "./dto/register.dto";
+import { UserCreateDto, UserLoginDTO } from "./dto/user.dto";
 import { UserCreateResponseDto } from "./dto/user.model";
-import { UserLoginDTO } from "./dto/login.dto";
 import { compare } from "bcrypt";
 
 @Injectable()
