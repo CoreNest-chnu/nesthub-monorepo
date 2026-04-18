@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { z } from 'zod'
+import { ApiError } from '@/src/utils/apiError'
 
 type RegisterPayload = {
   firstName: string
@@ -11,15 +12,6 @@ type RegisterPayload = {
 const registerResponseSchema = z.object({ token: z.string() })
 
 type RegisterResponse = z.infer<typeof registerResponseSchema>
-
-export class ApiError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message)
-  }
-}
 
 async function registerUser(
   payload: RegisterPayload,

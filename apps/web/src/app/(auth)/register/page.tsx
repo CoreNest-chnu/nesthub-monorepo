@@ -9,7 +9,8 @@ import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useToggle } from 'usehooks-ts'
 import { Field } from '@/src/components/Field'
-import { ApiError, useRegisterMutation } from '@/src/hooks/useRegisterMutation'
+import { useRegisterMutation } from '@/src/hooks/useRegisterMutation'
+import { ApiError } from '@/src/utils/apiError'
 import {
   type RegisterFormData,
   registerSchema,
