@@ -3,46 +3,30 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useToggle } from 'usehooks-ts'
 import { Field } from '@/src/components/Field'
-import { useLoginMutation } from '@/src/hooks/useLoginMutation'
-import { ApiError } from '@/src/utils/apiError'
-import { type LoginFormData, loginSchema } from '@/src/validation/validationSchema'
+import {
+  type LoginFormData,
+  loginSchema,
+} from '@/src/validation/validationSchema'
 
 export const LoginPage: React.FC = () => {
-  const router = useRouter()
-  const { mutateAsync, isPending } = useLoginMutation()
   const [showPassword, toggleShowPassword] = useToggle(false)
 
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: 'onTouched',
   })
 
-  const onSubmit = useCallback(
-    async (formValues: LoginFormData) => {
-      try {
-        const { token } = await mutateAsync(formValues)
-        localStorage.setItem('token', token)
-        router.push('/')
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 401) {
-          setError('email', { message: 'Невірний email або пароль' })
-        } else {
-          setError('email', { message: 'Помилка входу. Спробуйте ще раз' })
-        }
-      }
-    },
-    [mutateAsync, router, setError],
-  )
+  const onSubmit = useCallback((formValues: LoginFormData) => {
+    console.log(formValues)
+  }, [])
 
   const handleTogglePassword = useCallback(() => {
     toggleShowPassword()
@@ -127,12 +111,23 @@ export const LoginPage: React.FC = () => {
             </div>
           </Field>
 
-          <button
+          {/* Use isPending from mutation */}
+          {/* <button
             type={'submit'}
             disabled={isPending}
             className={`mt-1 w-full text-white text-sm font-medium rounded-lg py-3 border-none font-[inherit] ${isPending ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 cursor-pointer'}`}
           >
             {isPending ? 'Вхід…' : 'Увійти'}
+          </button> */}
+
+          {/* Temporary button without mutation state */}
+          <button
+            type={'submit'}
+            className={
+              'mt-1 w-full text-white text-sm font-medium rounded-lg py-3 border-none font-[inherit] bg-gray-900 cursor-pointer'
+            }
+          >
+            {'Увійти'}
           </button>
         </form>
 
