@@ -1,10 +1,14 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useAuthControllerCreateUser } from '@repo/api-client'
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { useToggle } from 'usehooks-ts'
 import { Field } from '@/src/components/Field'
 import {
@@ -14,9 +18,11 @@ import {
 import omit from 'lodash/omit'
 
 export const RegisterPage: React.FC = () => {
-  const [isPending, setIsPending] = useToggle(false)
+  const router = useRouter()
   const [showPassword, toggleShowPassword] = useToggle(false)
   const [showConfirm, toggleShowConfirm] = useToggle(false)
+
+  const { mutateAsync: createUser, isPending } = useAuthControllerCreateUser()
 
   const {
     register,
@@ -28,17 +34,27 @@ export const RegisterPage: React.FC = () => {
   })
 
   const onSubmit = useCallback(
-    async (data: RegisterFormData) => {
-      const payload = omit(data, 'confirmPassword')
-      setIsPending()
+    async (formValues: RegisterFormData) => {
+      const data = omit(formValues, 'confirmPassword')
+
       try {
-        await new Promise((res) => setTimeout(res, 1200))
-        console.log('POST /auth/register →', payload)
-      } finally {
-        setIsPending()
+        const { data: response } = await createUser({ data })
+
+        await signIn('credentials', {
+          id: response.id,
+          token: response.token,
+          role: response.role,
+          redirect: false,
+        })
+
+        toast.success('Реєстрація успішна')
+
+        router.push('/')
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Registration failed')
       }
     },
-    [setIsPending],
+    [createUser, router],
   )
 
   const handleTogglePassword = useCallback(() => {

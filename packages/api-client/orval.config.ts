@@ -10,6 +10,12 @@ export default defineConfig({
       client: 'react-query',
       mode: 'tags-split',
       baseUrl: '/api',
+      override: {
+        mutator: {
+          path: './src/fetcher.ts',
+          name: 'fetcher',
+        },
+      },
     },
   },
 })
