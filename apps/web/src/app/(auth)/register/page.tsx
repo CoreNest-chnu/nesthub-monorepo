@@ -1,31 +1,26 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import omit from 'lodash/omit'
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useToggle } from 'usehooks-ts'
 import { Field } from '@/src/components/Field'
-import { useRegisterMutation } from '@/src/hooks/useRegisterMutation'
-import { ApiError } from '@/src/utils/apiError'
 import {
-  type RegisterFormData,
   registerSchema,
+  type RegisterFormData,
 } from '@/src/validation/validationSchema'
+import omit from 'lodash/omit'
 
 export const RegisterPage: React.FC = () => {
-  const router = useRouter()
-  const { mutateAsync, isPending } = useRegisterMutation()
+  const [isPending, setIsPending] = useToggle(false)
   const [showPassword, toggleShowPassword] = useToggle(false)
   const [showConfirm, toggleShowConfirm] = useToggle(false)
 
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -33,20 +28,17 @@ export const RegisterPage: React.FC = () => {
   })
 
   const onSubmit = useCallback(
-    async (formValues: RegisterFormData) => {
-      const payload = omit(formValues, 'confirmPassword')
-
+    async (data: RegisterFormData) => {
+      const payload = omit(data, 'confirmPassword')
+      setIsPending()
       try {
-        const { token } = await mutateAsync(payload)
-        localStorage.setItem('token', token)
-        router.push('/')
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 409) {
-          setError('email', { message: 'Цей email вже зареєстровано' })
-        }
+        await new Promise((res) => setTimeout(res, 1200))
+        console.log('POST /auth/register →', payload)
+      } finally {
+        setIsPending()
       }
     },
-    [mutateAsync, router, setError],
+    [setIsPending],
   )
 
   const handleTogglePassword = useCallback(() => {
