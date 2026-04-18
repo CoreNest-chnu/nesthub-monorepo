@@ -1,26 +1,30 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import omit from 'lodash/omit'
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useToggle } from 'usehooks-ts'
 import { Field } from '@/src/components/Field'
+import { ApiError, useRegisterMutation } from '@/src/hooks/useRegisterMutation'
 import {
-  registerSchema,
   type RegisterFormData,
+  registerSchema,
 } from '@/src/validation/validationSchema'
-import omit from 'lodash/omit'
 
 export const RegisterPage: React.FC = () => {
-  const [isPending, setIsPending] = useToggle(false)
+  const router = useRouter()
+  const { mutateAsync, isPending } = useRegisterMutation()
   const [showPassword, toggleShowPassword] = useToggle(false)
   const [showConfirm, toggleShowConfirm] = useToggle(false)
 
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -28,17 +32,20 @@ export const RegisterPage: React.FC = () => {
   })
 
   const onSubmit = useCallback(
-    async (data: RegisterFormData) => {
-      const payload = omit(data, 'confirmPassword')
-      setIsPending()
+    async (formValues: RegisterFormData) => {
+      const payload = omit(formValues, 'confirmPassword')
+
       try {
-        await new Promise((res) => setTimeout(res, 1200))
-        console.log('POST /auth/register →', payload)
-      } finally {
-        setIsPending()
+        const { token } = await mutateAsync(payload)
+        localStorage.setItem('token', token)
+        router.push('/')
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 409) {
+          setError('email', { message: 'Цей email вже зареєстровано' })
+        }
       }
     },
-    [setIsPending],
+    [mutateAsync, router, setError],
   )
 
   const handleTogglePassword = useCallback(() => {
