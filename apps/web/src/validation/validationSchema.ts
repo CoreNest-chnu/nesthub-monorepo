@@ -21,7 +21,7 @@ export type RegisterFormData = z.infer<typeof registerSchema>
 
 export const loginSchema = z.object({
   email: z.email('Невалідний формат email'),
-  password: z.string().min(1, 'Введіть пароль'),
+  password: z.string().min(8, 'Введіть пароль'),
 })
 
 export type LoginFormData = z.infer<typeof loginSchema>
