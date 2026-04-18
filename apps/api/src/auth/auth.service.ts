@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
-import { compare, hash } from 'bcrypt'
+import { compare } from 'bcrypt'
 import { PrismaService } from 'prisma/lib/prisma'
 import { UserCreateDto, UserLoginDTO } from './dto/user.dto'
 import { UserCreateResponseDto, UserLoginResponseDto } from './dto/user.model'
@@ -51,6 +51,7 @@ export class AuthService {
     }
 
     const pepper = process.env.STATIC_SALT
+
     if (!pepper) {
       throw new Error('STATIC_SALT is not defined')
     }
