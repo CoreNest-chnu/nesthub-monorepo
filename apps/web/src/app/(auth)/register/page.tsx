@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuthControllerCreateUser } from '@repo/api-client'
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
@@ -19,6 +19,7 @@ import omit from 'lodash/omit'
 
 export const RegisterPage: React.FC = () => {
   const router = useRouter()
+  const { status } = useSession()
   const [showPassword, toggleShowPassword] = useToggle(false)
   const [showConfirm, toggleShowConfirm] = useToggle(false)
 
@@ -35,6 +36,13 @@ export const RegisterPage: React.FC = () => {
 
   const onSubmit = useCallback(
     async (formValues: RegisterFormData) => {
+      if (status === 'authenticated') {
+        toast.error('Ви вже авторизовані')
+        router.push('/profile')
+
+        return
+      }
+
       const data = omit(formValues, 'confirmPassword')
 
       try {
@@ -54,7 +62,7 @@ export const RegisterPage: React.FC = () => {
         toast.error(err instanceof Error ? err.message : 'Registration failed')
       }
     },
-    [createUser, router],
+    [createUser, router, status],
   )
 
   const handleTogglePassword = useCallback(() => {
