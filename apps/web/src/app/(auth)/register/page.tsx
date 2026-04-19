@@ -10,7 +10,7 @@ import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useToggle } from 'usehooks-ts'
-import { Field } from '@/src/components/Field'
+import { Field } from '@/src/components/field'
 import {
   registerSchema,
   type RegisterFormData,
