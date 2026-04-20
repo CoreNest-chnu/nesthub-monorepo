@@ -4,6 +4,7 @@ import './globals.css'
 import { Providers } from './providers'
 import { Nunito_Sans } from 'next/font/google'
 import { cn } from '@/src/lib/utils'
+import { Header } from '@/src/components/header'
 
 const nunitoSans = Nunito_Sans({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -32,7 +33,10 @@ export default function RootLayout({
       className={cn('font-sans', 'font-sans', nunitoSans.variable)}
     >
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   )
