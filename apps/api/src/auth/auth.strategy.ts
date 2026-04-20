@@ -1,45 +1,50 @@
-import { Injectable } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import type { Request } from "express";
-import { Strategy } from "passport-jwt";
+import { Injectable } from '@nestjs/common'
+import { PassportStrategy } from '@nestjs/passport'
+import { Strategy } from 'passport-jwt'
+import { ConfigService } from '@nestjs/config'
+import type { Request } from 'express'
+
+// 👇 вручну описуємо extractor (без ExtractJwt)
+const jwtFromRequest = (req: Request): string | null => {
+  const auth = req.headers.authorization
+
+  if (!auth) return null
+
+  const [type, token] = auth.split(' ')
+
+  return type === 'Bearer' ? token : null
+}
 
 type JwtPayload = {
-  sub: number;
-  role: string;
-};
+  sub: number
+  role: string
+}
+
+type JwtUser = {
+  userId: number
+  role: string
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
-    const jwtFromRequest = (request: Request): string | null => {
-      const authorization = request.headers.authorization;
+  constructor(private readonly configService: ConfigService) {
+    const secret = configService.get<string>('JWT_SECRET')
 
-      if (typeof authorization !== "string") {
-        return null;
-      }
+    if (!secret) {
+      throw new Error('JWT_SECRET is not defined')
+    }
 
-      const [scheme, token] = authorization.split(" ");
-
-      if (scheme.toLowerCase() !== "bearer" || !token) {
-        return null;
-      }
-
-      return token;
-    };
-
-    // `PassportStrategy(Strategy)` mixin typing resolves loosely in this setup.
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     super({
       jwtFromRequest,
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET ?? "",
-    });
+      secretOrKey: secret,
+    })
   }
 
-  validate(payload: JwtPayload): { userId: number; role: string } {
+  validate(payload: JwtPayload): JwtUser {
     return {
       userId: payload.sub,
       role: payload.role,
-    };
+    }
   }
 }
