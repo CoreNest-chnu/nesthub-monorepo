@@ -5,14 +5,8 @@ import { ConfigService } from '@nestjs/config'
 import { Role } from 'generated/prisma/enums'
 import { UserId } from 'generated/prisma/types'
 
-type JwtPayload = {
-  id: UserId
-  email: string
-  role: Role
-}
-
 type JwtUser = {
-  userId: UserId
+  id: UserId
   email: string
   role: Role
 }
@@ -27,9 +21,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     })
   }
 
-  validate({ id: userId, email, role }: JwtPayload): JwtUser {
+  validate({ id, email, role }: JwtUser): JwtUser {
     return {
-      userId,
+      id,
       email,
       role,
     }
