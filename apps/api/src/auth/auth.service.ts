@@ -45,9 +45,7 @@ export class AuthService {
 
     const token = signToken({ id, email, role })
 
-    return {
-      token,
-    }
+    return { id, token, role }
   }
 
   async loginUser({
@@ -79,6 +77,6 @@ export class AuthService {
       role: user.role,
     })
 
-    return { token }
+    return { id: user.id, token, role: user.role }
   }
 }

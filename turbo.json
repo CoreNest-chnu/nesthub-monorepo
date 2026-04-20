@@ -37,6 +37,10 @@
       "inputs": ["prisma/schema.prisma"],
       "outputs": ["generated/**", "node_modules/.prisma/**"]
     },
+    "@repo/api-client#generate": {
+      "cache": false,
+      "outputs": ["src/generated/**"]
+    },
     "@repo/api-client#start:dev": {
       "cache": false,
       "persistent": false
