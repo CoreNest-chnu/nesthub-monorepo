@@ -1,50 +1,36 @@
 import { Injectable } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
-import { Strategy } from 'passport-jwt'
-import type { Request } from 'express'
-
-const jwtFromRequest = (req: Request): string | null => {
-  const auth = req.headers.authorization
-
-  if (!auth) return null
-  const [type, token] = auth.split(' ')
-
-  return type === 'Bearer' ? token : null
-}
+import { ExtractJwt, Strategy } from 'passport-jwt'
+import { ConfigService } from '@nestjs/config'
+import { Role } from 'generated/prisma/enums'
 
 type JwtPayload = {
-  id: number
+  id: string
   email: string
-  role: string
+  role: Role
 }
 
 type JwtUser = {
-  userId: number
+  userId: string
   email: string
-  role: string
+  role: Role
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor() {
-    const secret = process.env.JWT_SECRET
-
-    if (!secret) {
-      throw new Error('JWT_SECRET is not defined')
-    }
-
+  constructor(config: ConfigService) {
     super({
-      jwtFromRequest,
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: secret,
+      secretOrKey: config.getOrThrow<string>('JWT_SECRET'),
     })
   }
 
-  validate(payload: JwtPayload): JwtUser {
+  validate({ id: userId, email, role }: JwtPayload): JwtUser {
     return {
-      userId: payload.id,
-      email: payload.email,
-      role: payload.role,
+      userId,
+      email,
+      role,
     }
   }
 }
