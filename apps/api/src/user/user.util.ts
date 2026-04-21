@@ -10,9 +10,7 @@ export type User = {
 }
 
 export const CurrentUser = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): User => {
-    const request = ctx.switchToHttp().getRequest<Request & { user: User }>()
-
-    return request.user
+  (_: unknown, ctx: ExecutionContext): User => {
+    return ctx.switchToHttp().getRequest<Request & { user: User }>().user
   },
 )
