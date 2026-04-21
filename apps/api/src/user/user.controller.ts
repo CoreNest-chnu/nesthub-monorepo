@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from '../auth/auth.guard'
-import { UserService } from './user.service'
-import { CurrentUser, UserGetMe } from './user.util'
+import { UserGetProfile, UserService } from './user.service'
+import { CurrentUser, User } from './user.util'
 
 @Controller('user')
 export class UserController {
@@ -9,9 +9,7 @@ export class UserController {
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
-  async getMe(
-    @CurrentUser() user: { id: string; email: string; role: string },
-  ): Promise<UserGetMe> {
-    return await this.userService.getMe(user.id)
+  async getMe(@CurrentUser() { id }: User): Promise<UserGetProfile> {
+    return await this.userService.getMyProfile(id)
   }
 }
