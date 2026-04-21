@@ -7,7 +7,7 @@ import { CurrentUser, UserGetMe } from './user.util'
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('me')
+  @Get('profile')
   @UseGuards(JwtAuthGuard)
   async getMe(
     @CurrentUser() user: { id: string; email: string; role: string },
