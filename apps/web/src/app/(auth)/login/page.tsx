@@ -6,7 +6,7 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import { signIn, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useCallback } from 'react'
+import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useToggle } from 'usehooks-ts'
@@ -36,7 +36,9 @@ const LoginForm: React.FC = () => {
   const onSubmit = useCallback(
     async (formValues: LoginFormData) => {
       if (status === 'authenticated') {
+        toast.error('You are already authenticated')
         router.push('/')
+        
         return
       }
 
@@ -44,7 +46,7 @@ const LoginForm: React.FC = () => {
         const { data: response } = await loginUser({ data: formValues })
 
         await signIn('credentials', {
-          id: String(response.id),
+          id: response.id,
           token: response.token,
           role: response.role,
           redirect: false,
@@ -164,10 +166,4 @@ const LoginForm: React.FC = () => {
   )
 }
 
-const LoginPage: React.FC = () => (
-  <Suspense>
-    <LoginForm />
-  </Suspense>
-)
-
-export default LoginPage
+export default LoginForm
