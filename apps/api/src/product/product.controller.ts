@@ -3,7 +3,6 @@ import { ProductService } from './product.service'
 import {
   PaginatedResponseDto,
   PaginationQueryDto,
-  ProductResponseDto,
 } from './dto/product.dto'
 
 @Controller('products')
@@ -13,7 +12,7 @@ export class ProductController {
   @Get()
   async products(
     @Query() query: PaginationQueryDto,
-  ): Promise<PaginatedResponseDto<ProductResponseDto>> {
+  ): Promise<PaginatedResponseDto> {
     return await this.productService.getProducts(query)
   }
 }
