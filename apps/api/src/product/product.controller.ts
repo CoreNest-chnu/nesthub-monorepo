@@ -1,7 +1,19 @@
-import { Controller } from '@nestjs/common'
+import { Controller, Get, Query } from '@nestjs/common'
 import { ProductService } from './product.service'
+import {
+  PaginatedResponseDto,
+  PaginationQueryDto,
+  ProductResponseDto,
+} from './dto/product.dto'
 
-@Controller('product')
+@Controller('products')
 export class ProductController {
-  constructor(private readonly productServide: ProductService) {}
+  constructor(private readonly productService: ProductService) {}
+
+  @Get()
+  async products(
+    @Query() query: PaginationQueryDto,
+  ): Promise<PaginatedResponseDto<ProductResponseDto>> {
+    return await this.productService.getProducts(query)
+  }
 }
