@@ -5,6 +5,11 @@ import { UpdateUserDto } from './dto/user.dto'
 
 export type UserGetProfile = Omit<User, 'password'>
 
+type UpdateProfileArgs = {
+  id: UserId
+  data: UpdateUserDto
+}
+
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
@@ -24,13 +29,10 @@ export class UserService {
     return user
   }
 
-  updateProfile(params: {
-    id: UserId
-    data: UpdateUserDto
-  }): Promise<UserGetProfile> {
+  updateProfile({ id, data }: UpdateProfileArgs): Promise<UserGetProfile> {
     return this.prisma.user.update({
-      where: { id: params.id },
-      data: params.data,
+      where: { id },
+      data,
       omit: {
         password: true,
       },
