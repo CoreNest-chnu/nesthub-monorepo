@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
-import {
-  PaginationQueryDto,
-  PaginatedResponseDto,
-} from './dto/product.dto'
+import { PaginationQueryDto } from './dto/product.dto'
 import { Decimal } from '@prisma/client/runtime/index-browser'
+import { PaginatedResponseDto } from './dto/product.model'
 
 @Injectable()
 export class ProductService {
@@ -14,25 +12,20 @@ export class ProductService {
     page = 1,
     take = 20,
   }: PaginationQueryDto): Promise<PaginatedResponseDto> {
+    const products = await this.prisma.product.findMany({
+      take,
+      skip: Decimal(take).mul(Decimal(page).sub(1)).toNumber(),
+      include: {
+        category: true,
+      },
+    })
 
-    const skip = new Decimal(take).mul(new Decimal(page).sub(1)).toNumber()
-    
-    const [items] = await Promise.all([
-      this.prisma.product.findMany({
-        skip,
-        take,
-        include: {
-          category: true,
-        },
-      }),
-    ])
-       
     const total = await this.prisma.product.count()
 
-    const totalPages = Math.ceil(total / take)
+    const totalPages = Decimal(total).div(take).ceil().toNumber()
 
     return {
-      items,
+      products,
       total,
       page,
       take,
