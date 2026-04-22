@@ -20,6 +20,6 @@ export class UserController {
     @CurrentUser() { id }: User,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserGetProfile> {
-    return await this.userService.updateProfile(id, updateUserDto)
+    return await this.userService.updateProfile({ id, data: updateUserDto })
   }
 }
