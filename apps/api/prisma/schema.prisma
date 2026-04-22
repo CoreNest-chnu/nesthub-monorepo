@@ -50,7 +50,7 @@ model Category {
 
   name String @unique
 
-  products  Product[]
+  products Product[]
   
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
