@@ -12,6 +12,7 @@ import {
   User as UserIcon,
 } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback } from 'react'
 import { Field } from '@/src/components/field'
@@ -117,10 +118,21 @@ const ProfilePage: React.FC = () => {
                 <div className={'flex items-center gap-4'}>
                   <div
                     className={
-                      'size-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 overflow-hidden'
+                      'size-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 overflow-hidden relative'
                     }
                   >
-                    <UserIcon size={32} />
+                    {user.avatar ? (
+                      <Image
+                        src={user.avatar}
+                        alt={`${user.firstName} ${user.lastName}`}
+                        fill
+                        sizes={'80px'}
+                        className={'object-cover'}
+                        unoptimized
+                      />
+                    ) : (
+                      <UserIcon size={32} />
+                    )}
                   </div>
                 </div>
 
