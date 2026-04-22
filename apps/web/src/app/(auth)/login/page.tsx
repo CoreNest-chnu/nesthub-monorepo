@@ -1,10 +1,14 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useAuthControllerLoginUser } from '@repo/api-client'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
+import { signIn, useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { useToggle } from 'usehooks-ts'
 import { Field } from '@/src/components/field'
 import {
@@ -12,8 +16,13 @@ import {
   loginSchema,
 } from '@/src/validation/validationSchema'
 
-export const LoginPage: React.FC = () => {
+const LoginForm: React.FC = () => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { status } = useSession()
   const [showPassword, toggleShowPassword] = useToggle(false)
+
+  const { mutateAsync: loginUser, isPending } = useAuthControllerLoginUser()
 
   const {
     register,
@@ -24,9 +33,35 @@ export const LoginPage: React.FC = () => {
     mode: 'onTouched',
   })
 
-  const onSubmit = useCallback((formValues: LoginFormData) => {
-    console.log(formValues)
-  }, [])
+  const onSubmit = useCallback(
+    async (formValues: LoginFormData) => {
+      if (status === 'authenticated') {
+        toast.error('You are already authenticated')
+        router.push('/')
+        
+        return
+      }
+
+      try {
+        const { data: response } = await loginUser({ data: formValues })
+
+        await signIn('credentials', {
+          id: response.id,
+          token: response.token,
+          role: response.role,
+          redirect: false,
+        })
+
+        toast.success('Вхід успішний')
+
+        const returnUrl = searchParams.get('returnUrl')
+        router.push(returnUrl ?? '/')
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Помилка входу')
+      }
+    },
+    [loginUser, router, searchParams, status],
+  )
 
   const handleTogglePassword = useCallback(() => {
     toggleShowPassword()
@@ -111,23 +146,12 @@ export const LoginPage: React.FC = () => {
             </div>
           </Field>
 
-          {/* Use isPending from mutation */}
-          {/* <button
+          <button
             type={'submit'}
             disabled={isPending}
             className={`mt-1 w-full text-white text-sm font-medium rounded-lg py-3 border-none font-[inherit] ${isPending ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 cursor-pointer'}`}
           >
             {isPending ? 'Вхід…' : 'Увійти'}
-          </button> */}
-
-          {/* Temporary button without mutation state */}
-          <button
-            type={'submit'}
-            className={
-              'mt-1 w-full text-white text-sm font-medium rounded-lg py-3 border-none font-[inherit] bg-gray-900 cursor-pointer'
-            }
-          >
-            {'Увійти'}
           </button>
         </form>
 
@@ -142,4 +166,4 @@ export const LoginPage: React.FC = () => {
   )
 }
 
-export default LoginPage
+export default LoginForm
