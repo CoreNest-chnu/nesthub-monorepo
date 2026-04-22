@@ -1,14 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { User } from 'generated/prisma/types'
+import { User, UserId } from 'generated/prisma/types'
 import { PrismaService } from 'prisma/lib/prisma'
+import { UpdateUserDto } from './dto/user.dto'
 
 export type UserGetProfile = Omit<User, 'password'>
+
+type UpdateProfileArgs = {
+  id: UserId
+  data: UpdateUserDto
+}
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getMyProfile(id: string): Promise<UserGetProfile> {
+  async getMyProfile(id: UserId): Promise<UserGetProfile> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       omit: {
@@ -21,5 +27,15 @@ export class UserService {
     }
 
     return user
+  }
+
+  updateProfile({ id, data }: UpdateProfileArgs): Promise<UserGetProfile> {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+      omit: {
+        password: true,
+      },
+    })
   }
 }
