@@ -1,6 +1,6 @@
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../generated/prisma"
   moduleFormat = "commonjs"
 }
@@ -45,31 +45,33 @@ model User {
     createdAt DateTime @default(now())
 }
 
+model Category {
+  id        String    @id @default(cuid())
+
+  name      String    @unique
+
+  products  Product[]
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 model Product {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
   name        String
   description String?
 
-  price       Decimal  @db.Decimal(10, 2)
-  imageUrl    String
-  stock       Int      @default(0)
+  price    Decimal  @db.Decimal(10, 2)
+  imageUrl String
+  stock    Int      @default(0)
 
-  categoryId  String
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
+  categoryId  String
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([categoryId])
 }
 
-model Category {
-  id        String    @id @default(cuid())
-
-  name      String    @unique
-  products  Product[]
-  
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}
