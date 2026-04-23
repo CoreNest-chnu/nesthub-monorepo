@@ -1,5 +1,10 @@
 'use client'
 
+import { Field } from '@/src/components/field'
+import {
+  type LoginFormData,
+  loginSchema,
+} from '@/src/validation/validationSchema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuthControllerLoginUser } from '@repo/api-client'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
@@ -10,11 +15,6 @@ import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useToggle } from 'usehooks-ts'
-import { Field } from '@/src/components/field'
-import {
-  type LoginFormData,
-  loginSchema,
-} from '@/src/validation/validationSchema'
 
 const LoginForm: React.FC = () => {
   const router = useRouter()

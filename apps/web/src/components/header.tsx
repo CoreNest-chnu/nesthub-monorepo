@@ -83,6 +83,7 @@ export const Header: React.FC = () => {
               className={'h-11 rounded-lg bg-muted/60 pr-12 pl-4'}
               value={search}
               onChange={handleSearchChange}
+              autoComplete={'new-password'}
             />
             <Button
               variant={'ghost'}
