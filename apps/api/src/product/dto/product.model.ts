@@ -1,8 +1,22 @@
-import { Prisma } from 'generated/prisma/browser'
+import { Decimal } from 'generated/prisma/internal/prismaNamespace'
+import { ProductId } from 'generated/prisma/types'
+import { CategoryModel } from 'src/category/dto/category.model'
 
-type ProductWithCategory = Prisma.ProductGetPayload<{
-  include: { category: true }
-}>
+export class ProductModel {
+  id!: ProductId
+  name!: string
+  description!: string | null
+  price!: Decimal
+  imageUrl!: string | null
+  stock!: number
+  categoryId!: string
+  createdAt!: Date
+  updatedAt!: Date
+}
+
+type ProductWithCategory = ProductModel & {
+  category: CategoryModel
+}
 
 export class PaginatedResponseDto {
   products!: ProductWithCategory[]
