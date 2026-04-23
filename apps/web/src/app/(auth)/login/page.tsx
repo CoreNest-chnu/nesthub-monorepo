@@ -38,7 +38,7 @@ const LoginForm: React.FC = () => {
       if (status === 'authenticated') {
         toast.error('You are already authenticated')
         router.push('/')
-        
+
         return
       }
 
@@ -70,7 +70,7 @@ const LoginForm: React.FC = () => {
   return (
     <div
       className={
-        'min-h-screen bg-gray-100 flex items-center justify-center p-6'
+        'flex-1 bg-gray-100 flex items-center justify-center p-6'
       }
     >
       <div
