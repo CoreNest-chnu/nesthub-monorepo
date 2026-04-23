@@ -1,4 +1,5 @@
-import { Decimal } from 'generated/prisma/internal/prismaNamespace'
+import { ApiProperty } from '@nestjs/swagger'
+import type { Prisma } from 'generated/prisma/client'
 import { ProductId } from 'generated/prisma/types'
 import { CategoryModel } from 'src/category/dto/category.model'
 
@@ -6,20 +7,24 @@ export class ProductModel {
   id!: ProductId
   name!: string
   description!: string | null
-  price!: Decimal
+
+  @ApiProperty({ type: String })
+  price!: Prisma.Decimal
+
   imageUrl!: string | null
   stock!: number
   categoryId!: string
+
+  @ApiProperty({ type: () => CategoryModel })
+  category!: CategoryModel
+
   createdAt!: Date
   updatedAt!: Date
 }
 
-type ProductWithCategory = ProductModel & {
-  category: CategoryModel
-}
-
 export class PaginatedResponseDto {
-  products!: ProductWithCategory[]
+  @ApiProperty({ type: () => [ProductModel] })
+  products!: ProductModel[]
   total!: number
   page!: number
   take!: number
