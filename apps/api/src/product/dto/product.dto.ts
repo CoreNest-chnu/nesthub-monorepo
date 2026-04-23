@@ -9,4 +9,6 @@ export class PaginationQueryDto {
   take?: number
 
   categoryId: CategoryId
+
+  search: string
 }

@@ -13,12 +13,30 @@ export class ProductService {
     page = 1,
     take = 20,
     categoryId,
+    search,
   }: PaginationQueryDto): Promise<PaginatedResponseDto> {
     const AND: Prisma.ProductWhereInput[] = [
       {
         categoryId,
       },
+      {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
     ]
+
     const products = await this.prisma.product.findMany({
       where: { AND },
       take,
