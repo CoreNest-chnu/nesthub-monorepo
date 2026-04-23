@@ -45,6 +45,11 @@
       "cache": false,
       "persistent": false
     },
+    "@repo/web#start:dev": {
+      "dependsOn": ["@repo/api-client#start:dev", "generate", "lint"],
+      "cache": false,
+      "persistent": true
+    },
     "graphql:generate": {},
     "db:start:docker": {},
     "db:dump:start:docker": {}
