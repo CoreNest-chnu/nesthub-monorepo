@@ -14,11 +14,13 @@ export class ProductService {
     take = 20,
     categoryId,
   }: PaginationQueryDto): Promise<PaginatedResponseDto> {
-    const where: Prisma.ProductWhereInput = {
-      categoryId,
-    }
+    const AND: Prisma.ProductWhereInput[] = [
+      {
+        categoryId,
+      },
+    ]
     const products = await this.prisma.product.findMany({
-      where,
+      where: { AND },
       take,
       skip: Decimal(take).mul(Decimal(page).sub(1)).toNumber(),
       include: {
@@ -26,7 +28,7 @@ export class ProductService {
       },
     })
 
-    const total = await this.prisma.product.count({ where })
+    const total = await this.prisma.product.count({ where: { AND } })
 
     const totalPages = Decimal(total).div(take).ceil().toNumber()
 
