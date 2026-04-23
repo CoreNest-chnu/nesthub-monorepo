@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   Search,
   LayoutGrid,
@@ -36,10 +37,12 @@ const categories = [
 
 export const Header: React.FC = () => {
   const { data: session, status } = useSession()
+  const pathname = usePathname()
   const [search, setSearch] = useState('')
 
   const isAdmin = session?.user.role === 'admin'
   const isUnauthenticated = status === 'unauthenticated'
+  const showSearch = pathname === '/catalog'
 
   const actions: NavAction[] = useMemo(
     () => [
@@ -80,25 +83,29 @@ export const Header: React.FC = () => {
             <p className={'text-white'}>{'NestHub'}</p>
           </Link>
 
-          <div className={'relative flex-1'}>
-            <Input
-              type={'search'}
-              placeholder={'Пошук товарів...'}
-              className={'h-11 rounded-lg bg-muted/60 pr-12 pl-4'}
-              value={search}
-              onChange={handleSearchChange}
-            />
-            <Button
-              variant={'ghost'}
-              size={'icon-sm'}
-              aria-label={'Шукати'}
-              className={
-                'absolute top-1/2 right-1.5 -translate-y-1/2 rounded-md cursor-pointer'
-              }
-            >
-              <Search />
-            </Button>
-          </div>
+          {showSearch ? (
+            <div className={'relative flex-1'}>
+              <Input
+                type={'search'}
+                placeholder={'Пошук товарів...'}
+                className={'h-11 rounded-lg bg-muted/60 pr-12 pl-4'}
+                value={search}
+                onChange={handleSearchChange}
+              />
+              <Button
+                variant={'ghost'}
+                size={'icon-sm'}
+                aria-label={'Шукати'}
+                className={
+                  'absolute top-1/2 right-1.5 -translate-y-1/2 rounded-md cursor-pointer'
+                }
+              >
+                <Search />
+              </Button>
+            </div>
+          ) : (
+            <div className={'flex-1'} />
+          )}
 
           <nav className={'flex items-center gap-2'}>
             {actions.map(({ href, icon, badge, label }) => (
