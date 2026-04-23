@@ -9,6 +9,7 @@ export default defineConfig({
       target: './src/generated/index.ts',
       client: 'react-query',
       mode: 'tags-split',
+      clean: true,
       baseUrl: '/api',
       override: {
         mutator: {
