@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { CategoryId } from 'generated/prisma/types'
 
@@ -8,5 +9,8 @@ export class PaginationQueryDto {
   @Type(() => Number)
   take?: number
 
-  categoryId: CategoryId
+  @ApiProperty({ type: String })
+  categoryId?: CategoryId
+
+  search?: string
 }
