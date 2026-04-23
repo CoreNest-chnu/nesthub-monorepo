@@ -11,8 +11,8 @@ import {
   LogIn,
 } from 'lucide-react'
 import { Container } from './Container'
-import { Input } from './ui/Input'
-import { Button } from './ui/Button'
+import { Input } from './ui/input'
+import { Button } from './ui/button'
 import { useState, useCallback, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
 
@@ -64,7 +64,11 @@ export const Header: React.FC = () => {
   )
 
   return (
-    <header className={'w-full bg-white'}>
+    <header
+      className={
+        'sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm'
+      }
+    >
       <Container>
         <div className={'flex items-center gap-6 py-4'}>
           <Link
