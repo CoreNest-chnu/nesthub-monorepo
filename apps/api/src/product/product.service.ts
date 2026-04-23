@@ -3,6 +3,7 @@ import { PrismaService } from 'prisma/lib/prisma'
 import { PaginationQueryDto } from './dto/product.dto'
 import { Decimal } from '@prisma/client/runtime/index-browser'
 import { PaginatedResponseDto } from './dto/product.model'
+import { Prisma } from 'generated/prisma/browser'
 
 @Injectable()
 export class ProductService {
@@ -11,8 +12,13 @@ export class ProductService {
   async getProducts({
     page = 1,
     take = 20,
+    categoryId,
   }: PaginationQueryDto): Promise<PaginatedResponseDto> {
+    const where: Prisma.ProductWhereInput = {
+      categoryId,
+    }
     const products = await this.prisma.product.findMany({
+      where,
       take,
       skip: Decimal(take).mul(Decimal(page).sub(1)).toNumber(),
       include: {
@@ -20,7 +26,7 @@ export class ProductService {
       },
     })
 
-    const total = await this.prisma.product.count()
+    const total = await this.prisma.product.count({ where })
 
     const totalPages = Decimal(total).div(take).ceil().toNumber()
 
