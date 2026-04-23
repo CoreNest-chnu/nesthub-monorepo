@@ -3,13 +3,18 @@
 import { useProductControllerProducts } from '@repo/api-client'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useCallback, useState } from 'react'
-import { Container } from '@/src/components/container'
-import { ProductCard } from '@/src/components/product-cart'
+import { Container } from '@/src/components/Container'
+import { ProductCard } from '@/src/components/products/ProductCard'
 
-const TAKE = 20
+const take = 12
+const skeletonKeys = Array.from({ length: take }, () => crypto.randomUUID())
 
 const ProductCardSkeleton: React.FC = () => (
-  <div className={'flex flex-col bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
+  <div
+    className={
+      'flex flex-col bg-white rounded-2xl border border-gray-200 overflow-hidden'
+    }
+  >
     <div className={'aspect-square bg-gray-200 animate-pulse'} />
     <div className={'flex flex-col gap-2 p-3'}>
       <div className={'h-3 w-16 bg-gray-200 rounded animate-pulse'} />
@@ -24,21 +29,25 @@ const ProductCardSkeleton: React.FC = () => (
 export default function ProductsPage() {
   const [page, setPage] = useState(1)
 
-  const { data, isLoading, isError } = useProductControllerProducts({
+  const {
+    data: productData,
+    isLoading,
+    isError,
+  } = useProductControllerProducts({
     page,
-    take: TAKE,
+    take,
   })
 
-  const products = data?.data.products ?? []
-  const total = data?.data.total ?? 0
-  const totalPages = data?.data.totalPages ?? 1
+  const products = productData?.data.products ?? []
+  const total = productData?.data.total ?? 0
+  const totalPages = productData?.data.totalPages ?? 1
 
   const handlePrev = useCallback(() => {
-    setPage((p) => Math.max(1, p - 1))
+    setPage((prevPage) => Math.max(1, prevPage - 1))
   }, [])
 
   const handleNext = useCallback(() => {
-    setPage((p) => Math.min(totalPages, p + 1))
+    setPage((prevPage) => Math.min(totalPages, prevPage + 1))
   }, [totalPages])
 
   return (
@@ -54,9 +63,7 @@ export default function ProductsPage() {
 
         {isError ? (
           <div
-            className={
-              'flex flex-col items-center justify-center py-24 gap-2'
-            }
+            className={'flex flex-col items-center justify-center py-24 gap-2'}
           >
             <p className={'text-sm font-medium text-red-500'}>
               {'Не вдалося завантажити товари'}
@@ -68,14 +75,10 @@ export default function ProductsPage() {
         ) : (
           <>
             <div
-              className={
-                'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'
-              }
+              className={'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'}
             >
               {isLoading
-                ? Array.from({ length: TAKE }).map((_, i) => (
-                    <ProductCardSkeleton key={i} />
-                  ))
+                ? skeletonKeys.map((key) => <ProductCardSkeleton key={key} />)
                 : products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}

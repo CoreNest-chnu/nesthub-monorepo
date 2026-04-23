@@ -10,9 +10,9 @@ import {
   Settings,
   LogIn,
 } from 'lucide-react'
-import { Container } from './container'
-import { Input } from './ui/input'
-import { Button } from './ui/button'
+import { Container } from './Container'
+import { Input } from './ui/Input'
+import { Button } from './ui/Button'
 import { useState, useCallback, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
 

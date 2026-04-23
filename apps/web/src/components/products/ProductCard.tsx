@@ -20,7 +20,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       }
     >
       <Link
-        href={`/products/${String(product.id)}`}
+        href={`/products/${product.id}`}
         className={'relative block aspect-square bg-gray-100'}
       >
         {product.imageUrl ? (
@@ -48,8 +48,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </span>
 
         <Link
-          href={`/products/${String(product.id)}`}
-          className={'text-sm text-gray-900 font-medium line-clamp-2 hover:underline'}
+          href={`/products/${product.id}`}
+          className={
+            'text-sm text-gray-900 font-medium line-clamp-2 hover:underline'
+          }
         >
           {product.name}
         </Link>
@@ -58,7 +60,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {`${price} ₴`}
         </p>
 
-        <p className={`text-xs ${inStock ? 'text-green-600' : 'text-gray-400'}`}>
+        <p
+          className={`text-xs ${inStock ? 'text-green-600' : 'text-gray-400'}`}
+        >
           {inStock ? 'В наявності' : 'Немає в наявності'}
         </p>
 
