@@ -10,7 +10,7 @@ import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { useToggle } from 'usehooks-ts'
-import { Field } from '@/src/components/field'
+import { Field } from '@/src/components/Field'
 import {
   registerSchema,
   type RegisterFormData,
@@ -74,11 +74,7 @@ export const RegisterPage: React.FC = () => {
   }, [toggleShowConfirm])
 
   return (
-    <div
-      className={
-        'flex-1 bg-gray-100 flex items-center justify-center p-6'
-      }
-    >
+    <div className={'flex-1 bg-gray-100 flex items-center justify-center p-6'}>
       <div
         className={
           'w-full max-w-[480px] bg-white rounded-2xl border border-gray-200 p-10 shadow-md'
