@@ -1,12 +1,15 @@
 'use client'
 
 import { useProductControllerProducts } from '@repo/api-client'
-import { useState } from 'react'
+import { useCallback } from 'react'
 import { PaginationControls } from '@/src/components/ui/pagination'
+import { useCatalogFilters } from '@/src/hooks/useCatalogFilters'
 import { ProductCard } from './ProductCard'
 
-const take = 12
-const skeletonKeys = Array.from({ length: take }, () => crypto.randomUUID())
+const skeletonKeyCount = 12
+const skeletonKeys = Array.from({ length: skeletonKeyCount }, () =>
+  crypto.randomUUID(),
+)
 
 const ProductCardSkeleton: React.FC = () => (
   <div
@@ -26,7 +29,8 @@ const ProductCardSkeleton: React.FC = () => (
 )
 
 export const Catalog: React.FC = () => {
-  const [page, setPage] = useState(1)
+  const [filters, setFilters] = useCatalogFilters()
+  const { page, take, search, categoryId } = filters
 
   const {
     data: productData,
@@ -35,11 +39,18 @@ export const Catalog: React.FC = () => {
   } = useProductControllerProducts({
     page,
     take,
+    ...(search ? { search } : {}),
+    ...(categoryId ? { categoryId } : {}),
   })
 
   const products = productData?.data.products ?? []
   const total = productData?.data.total ?? 0
   const totalPages = productData?.data.totalPages ?? 1
+
+  const handlePageChange = useCallback(
+    (next: number) => setFilters({ page: next }),
+    [setFilters],
+  )
 
   return (
     <div className={'flex-1 flex flex-col'}>
@@ -79,7 +90,7 @@ export const Catalog: React.FC = () => {
               className={'mt-8'}
               page={page}
               totalPages={totalPages}
-              onPageChange={setPage}
+              onPageChange={handlePageChange}
               prevText={'Назад'}
               nextText={'Вперед'}
             />
