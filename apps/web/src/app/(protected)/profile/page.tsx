@@ -15,7 +15,7 @@ import { signOut, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback } from 'react'
-import { Field } from '@/src/components/field'
+import { Field } from '@/src/components/Field'
 import { formatDate } from '@/src/utils/date.util'
 
 const navItems = [
