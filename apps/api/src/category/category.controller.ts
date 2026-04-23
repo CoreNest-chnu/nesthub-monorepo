@@ -1,7 +1,13 @@
-import { Controller } from '@nestjs/common'
-import { CategoryService } from './category.service'
+import { Controller, Get } from '@nestjs/common'
+import { CategoriesService } from './category.service'
+import { categoriesResponseDTO } from './dto/categories.model'
 
-@Controller('products')
-export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+@Controller('categories')
+export class CategoriesController {
+  constructor(private readonly categoriesService: CategoriesService) {}
+
+  @Get()
+  async findAll(): Promise<categoriesResponseDTO[]> {
+    return await this.categoriesService.findAll()
+  }
 }
