@@ -4,7 +4,7 @@ import './globals.css'
 import { Providers } from './providers'
 import { Nunito_Sans } from 'next/font/google'
 import { cn } from '@/src/lib/utils'
-import { Header } from '../components/header'
+import { Header } from '../components/Header'
 
 const nunitoSans = Nunito_Sans({ subsets: ['latin'], variable: '--font-sans' })
 

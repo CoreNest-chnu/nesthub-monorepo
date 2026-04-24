@@ -4,6 +4,7 @@
   "scripts": {
     "start:dev": "turbo run start:dev",
     "build": "turbo run build",
+    "generate:orval": "bun run --filter=api --filter=@repo/api-client start:dev",
     "dev": "turbo run dev",
     "lint": "biome lint .",
     "format": "biome format . --write",

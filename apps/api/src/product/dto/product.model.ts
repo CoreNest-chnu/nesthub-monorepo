@@ -4,6 +4,7 @@ import { ProductId } from 'generated/prisma/types'
 import { CategoryModel } from 'src/category/dto/category.model'
 
 export class ProductModel {
+  @ApiProperty({ type: String })
   id!: ProductId
   name!: string
   description!: string | null
