@@ -1,4 +1,5 @@
-// TODO: Orders history — UC-17
+import { ComingSoon } from '@/src/components/ComingSoon'
+
 export default function OrdersPage() {
-  return null
+  return <ComingSoon title={'Мої замовлення'} />
 }

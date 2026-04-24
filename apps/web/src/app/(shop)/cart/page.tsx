@@ -1,4 +1,5 @@
-// TODO: Cart page — UC-11
+import { ComingSoon } from '@/src/components/ComingSoon'
+
 export default function CartPage() {
-  return null
+  return <ComingSoon title={'Кошик'} />
 }
