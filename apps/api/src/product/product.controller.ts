@@ -18,7 +18,8 @@ export class ProductController {
   }
 
   @Get(':id')
-  async product(@Param('id') id: ProductId): Promise<ProductModel> {
+  @ApiResponse({ status: 200, type: ProductModel })
+  async findbyId(@Param('id') id: ProductId): Promise<ProductModel> {
     return await this.productService.findById(id)
   }
 }
