@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   Search,
   LayoutGrid,
@@ -13,8 +14,11 @@ import {
 import { Container } from './Container'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-import { useState, useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import debounce from 'lodash/debounce'
 import { useSession } from 'next-auth/react'
+import { useCategoriesControllerFindAll } from '@repo/api-client'
+import { useCatalogFilters } from '@/src/hooks/useCatalogFilters'
 
 type NavAction = {
   href: string
@@ -23,23 +27,107 @@ type NavAction = {
   badge?: number
 }
 
-const categories = [
-  { href: '/category/electronics', label: 'Електроніка' },
-  { href: '/category/home-appliances', label: 'Побутова техніка' },
-  { href: '/category/clothing', label: 'Одяг' },
-  { href: '/category/sport', label: 'Спорт' },
-  { href: '/category/home-garden', label: 'Дім та сад' },
-  { href: '/category/beauty', label: 'Краса' },
-  { href: '/category/auto', label: 'Авто' },
-  { href: '/category/kids', label: 'Дитячі товари' },
-]
+const catalogPath = '/catalog'
+
+const CategoryNav: React.FC = () => {
+  const [filters, setFilters] = useCatalogFilters()
+  const { data } = useCategoriesControllerFindAll()
+  const categories = data?.data ?? []
+
+  const handleClick = useCallback(
+    (id: string) => () => {
+      setFilters({
+        categoryId: filters.categoryId === id ? null : id,
+        page: 1,
+      })
+    },
+    [filters.categoryId, setFilters],
+  )
+
+  if (categories.length === 0) {
+    return null
+  }
+
+  return (
+    <nav
+      className={
+        'flex flex-wrap items-center gap-x-6 gap-y-2 pb-3 text-sm font-medium'
+      }
+    >
+      {categories.map((category) => {
+        const isActive = filters.categoryId === category.id
+
+        return (
+          <button
+            key={category.id}
+            type={'button'}
+            onClick={handleClick(category.id)}
+            className={`hover:underline cursor-pointer ${
+              isActive ? 'text-blue-800 underline' : 'text-blue-600'
+            }`}
+          >
+            {category.name}
+          </button>
+        )
+      })}
+    </nav>
+  )
+}
+
+const searchDebounceMs = 300
+
+const CatalogSearch: React.FC = () => {
+  const [filters, setFilters] = useCatalogFilters()
+  const [value, setValue] = useState(filters.search)
+
+  const debouncedCommit = useMemo(
+    () =>
+      debounce((next: string) => {
+        setFilters({ search: next, page: 1 })
+      }, searchDebounceMs),
+    [setFilters],
+  )
+
+  useEffect(() => () => debouncedCommit.cancel(), [debouncedCommit])
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setValue(e.target.value)
+      debouncedCommit(e.target.value)
+    },
+    [debouncedCommit],
+  )
+
+  return (
+    <div className={'relative flex-1'}>
+      <Input
+        type={'search'}
+        placeholder={'Пошук товарів...'}
+        className={'h-11 rounded-lg bg-muted/60 pr-12 pl-4'}
+        value={value}
+        onChange={handleChange}
+      />
+      <Button
+        variant={'ghost'}
+        size={'icon-sm'}
+        aria-label={'Шукати'}
+        className={
+          'absolute top-1/2 right-1.5 -translate-y-1/2 rounded-md cursor-pointer'
+        }
+      >
+        <Search />
+      </Button>
+    </div>
+  )
+}
 
 export const Header: React.FC = () => {
   const { data: session, status } = useSession()
-  const [search, setSearch] = useState('')
+  const pathname = usePathname()
 
   const isAdmin = session?.user.role === 'admin'
   const isUnauthenticated = status === 'unauthenticated'
+  const isCatalog = pathname === catalogPath
 
   const actions: NavAction[] = useMemo(
     () => [
@@ -54,13 +142,6 @@ export const Header: React.FC = () => {
         : []),
     ],
     [isAdmin, isUnauthenticated],
-  )
-
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearch(e.target.value)
-    },
-    [],
   )
 
   return (
@@ -80,25 +161,7 @@ export const Header: React.FC = () => {
             <p className={'text-white'}>{'NestHub'}</p>
           </Link>
 
-          <div className={'relative flex-1'}>
-            <Input
-              type={'search'}
-              placeholder={'Пошук товарів...'}
-              className={'h-11 rounded-lg bg-muted/60 pr-12 pl-4'}
-              value={search}
-              onChange={handleSearchChange}
-            />
-            <Button
-              variant={'ghost'}
-              size={'icon-sm'}
-              aria-label={'Шукати'}
-              className={
-                'absolute top-1/2 right-1.5 -translate-y-1/2 rounded-md cursor-pointer'
-              }
-            >
-              <Search />
-            </Button>
-          </div>
+          {isCatalog ? <CatalogSearch /> : <div className={'flex-1'} />}
 
           <nav className={'flex items-center gap-2'}>
             {actions.map(({ href, icon, badge, label }) => (
@@ -127,17 +190,7 @@ export const Header: React.FC = () => {
           </nav>
         </div>
 
-        <nav
-          className={
-            'flex flex-wrap items-center gap-x-6 gap-y-2 pb-3 text-sm font-medium text-blue-600'
-          }
-        >
-          {categories.map(({ href, label }) => (
-            <Link key={href} href={href} className={'hover:underline'}>
-              {label}
-            </Link>
-          ))}
-        </nav>
+        {isCatalog && <CategoryNav />}
       </Container>
     </header>
   )

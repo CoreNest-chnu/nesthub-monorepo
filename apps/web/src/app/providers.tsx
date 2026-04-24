@@ -2,6 +2,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { SessionProvider } from 'next-auth/react'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { useState } from 'react'
 import { Toaster } from 'sonner'
 
@@ -15,9 +16,11 @@ export const Providers: React.FC<ProvidersProps> = ({ children }) => {
   return (
     <SessionProvider>
       <QueryClientProvider client={queryClient}>
-        {children}
-        <Toaster position={'bottom-right'} richColors />
-        <ReactQueryDevtools />
+        <NuqsAdapter>
+          {children}
+          <Toaster position={'bottom-right'} richColors />
+          <ReactQueryDevtools />
+        </NuqsAdapter>
       </QueryClientProvider>
     </SessionProvider>
   )
