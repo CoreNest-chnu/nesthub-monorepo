@@ -1,12 +1,13 @@
+import { Hero } from '@/src/components/home/Hero'
+import { PopularProducts } from '@/src/components/home/PopularProducts'
+import { Promos } from '@/src/components/home/Promos'
+
 export default function Home() {
   return (
-    <div
-      className={
-        'w-full h-screen bg-amber-300 flex flex-col items-center justify-center'
-      }
-    >
-      <span className={'text-[140px] font-black'}>{'NestHub'}</span>
-      <span className={'text-[100px] font-black'}>{'Soon...'}</span>
+    <div className={'min-h-screen bg-gray-50'}>
+      <Hero />
+      <Promos />
+      <PopularProducts />
     </div>
   )
 }
