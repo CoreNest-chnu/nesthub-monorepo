@@ -43,7 +43,7 @@ export const Header: React.FC = () => {
 
   const actions: NavAction[] = useMemo(
     () => [
-      { href: '/catalog', label: 'Каталог', icon: <LayoutGrid /> },
+      { href: '/products', label: 'Каталог', icon: <LayoutGrid /> },
       { href: '/favorites', label: 'Обране', icon: <Heart />, badge: 0 },
       { href: '/cart', label: 'Кошик', icon: <ShoppingCart />, badge: 0 },
       isUnauthenticated

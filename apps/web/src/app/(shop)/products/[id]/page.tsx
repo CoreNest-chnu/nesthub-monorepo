@@ -28,9 +28,7 @@ const ProductSkeleton: React.FC = () => (
 )
 
 export default function ProductPage({ params }: Props) {
-  const { id: rawId } = use(params)
-  // ProductCard passes JSON.stringify(id) → strip surrounding quotes if present
-  const id = rawId.startsWith('"') && rawId.endsWith('"') ? rawId.slice(1, -1) : rawId
+  const { id } = use(params)
 
   const { data, isLoading, isError } = useProductControllerProductById(id)
 

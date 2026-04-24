@@ -10,7 +10,7 @@ type Props = { product: ProductModel }
 export const ProductCard: React.FC<Props> = ({ product }) => {
   const inStock = product.stock > 0
   const price = Number(product.price).toLocaleString('uk-UA')
-  const id = JSON.stringify(product.id)
+  const id = product.id
 
   return (
     <div
