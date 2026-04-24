@@ -26,7 +26,7 @@ export const Footer: React.FC = () => (
               {links.map((link) => (
                 <li key={link}>
                   <a
-                    href={'#'}
+                    href={'/info'}
                     className={'text-sm text-gray-500 hover:text-gray-800'}
                   >
                     {link}
@@ -44,7 +44,9 @@ export const Footer: React.FC = () => (
           <ul className={'flex flex-col gap-2'}>
             <li className={'text-sm text-gray-500'}>{'+38 (099) 123-45-67'}</li>
             <li className={'text-sm text-gray-500'}>{'info@nesthub.ua'}</li>
-            <li className={'text-sm text-gray-500'}>{'Чернівці, вул. Рівненська, 16'}</li>
+            <li className={'text-sm text-gray-500'}>
+              {'Чернівці, вул. Рівненська, 16'}
+            </li>
           </ul>
         </div>
       </div>
