@@ -1,4 +1,4 @@
-import { Container } from '@/src/components/container'
+import { Container } from '@/src/components/Container'
 import { Catalog } from '@/src/components/products/Catalog'
 
 export default function ProductsPage() {
