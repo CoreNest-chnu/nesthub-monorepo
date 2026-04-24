@@ -1,6 +1,12 @@
 'use client'
 
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs'
+import {
+  parseAsArrayOf,
+  parseAsBoolean,
+  parseAsInteger,
+  parseAsString,
+  useQueryStates,
+} from 'nuqs'
 import { useMemo } from 'react'
 
 export const defaultTake = 12
@@ -12,6 +18,10 @@ export const useCatalogFilters = () => {
       take: parseAsInteger.withDefault(defaultTake),
       search: parseAsString.withDefault(''),
       categoryId: parseAsString,
+      priceFrom: parseAsInteger,
+      priceTo: parseAsInteger,
+      rating: parseAsArrayOf(parseAsInteger).withDefault([]),
+      stock: parseAsBoolean,
     },
     {
       history: 'replace',

@@ -1,23 +1,20 @@
 'use client'
 
+import { useCategoriesControllerFindAll } from '@repo/api-client'
 import { Star } from 'lucide-react'
+import { useCallback } from 'react'
+import { Button } from '@/src/components/ui/button'
 import { Checkbox } from '@/src/components/ui/checkbox'
 import { Input } from '@/src/components/ui/input'
+import { RadioGroup, RadioGroupItem } from '@/src/components/ui/radio-group'
+import { useCatalogFilters } from '@/src/hooks/useCatalogFilters'
+
+type SetFilters = ReturnType<typeof useCatalogFilters>[1]
 
 type FilterSectionProps = {
   title: string
   children: React.ReactNode
 }
-
-type FilterCheckboxProps = {
-  id: string
-  label: React.ReactNode
-}
-
-const brands = ['Samsung', 'Apple', 'Xiaomi', 'Huawei', 'OnePlus']
-const memory = ['64 ГБ', '128 ГБ', '256 ГБ', '512 ГБ']
-const colors = ['Чорний', 'Білий', 'Синій', 'Сірий']
-const ratings = [5, 4, 3, 2, 1]
 
 const FilterSection: React.FC<FilterSectionProps> = ({ title, children }) => (
   <div className={'flex flex-col gap-2'}>
@@ -26,17 +23,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({ title, children }) => (
   </div>
 )
 
-const FilterCheckbox: React.FC<FilterCheckboxProps> = ({ id, label }) => (
-  <div className={'flex items-center gap-2'}>
-    <Checkbox id={id} />
-    <label
-      htmlFor={id}
-      className={'text-sm text-gray-700 cursor-pointer select-none'}
-    >
-      {label}
-    </label>
-  </div>
-)
+const ratings = [5, 4, 3, 2, 1]
 
 const Stars: React.FC<{ filled: number }> = ({ filled }) => (
   <span className={'flex items-center gap-0.5'}>
@@ -55,52 +42,288 @@ const Stars: React.FC<{ filled: number }> = ({ filled }) => (
   </span>
 )
 
+const categorySkeletonKeys = Array.from({ length: 6 }, () =>
+  crypto.randomUUID(),
+)
+
+type PriceInputProps = {
+  filterKey: 'priceFrom' | 'priceTo'
+  value: number | null
+  placeholder: string
+  setFilters: SetFilters
+}
+
+const PriceInput: React.FC<PriceInputProps> = ({
+  filterKey,
+  value,
+  placeholder,
+  setFilters,
+}) => {
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const next = event.target.value
+
+      if (next === '') {
+        setFilters({ [filterKey]: null, page: 1 })
+
+        return
+      }
+
+      const parsed = Number(next)
+
+      if (Number.isNaN(parsed) || parsed < 0) {
+        return
+      }
+
+      setFilters({ [filterKey]: parsed, page: 1 })
+    },
+    [filterKey, setFilters],
+  )
+
+  return (
+    <Input
+      type={'number'}
+      min={0}
+      placeholder={placeholder}
+      value={value ?? ''}
+      onChange={handleChange}
+      className={'rounded-sm bg-white'}
+    />
+  )
+}
+
+type RatingItemProps = {
+  value: number
+  selected: boolean
+  ratings: number[]
+  setFilters: SetFilters
+}
+
+const RatingItem: React.FC<RatingItemProps> = ({
+  value,
+  selected,
+  ratings: current,
+  setFilters,
+}) => {
+  const handleToggle = useCallback(() => {
+    const next = current.includes(value)
+      ? current.filter((r) => r !== value)
+      : [...current, value]
+
+    setFilters({ rating: next, page: 1 })
+  }, [value, current, setFilters])
+
+  const id = `rating-${value}`
+
+  return (
+    <div className={'flex items-center gap-2'}>
+      <Checkbox id={id} checked={selected} onCheckedChange={handleToggle} />
+      <label
+        htmlFor={id}
+        className={'text-sm text-gray-700 cursor-pointer select-none'}
+      >
+        <Stars filled={value} />
+      </label>
+    </div>
+  )
+}
+
+type StockItemProps = {
+  id: string
+  label: string
+  value: boolean
+  current: boolean | null
+  setFilters: SetFilters
+}
+
+const StockItem: React.FC<StockItemProps> = ({
+  id,
+  label,
+  value,
+  current,
+  setFilters,
+}) => {
+  const handleToggle = useCallback(() => {
+    setFilters({ stock: current === value ? null : value, page: 1 })
+  }, [current, value, setFilters])
+
+  return (
+    <div className={'flex items-center gap-2'}>
+      <Checkbox
+        id={id}
+        checked={current === value}
+        onCheckedChange={handleToggle}
+      />
+      <label
+        htmlFor={id}
+        className={'text-sm text-gray-700 cursor-pointer select-none'}
+      >
+        {label}
+      </label>
+    </div>
+  )
+}
+
+type Category = { id: string; name: string }
+
+type CategorySectionProps = {
+  isLoading: boolean
+  categories: Category[]
+  categoryId: string | null
+  setFilters: SetFilters
+}
+
+const CategorySection: React.FC<CategorySectionProps> = ({
+  isLoading,
+  categories,
+  categoryId,
+  setFilters,
+}) => {
+  const handleChange = useCallback(
+    (value: string) => {
+      setFilters({ categoryId: value || null, page: 1 })
+    },
+    [setFilters],
+  )
+
+  if (isLoading) {
+    return (
+      <div className={'grid grid-cols-2 gap-2'}>
+        {categorySkeletonKeys.map((key) => (
+          <div key={key} className={'h-4 bg-gray-200 rounded animate-pulse'} />
+        ))}
+      </div>
+    )
+  }
+
+  if (categories.length === 0) {
+    return <p className={'text-sm text-gray-400'}>{'Категорій не знайдено'}</p>
+  }
+
+  return (
+    <RadioGroup
+      value={categoryId ?? ''}
+      onValueChange={handleChange}
+      className={'grid-cols-2'}
+    >
+      {categories.map((category) => {
+        const id = `category-${category.id}`
+
+        return (
+          <div key={category.id} className={'flex items-center gap-2'}>
+            <RadioGroupItem id={id} value={category.id} />
+            <label
+              htmlFor={id}
+              className={
+                'text-sm text-gray-700 cursor-pointer select-none truncate'
+              }
+            >
+              {category.name}
+            </label>
+          </div>
+        )
+      })}
+    </RadioGroup>
+  )
+}
+
 export const Filters: React.FC = () => {
+  const [{ categoryId, priceFrom, priceTo, rating, stock }, setFilters] =
+    useCatalogFilters()
+  const { data, isLoading } = useCategoriesControllerFindAll()
+  const categories = data?.data ?? []
+
+  const hasActiveFilters =
+    categoryId !== null ||
+    priceFrom !== null ||
+    priceTo !== null ||
+    rating.length > 0 ||
+    stock !== null
+
+  const handleClear = useCallback(() => {
+    setFilters({
+      categoryId: null,
+      priceFrom: null,
+      priceTo: null,
+      rating: [],
+      stock: null,
+      page: 1,
+    })
+  }, [setFilters])
+
   return (
     <aside
       className={
-        'w-64 shrink-0 flex flex-col gap-6 rounded-2xl border border-gray-200 bg-white p-4'
+        'w-64 shrink-0 self-start sticky top-32 max-h-[calc(100vh-9rem)] overflow-y-auto flex flex-col gap-6 p-4 border-r border-gray-200'
       }
     >
-      <h2 className={'text-base font-semibold text-gray-900'}>{'Фільтри'}</h2>
+      <div className={'flex items-center justify-between gap-2'}>
+        <h2 className={'text-base font-semibold text-gray-900'}>{'Фільтри'}</h2>
+      </div>
 
       <FilterSection title={'Ціна (грн)'}>
         <div className={'flex items-center gap-2'}>
-          <Input type={'number'} defaultValue={0} className={'rounded-sm'} />
-          <Input
-            type={'number'}
-            defaultValue={50000}
-            className={'rounded-sm'}
+          <PriceInput
+            filterKey={'priceFrom'}
+            value={priceFrom}
+            placeholder={'Від'}
+            setFilters={setFilters}
+          />
+          <PriceInput
+            filterKey={'priceTo'}
+            value={priceTo}
+            placeholder={'До'}
+            setFilters={setFilters}
           />
         </div>
       </FilterSection>
 
-      <FilterSection title={'Бренд'}>
-        {brands.map((brand) => (
-          <FilterCheckbox key={brand} id={`brand-${brand}`} label={brand} />
-        ))}
-      </FilterSection>
-
-      <FilterSection title={"Оперативна пам'ять"}>
-        {memory.map((m) => (
-          <FilterCheckbox key={m} id={`memory-${m}`} label={m} />
-        ))}
-      </FilterSection>
-
-      <FilterSection title={'Колір'}>
-        {colors.map((color) => (
-          <FilterCheckbox key={color} id={`color-${color}`} label={color} />
-        ))}
+      <FilterSection title={'Категорія'}>
+        <CategorySection
+          isLoading={isLoading}
+          categories={categories}
+          categoryId={categoryId}
+          setFilters={setFilters}
+        />
       </FilterSection>
 
       <FilterSection title={'Рейтинг'}>
         {ratings.map((r) => (
-          <FilterCheckbox
+          <RatingItem
             key={r}
-            id={`rating-${r}`}
-            label={<Stars filled={r} />}
+            value={r}
+            selected={rating.includes(r)}
+            ratings={rating}
+            setFilters={setFilters}
           />
         ))}
+      </FilterSection>
+
+      <FilterSection title={'Наявність'}>
+        <StockItem
+          id={'stock-in'}
+          label={'В наявності'}
+          value={true}
+          current={stock}
+          setFilters={setFilters}
+        />
+        <StockItem
+          id={'stock-out'}
+          label={'Немає в наявності'}
+          value={false}
+          current={stock}
+          setFilters={setFilters}
+        />
+        {hasActiveFilters && (
+          <Button
+            variant={'ghost'}
+            size={'sm'}
+            className={'py-2 cursor-pointer bg-white'}
+            onClick={handleClear}
+          >
+            {'Очистити'}
+          </Button>
+        )}
       </FilterSection>
     </aside>
   )
