@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
 import { PaginationQueryDto } from './dto/product.dto'
 import { Decimal } from '@prisma/client/runtime/index-browser'
-import { PaginatedResponseDto } from './dto/product.model'
+import { PaginatedResponseDto, ProductModel } from './dto/product.model'
 import { Prisma } from 'generated/prisma/browser'
+import { ProductId } from 'generated/prisma/types'
 
 @Injectable()
 export class ProductService {
@@ -50,5 +51,20 @@ export class ProductService {
       take,
       totalPages,
     }
+  }
+
+  async findById(id: ProductId): Promise<ProductModel> {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      include: {
+        category: true,
+      },
+    })
+
+    if (!product) {
+      throw new NotFoundException('Product not found')
+    }
+
+    return product
   }
 }

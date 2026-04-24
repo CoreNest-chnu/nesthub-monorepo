@@ -7,116 +7,118 @@ const prisma = new PrismaClient({
   }),
 })
 
-const categories = [
-  'Електроніка',
-  'Побутова техніка',
-  'Одяг',
-  'Спорт',
-  'Дім та сад',
-  'Краса',
-  'Авто',
-  'Дитячі товари',
-]
+type SeedProduct = {
+  name: string
+  keyword: string
+  basePrice: number
+}
 
-const productsByCategory: Record<string, string[]> = {
+const productsByCategory: Record<string, SeedProduct[]> = {
   Електроніка: [
-    'Смартфон Samsung Galaxy',
-    'Ноутбук Apple MacBook',
-    'Навушники Sony',
-    'Планшет iPad',
-    'Смарт-годинник Apple Watch',
-    'Павербанк Xiaomi',
+    { name: 'Смартфон Samsung Galaxy S24', keyword: 'smartphone', basePrice: 28999 },
+    { name: 'Ноутбук Apple MacBook Air M3', keyword: 'macbook', basePrice: 54999 },
+    { name: 'Навушники Sony WH-1000XM5', keyword: 'headphones', basePrice: 13499 },
+    { name: 'Планшет Apple iPad Air', keyword: 'tablet', basePrice: 24999 },
+    { name: 'Смарт-годинник Apple Watch Series 9', keyword: 'smartwatch', basePrice: 17999 },
+    { name: 'Павербанк Xiaomi 20000mAh', keyword: 'powerbank', basePrice: 999 },
   ],
   'Побутова техніка': [
-    'Холодильник LG',
-    'Пральна машина Samsung',
-    'Мікрохвильовка Panasonic',
-    'Пилосос Philips',
-    'Кавомашина Delonghi',
-    'Мультиварка Tefal',
+    { name: 'Холодильник LG GBB72', keyword: 'refrigerator', basePrice: 32999 },
+    { name: 'Пральна машина Samsung WW80', keyword: 'washing-machine', basePrice: 18499 },
+    { name: 'Мікрохвильова піч Panasonic', keyword: 'microwave', basePrice: 4299 },
+    { name: 'Пилосос Philips PowerPro', keyword: 'vacuum', basePrice: 5999 },
+    { name: 'Кавомашина DeLonghi Magnifica', keyword: 'coffee-machine', basePrice: 22499 },
+    { name: 'Мультиварка Tefal Cook4me', keyword: 'pressure-cooker', basePrice: 6499 },
   ],
   Одяг: [
-    'Футболка бавовняна',
-    'Джинси класичні',
-    'Светр вовняний',
-    'Куртка зимова',
-    'Сукня вечірня',
-    'Штани спортивні',
+    { name: 'Футболка бавовняна біла', keyword: 'tshirt', basePrice: 399 },
+    { name: 'Джинси класичні сині', keyword: 'jeans', basePrice: 1299 },
+    { name: 'Светр вовняний', keyword: 'sweater', basePrice: 1799 },
+    { name: 'Куртка зимова пухова', keyword: 'jacket', basePrice: 4999 },
+    { name: 'Сукня вечірня', keyword: 'dress', basePrice: 2499 },
+    { name: 'Штани спортивні', keyword: 'sweatpants', basePrice: 999 },
   ],
   Спорт: [
-    "Футбольний м'яч",
-    'Гантелі 5кг',
-    'Скакалка професійна',
-    'Килимок для йоги',
-    'Велосипед гірський',
-    'Бігова доріжка',
+    { name: "Футбольний м'яч Nike", keyword: 'soccer-ball', basePrice: 899 },
+    { name: 'Гантелі набірні 5кг', keyword: 'dumbbells', basePrice: 1299 },
+    { name: 'Скакалка професійна', keyword: 'jump-rope', basePrice: 299 },
+    { name: 'Килимок для йоги', keyword: 'yoga-mat', basePrice: 599 },
+    { name: 'Велосипед гірський Trek', keyword: 'mountain-bike', basePrice: 18999 },
+    { name: 'Бігова доріжка електрична', keyword: 'treadmill', basePrice: 24999 },
   ],
   'Дім та сад': [
-    'Садовий стіл',
-    'Шезлонг',
-    'Газонокосарка',
-    'Мангал',
-    'Поливальний шланг',
-    'Садові ножиці',
+    { name: 'Садовий стіл дерев\'яний', keyword: 'garden-table', basePrice: 3499 },
+    { name: 'Шезлонг розкладний', keyword: 'sun-lounger', basePrice: 2199 },
+    { name: 'Газонокосарка електрична', keyword: 'lawn-mower', basePrice: 5499 },
+    { name: 'Мангал чавунний', keyword: 'bbq-grill', basePrice: 1899 },
+    { name: 'Поливальний шланг 25м', keyword: 'garden-hose', basePrice: 599 },
+    { name: 'Садові ножиці Fiskars', keyword: 'pruning-shears', basePrice: 449 },
   ],
   Краса: [
-    'Тональний крем',
-    'Туш для вій',
-    'Помада червона',
-    'Парфуми Christian Dior',
-    'Маска для обличчя',
-    'Шампунь проти лупи',
+    { name: 'Тональний крем L\'Oreal', keyword: 'foundation-makeup', basePrice: 599 },
+    { name: 'Туш для вій Maybelline', keyword: 'mascara', basePrice: 349 },
+    { name: 'Помада червона MAC', keyword: 'lipstick', basePrice: 799 },
+    { name: 'Парфуми Christian Dior Sauvage', keyword: 'perfume', basePrice: 4299 },
+    { name: 'Маска для обличчя зволожуюча', keyword: 'face-mask', basePrice: 249 },
+    { name: 'Шампунь проти лупи Head&Shoulders', keyword: 'shampoo', basePrice: 199 },
   ],
   Авто: [
-    'Шини зимові',
-    'Автомобільний пилосос',
-    'Тримач для телефону',
-    'Набір інструментів',
-    'Рідина омивача',
-    'Чохли для сидінь',
+    { name: 'Шини зимові Michelin 205/55 R16', keyword: 'car-tire', basePrice: 4299 },
+    { name: 'Автомобільний пилосос Karcher', keyword: 'car-vacuum', basePrice: 1499 },
+    { name: 'Тримач для телефону магнітний', keyword: 'phone-mount', basePrice: 299 },
+    { name: 'Набір інструментів 108 предметів', keyword: 'toolbox', basePrice: 2499 },
+    { name: 'Рідина омивача зимова 5л', keyword: 'windshield-washer', basePrice: 199 },
+    { name: 'Чохли для сидінь універсальні', keyword: 'car-seat-cover', basePrice: 1199 },
   ],
   'Дитячі товари': [
-    'Лялька Barbie',
-    'Конструктор Lego',
-    'Машинка на пульті',
-    "М'яка іграшка ведмедик",
-    'Пазли 3D',
-    'Розвиваюча книжка',
+    { name: 'Лялька Barbie Dreamhouse', keyword: 'barbie-doll', basePrice: 1499 },
+    { name: 'Конструктор LEGO Star Wars', keyword: 'lego', basePrice: 2799 },
+    { name: 'Машинка на пульті керування', keyword: 'rc-car', basePrice: 999 },
+    { name: "М'яка іграшка ведмедик", keyword: 'teddy-bear', basePrice: 599 },
+    { name: 'Пазли 3D дерев\'яні', keyword: 'puzzle', basePrice: 449 },
+    { name: 'Розвиваюча книжка з наліпками', keyword: 'kids-book', basePrice: 199 },
   ],
 }
+
+const imageUrl = (keyword: string, seed: number) =>
+  `https://loremflickr.com/600/600/${keyword}?lock=${seed}`
+
+const round = (n: number) => Math.round(n * 100) / 100
 
 async function main() {
   console.log('🌱 Starting database seeding...')
 
-  for (const categoryName of categories) {
+  let totalProducts = 0
+  let imageSeed = 1
+
+  for (const [categoryName, products] of Object.entries(productsByCategory)) {
     console.log(`Creating category: ${categoryName}`)
 
     const category = await prisma.category.create({
       data: { name: categoryName },
     })
 
-    const productNames = productsByCategory[categoryName]
-    const products = productNames.map((productName, index) => ({
-      name: productName,
-      description: `Високоякісний ${productName.toLowerCase()} від відомого бренду. Гарантія якості та найкраща ціна на ринку!`,
-      price: (index + 1) * 500 + Math.random() * 500,
-      imageUrl: `https://picsum.photos/id/${(index + 1) * 27}/200/300`,
-      stock: Math.floor(Math.random() * 150) + 10,
-      categoryId: category.id,
-    }))
-
-    await prisma.product.createMany({
-      data: products,
+    const data = products.map(({ name, keyword, basePrice }) => {
+      const variance = (Math.random() - 0.5) * 0.2
+      return {
+        name,
+        description: `${name} — гарантія якості, офіційний імпорт. Безкоштовна доставка по Україні.`,
+        price: round(basePrice * (1 + variance)),
+        imageUrl: imageUrl(keyword, imageSeed++),
+        stock: Math.floor(Math.random() * 150) + 5,
+        categoryId: category.id,
+      }
     })
 
-    console.log(
-      `✅ Added ${products.length} products to category "${categoryName}"`,
-    )
+    await prisma.product.createMany({ data })
+    totalProducts += data.length
+
+    console.log(`✅ Added ${data.length} products to "${categoryName}"`)
   }
 
   console.log('🎉 Database seeding completed successfully!')
   console.log(
-    `📊 Total created: ${categories.length} categories and ${categories.length * 6} products`,
+    `📊 Total: ${Object.keys(productsByCategory).length} categories, ${totalProducts} products`,
   )
 }
 
