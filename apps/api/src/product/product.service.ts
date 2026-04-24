@@ -31,15 +31,13 @@ export class ProductService {
       })
     }
 
-    const where = { AND }
-
-    const total = await this.prisma.product.count({ where })
+    const total = await this.prisma.product.count({ where: { AND } })
 
     const totalPages = Decimal(total).div(take).ceil().toNumber()
     const safePage = Math.min(page, totalPages) || 1
 
     const products = await this.prisma.product.findMany({
-      where,
+      where: { AND },
       take,
       skip: Decimal(take).mul(Decimal(safePage).sub(1)).toNumber(),
       include: {
