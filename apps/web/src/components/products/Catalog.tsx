@@ -1,17 +1,22 @@
 'use client'
 
 import { useProductControllerProducts } from '@repo/api-client'
-import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
+import { PaginationControls } from '@/src/components/ui/pagination'
+import { useCatalogFilters } from '@/src/hooks/useCatalogFilters'
 import { ProductCard } from './ProductCard'
 
-const TAKE = 12
-const SKELETON_COUNT = 8
-const skeletonKeys = Array.from({ length: SKELETON_COUNT }, () => crypto.randomUUID())
-const gridClass = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'
+const skeletonKeyCount = 12
+const skeletonKeys = Array.from({ length: skeletonKeyCount }, () =>
+  crypto.randomUUID(),
+)
 
 const ProductCardSkeleton: React.FC = () => (
-  <div className={'flex flex-col bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
+  <div
+    className={
+      'flex flex-col bg-white rounded-2xl border border-gray-200 overflow-hidden'
+    }
+  >
     <div className={'aspect-square bg-gray-200 animate-pulse'} />
     <div className={'flex flex-col gap-2 p-3'}>
       <div className={'h-3 w-16 bg-gray-200 rounded animate-pulse'} />
@@ -23,117 +28,75 @@ const ProductCardSkeleton: React.FC = () => (
   </div>
 )
 
-const EmptyState: React.FC = () => (
-  <div className={'flex flex-col items-center justify-center py-24 gap-2'}>
-    <p className={'text-sm font-medium text-gray-500'}>{'Каталог порожній'}</p>
-  </div>
-)
-
-type ErrorMessageProps = { onRetry: () => void }
-const ErrorMessage: React.FC<ErrorMessageProps> = ({ onRetry }) => (
-  <div className={'flex flex-col items-center justify-center py-24 gap-3'}>
-    <p className={'text-sm font-medium text-red-500'}>{'Не вдалося завантажити товари'}</p>
-    <p className={'text-xs text-gray-400'}>{'Спробуйте оновити сторінку'}</p>
-    <button
-      type={'button'}
-      onClick={onRetry}
-      className={
-        'flex items-center gap-1.5 mt-1 px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-medium cursor-pointer hover:bg-gray-700 font-[inherit] border-none'
-      }
-    >
-      <RefreshCw size={14} />
-      {'Спробувати знову'}
-    </button>
-  </div>
-)
-
 export const Catalog: React.FC = () => {
-  const [page, setPage] = useState(1)
+  const [filters, setFilters] = useCatalogFilters()
+  const { page, take, search, categoryId } = filters
 
-  // Pass `undefined` as second arg to force UseQueryResult overload (data: TData | undefined)
-  const query = useProductControllerProducts({ page, take: TAKE }, undefined)
+  const {
+    data: productData,
+    isLoading,
+    isError,
+  } = useProductControllerProducts({
+    page,
+    take,
+    ...(search ? { search } : {}),
+    ...(categoryId ? { categoryId } : {}),
+  })
 
-  const totalPages = query.isSuccess ? query.data.data.totalPages : 1
+  const products = productData?.data.products ?? []
+  const total = productData?.data.total ?? 0
+  const totalPages = productData?.data.totalPages ?? 1
 
-  const handlePrev = useCallback(() => {
-    setPage((p) => Math.max(1, p - 1))
-  }, [])
-
-  const handleNext = useCallback(() => {
-    setPage((p) => Math.min(totalPages, p + 1))
-  }, [totalPages])
-
-  const renderContent = () => {
-    if (query.isFetching && !query.isSuccess) {
-      return (
-        <div className={gridClass}>
-          {skeletonKeys.map((key) => (
-            <ProductCardSkeleton key={key} />
-          ))}
-        </div>
-      )
-    }
-
-    if (query.isError) {
-      return <ErrorMessage onRetry={query.refetch} />
-    }
-
-    const { products } = query.data.data
-
-    if (products.length === 0) {
-      return <EmptyState />
-    }
-
-    return (
-      <>
-        <div className={gridClass}>
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-        {totalPages > 1 && (
-          <div className={'flex items-center justify-center gap-3 mt-8'}>
-            <button
-              type={'button'}
-              onClick={handlePrev}
-              disabled={page === 1}
-              className={
-                'flex items-center gap-1 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 bg-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-gray-50 font-[inherit]'
-              }
-            >
-              <ChevronLeft size={16} />
-              {'Назад'}
-            </button>
-            <span className={'text-sm text-gray-500'}>{`${page} / ${totalPages}`}</span>
-            <button
-              type={'button'}
-              onClick={handleNext}
-              disabled={page === totalPages}
-              className={
-                'flex items-center gap-1 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 bg-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:bg-gray-50 font-[inherit]'
-              }
-            >
-              {'Вперед'}
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
-      </>
-    )
-  }
+  const handlePageChange = useCallback(
+    (next: number) => setFilters({ page: next }),
+    [setFilters],
+  )
 
   return (
     <div className={'flex-1 flex flex-col'}>
       <div className={'flex items-center justify-between mb-6'}>
         <h1 className={'text-xl font-semibold text-gray-900'}>
-          {query.isSuccess
-            ? `Каталог товарів (${query.data.data.total.toLocaleString('uk-UA')} товарів)`
-            : 'Каталог товарів'}
+          {isLoading
+            ? 'Каталог товарів'
+            : `Каталог товарів (${total.toLocaleString('uk-UA')} товарів)`}
         </h1>
       </div>
 
-      {renderContent()}
+      {isError ? (
+        <div
+          className={'flex flex-col items-center justify-center py-24 gap-2'}
+        >
+          <p className={'text-sm font-medium text-red-500'}>
+            {'Не вдалося завантажити товари'}
+          </p>
+          <p className={'text-xs text-gray-400'}>
+            {'Спробуйте оновити сторінку'}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div
+            className={'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'}
+          >
+            {isLoading
+              ? skeletonKeys.map((key) => <ProductCardSkeleton key={key} />)
+              : products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+          </div>
+
+          {!isLoading && (
+            <PaginationControls
+              className={'mt-8'}
+              page={page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              prevText={'Назад'}
+              nextText={'Вперед'}
+            />
+          )}
+        </>
+      )}
     </div>
   )
 }
