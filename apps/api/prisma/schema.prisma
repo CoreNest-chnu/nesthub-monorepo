@@ -67,7 +67,7 @@ model Product {
   stock    Int      @default(0)
   rating   Int      @default(0)
 
-  Category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId  String
   
   createdAt   DateTime @default(now())
@@ -76,32 +76,3 @@ model Product {
   @@index([categoryId])
 }
 
-model Cart {
-  id String @id @default(cuid())
-
-  userId String @unique
-
-  user User @relation(fields: [userId], references: [id])
-
-  items CartItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model CartItem {
-  id String @id @default(cuid())
-
-  cartId String
-  cart   Cart @relation(fields: [cartId], references: [id])
-
-  product   Product @relation(fields: [productId], references: [id])
-  productId String
-
-  quantity Int @default(1)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([cartId, productId])
-}
