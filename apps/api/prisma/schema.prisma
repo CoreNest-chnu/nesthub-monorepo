@@ -92,9 +92,9 @@ model CartItem {
   id String @id @default(cuid())
 
   cartId String
-  cart Cart @relation(fields: [cartId], references: [id])
+  cart   Cart @relation(fields: [cartId], references: [id])
 
-  product Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
   productId String
 
   quantity Int @default(1)
