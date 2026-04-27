@@ -13,12 +13,16 @@ export class PaginationQueryDto {
   categoryId?: CategoryId
 
   search?: string
-
+  
+  @Type(() => Number)
   rating?: number
 
+  @Type(() => Number)
   stock?: number
 
+  @Type(() => Number)
   priceFrom?: number
 
-  priceTo?: number;
+  @Type(() => Number)
+  priceTo?: number
 }

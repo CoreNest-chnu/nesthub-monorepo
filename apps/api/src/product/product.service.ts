@@ -18,7 +18,7 @@ export class ProductService {
     rating,
     stock,
     priceTo,
-    priceFrom,
+    priceFrom = 0,
   }: PaginationQueryDto): Promise<PaginatedResponseDto> {
     const AND: Prisma.ProductWhereInput[] = []
 
@@ -36,18 +36,18 @@ export class ProductService {
     }
 
     if (rating) {
-      AND.push({ rating: { gte: rating } })
+      AND.push({ rating })
     }
 
     if (stock !== undefined) {
       AND.push({ stock: stock ? { gt: 0 } : { equals: 0 } })
     }
 
-    if (priceFrom !== undefined || priceTo !== undefined) {
+    if (priceTo !== undefined) {
       AND.push({
         price: {
-          ...(priceFrom !== undefined && { gte: priceFrom }),
-          ...(priceTo !== undefined && { lte: priceTo }),
+          ...(priceFrom && { gte: priceFrom }),
+          lte: priceTo,
         },
       })
     }
