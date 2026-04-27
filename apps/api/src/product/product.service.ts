@@ -15,6 +15,10 @@ export class ProductService {
     take = 20,
     categoryId,
     search,
+    rating,
+    stock,
+    priceTo,
+    priceFrom,
   }: PaginationQueryDto): Promise<PaginatedResponseDto> {
     const AND: Prisma.ProductWhereInput[] = []
 
@@ -28,6 +32,23 @@ export class ProductService {
           { name: { contains: search, mode: 'insensitive' } },
           { description: { contains: search, mode: 'insensitive' } },
         ],
+      })
+    }
+
+    if (rating) {
+      AND.push({ rating: { gte: rating } })
+    }
+
+    if (stock !== undefined) {
+      AND.push({ stock: stock ? { gt: 0 } : { equals: 0 } })
+    }
+
+    if (priceFrom !== undefined || priceTo !== undefined) {
+      AND.push({
+        price: {
+          ...(priceFrom !== undefined && { gte: priceFrom }),
+          ...(priceTo !== undefined && { lte: priceTo }),
+        },
       })
     }
 

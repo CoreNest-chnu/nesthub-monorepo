@@ -13,4 +13,12 @@ export class PaginationQueryDto {
   categoryId?: CategoryId
 
   search?: string
+
+  rating?: number
+
+  stock?: number
+
+  priceFrom?: number
+
+  priceTo?: number;
 }
