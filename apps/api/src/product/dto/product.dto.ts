@@ -13,12 +13,12 @@ export class PaginationQueryDto {
   categoryId?: CategoryId
 
   search?: string
-  
-  @Type(() => Number)
-  rating?: number
 
-  @Type(() => Number)
-  stock?: number
+  @ApiProperty({ type: Number, isArray: true, required: false })
+  rating?: number[]
+
+  @ApiProperty({ type: Boolean, required: false })
+  stock?: boolean
 
   @Type(() => Number)
   priceFrom?: number

@@ -5,6 +5,7 @@ import { Decimal } from '@prisma/client/runtime/index-browser'
 import { PaginatedResponseDto, ProductModel } from './dto/product.model'
 import { Prisma } from 'generated/prisma/browser'
 import { ProductId } from 'generated/prisma/types'
+import { castArray } from 'lodash'
 
 @Injectable()
 export class ProductService {
@@ -18,7 +19,7 @@ export class ProductService {
     rating,
     stock,
     priceTo,
-    priceFrom = 0,
+    priceFrom,
   }: PaginationQueryDto): Promise<PaginatedResponseDto> {
     const AND: Prisma.ProductWhereInput[] = []
 
@@ -35,19 +36,24 @@ export class ProductService {
       })
     }
 
-    if (rating) {
-      AND.push({ rating })
+    const ratings = castArray(rating ?? [])
+      .flatMap((value) => String(value).split(','))
+      .map(Number)
+      .filter(Number.isFinite)
+
+    if (ratings.length > 0) {
+      AND.push({ rating: { in: ratings } })
     }
 
     if (stock !== undefined) {
       AND.push({ stock: stock ? { gt: 0 } : { equals: 0 } })
     }
 
-    if (priceTo !== undefined) {
+    if (priceFrom !== undefined || priceTo !== undefined) {
       AND.push({
         price: {
-          ...(priceFrom && { gte: priceFrom }),
-          lte: priceTo,
+          ...(priceFrom !== undefined && { gte: priceFrom }),
+          ...(priceTo !== undefined && { lte: priceTo }),
         },
       })
     }
