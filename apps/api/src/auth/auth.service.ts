@@ -35,6 +35,9 @@ export class AuthService {
         password: hashedPassword,
         firstName,
         lastName,
+        Cart: {
+          create: {},
+        },
       },
       select: {
         id: true,
