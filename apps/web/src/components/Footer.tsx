@@ -42,7 +42,7 @@ export const Footer: React.FC = () => (
             {'Контакти'}
           </h4>
           <ul className={'flex flex-col gap-2'}>
-            <li className={'text-sm text-gray-500'}>{'+38 (099) 123-45-67'}</li>
+            <li className={'text-sm text-gray-500'}>{'+38 (096) 743-82-33'}</li>
             <li className={'text-sm text-gray-500'}>{'info@nesthub.ua'}</li>
             <li className={'text-sm text-gray-500'}>
               {'Чернівці, вул. Рівненська, 16'}
