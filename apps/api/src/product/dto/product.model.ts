@@ -18,7 +18,7 @@ export class ProductModel {
   rating!: number
 
   @ApiProperty({ type: () => CategoryModel })
-  category!: CategoryModel
+  Category!: CategoryModel
 
   createdAt!: Date
   updatedAt!: Date

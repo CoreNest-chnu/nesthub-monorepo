@@ -74,7 +74,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className={'flex flex-col gap-2 p-3 flex-1'}>
         <div className={'flex items-center justify-between gap-2'}>
           <span className={'text-xs text-blue-600 font-medium truncate'}>
-            {product.category.name}
+            {product.Category.name}
           </span>
           <Rating value={product.rating} />
         </div>
