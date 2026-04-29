@@ -1,4 +1,10 @@
-import { Controller, Get, Param, Query } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Param,
+  ParseBoolPipe,
+  Query,
+} from '@nestjs/common'
 import { ProductService } from './product.service'
 import { PaginationQueryDto } from './dto/product.dto'
 import { PaginatedResponseDto, ProductModel } from './dto/product.model'
@@ -10,11 +16,12 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
-  @ApiResponse({ status: 201, type: PaginatedResponseDto })
+  @ApiResponse({ status: 200, type: PaginatedResponseDto })
   async products(
     @Query() query: PaginationQueryDto,
+    @Query('stock', new ParseBoolPipe({ optional: true })) stock?: boolean,
   ): Promise<PaginatedResponseDto> {
-    return await this.productService.getProducts(query)
+    return await this.productService.getProducts({ ...query, stock })
   }
 
   @Get(':id')

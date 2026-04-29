@@ -30,7 +30,8 @@ const ProductCardSkeleton: React.FC = () => (
 
 export const Catalog: React.FC = () => {
   const [filters, setFilters] = useCatalogFilters()
-  const { page, take, search, categoryId } = filters
+  const { page, take, search, categoryId, priceFrom, priceTo, rating, stock } =
+    filters
 
   const {
     data: productData,
@@ -41,6 +42,10 @@ export const Catalog: React.FC = () => {
     take,
     ...(search ? { search } : {}),
     ...(categoryId ? { categoryId } : {}),
+    ...(priceFrom !== null ? { priceFrom } : {}),
+    ...(priceTo !== null ? { priceTo } : {}),
+    ...(rating.length > 0 ? { rating } : {}),
+    ...(stock !== null ? { stock } : {}),
   })
 
   const products = productData?.data.products ?? []
