@@ -41,7 +41,7 @@ export class ProductService {
       take,
       skip: Decimal(take).mul(Decimal(safePage).sub(1)).toNumber(),
       include: {
-        category: true,
+        Category: true,
       },
     })
 
@@ -58,7 +58,7 @@ export class ProductService {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
-        category: true,
+        Category: true,
       },
     })
 
