@@ -1,16 +1,22 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
 import { CartItemModel, CartModel } from './dto/cart.model'
 import { UserId } from 'generated/prisma/types'
-import { CartItemDto } from './dto/cart.dto'
+import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 
 export type AddCartItem = {
   id: UserId
 } & CartItemDto
+
+type UpdateCartItems = {
+  id: UserId
+  cartItemId: string
+} & UpdateCartItemDto
 
 @Injectable()
 export class CartService {
@@ -43,7 +49,7 @@ export class CartService {
     })
 
     if (!cart) {
-      throw new NotFoundException()
+      throw new NotFoundException("You don't have cart, pls contact support")
     }
 
     const cartItem = await this.prisma.cartItem.findUnique({
@@ -59,7 +65,7 @@ export class CartService {
     const currentQty = cartItem?.quantity ?? 0
 
     if (currentQty + qty > product.stock) {
-      throw new BadRequestException()
+      throw new BadRequestException("We don't have such amount in stock")
     }
 
     return await this.prisma.cartItem.upsert({
@@ -77,6 +83,34 @@ export class CartService {
         productId,
         quantity: qty,
       },
+    })
+  }
+
+  async updateItem({
+    id,
+    cartItemId,
+    qty,
+  }: UpdateCartItems): Promise<CartItemModel> {
+    const cartItem = await this.prisma.cartItem.findUnique({
+      where: { id: cartItemId },
+      include: { Product: true, Cart: true },
+    })
+
+    if (!cartItem) {
+      throw new NotFoundException('There is no such item in your cart')
+    }
+
+    if (cartItem.Cart.userId !== id) {
+      throw new ForbiddenException('You do not have access to this cart item')
+    }
+
+    if (cartItem.Product.stock < qty) {
+      throw new BadRequestException("We don't have such amount in stock")
+    }
+
+    return this.prisma.cartItem.update({
+      where: { id: cartItemId },
+      data: { quantity: qty },
     })
   }
 }

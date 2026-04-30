@@ -7,3 +7,7 @@ export class CartItemDto {
 
   qty: number
 }
+
+export class UpdateCartItemDto {
+  qty: number
+}
