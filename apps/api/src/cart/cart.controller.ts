@@ -14,6 +14,7 @@ import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 import { CurrentUser } from 'src/user/user.util'
 import { User } from 'generated/prisma/browser'
 import { ApiResponse } from '@nestjs/swagger'
+import { UserId } from 'generated/prisma/types'
 
 @Controller('cart')
 export class CartController {
@@ -22,7 +23,7 @@ export class CartController {
   @Get(':id')
   @ApiResponse({ status: 200, type: CartModel })
   @UseGuards(JwtAuthGuard)
-  async getCart(@Param('id') id: string): Promise<CartModel> {
+  async getCart(@Param('id') id: UserId): Promise<CartModel> {
     return await this.cartService.getCart(id)
   }
 
