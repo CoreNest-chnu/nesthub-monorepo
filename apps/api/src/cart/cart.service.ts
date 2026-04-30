@@ -1,7 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
 import { CartItemModel, CartModel } from './dto/cart.model'
 import { itemDTO } from './dto/cart.dto'
+import { UserId } from 'generated/prisma/types'
+
+type UpdateCartItems = {
+  id: UserId
+  cartItemId: string
+  qty: number
+}
 
 @Injectable()
 export class CartService {
@@ -45,6 +57,34 @@ export class CartService {
         productId,
         quantity: qty,
       },
+    })
+  }
+
+  async updateItem({
+    id,
+    cartItemId,
+    qty,
+  }: UpdateCartItems): Promise<CartItemModel> {
+    const cartItem = await this.prisma.cartItem.findUnique({
+      where: { id: cartItemId },
+      include: { Product: true, Cart: true },
+    })
+
+    if (!cartItem) {
+      throw new NotFoundException()
+    }
+
+    if (cartItem.Cart.userId !== id) {
+      throw new ForbiddenException()
+    }
+
+    if (cartItem.Product.stock < qty) {
+      throw new BadRequestException()
+    }
+
+    return this.prisma.cartItem.update({
+      where: { id: cartItemId },
+      data: { quantity: qty },
     })
   }
 }
