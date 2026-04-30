@@ -25,8 +25,7 @@ export class CartController {
   ): Promise<CartItemModel> {
     return await this.cartService.addItem({
       id,
-      productId: cartItemDto.productId,
-      qty: cartItemDto.qty,
+      ...cartItemDto,
     })
   }
 }
