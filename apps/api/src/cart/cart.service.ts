@@ -105,7 +105,7 @@ export class CartService {
     }
 
     if (cartItem.Product.stock < qty) {
-      throw new BadRequestException()
+      throw new BadRequestException("We don't have such amount in stock")
     }
 
     return this.prisma.cartItem.update({
