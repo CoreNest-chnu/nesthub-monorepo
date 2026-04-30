@@ -1,8 +1,8 @@
-import { ProductId, UserId } from 'generated/prisma/types'
+import { ApiProperty } from '@nestjs/swagger'
+import { ProductId } from 'generated/prisma/types'
 
-export class itemDTO {
-  id: UserId
-
+export class CartItemDto {
+  @ApiProperty({ type: String })
   productId: ProductId
 
   qty: number

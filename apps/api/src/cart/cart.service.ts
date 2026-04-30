@@ -1,7 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
 import { CartItemModel, CartModel } from './dto/cart.model'
-import { itemDTO } from './dto/cart.dto'
+import { UserId } from 'generated/prisma/types'
+
+export type AddCartItem = {
+  id: UserId
+  productId: string
+  qty: number
+}
 
 @Injectable()
 export class CartService {
@@ -18,7 +28,7 @@ export class CartService {
     return cart
   }
 
-  async addItem({ id, productId, qty }: itemDTO): Promise<CartItemModel> {
+  async addItem({ id, productId, qty }: AddCartItem): Promise<CartItemModel> {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       select: { stock: true },
@@ -28,7 +38,30 @@ export class CartService {
       throw new NotFoundException('Product not found')
     }
 
-    const cart = await this.getCart(id)
+    const cart = await this.prisma.cart.findUnique({
+      where: { userId: id },
+      select: { id: true },
+    })
+
+    if (!cart) {
+      throw new NotFoundException()
+    }
+
+    const cartItem = await this.prisma.cartItem.findUnique({
+      where: {
+        cartId_productId: {
+          cartId: cart.id,
+          productId,
+        },
+      },
+      select: { quantity: true },
+    })
+
+    const currentQty = cartItem?.quantity ?? 0
+
+    if (currentQty + qty > product.stock) {
+      throw new BadRequestException()
+    }
 
     return await this.prisma.cartItem.upsert({
       where: {

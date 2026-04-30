@@ -3,7 +3,9 @@ import { CartService } from './cart.service'
 import { JwtAuthGuard } from 'src/auth/auth.guard'
 import { CartItemModel, CartModel } from './dto/cart.model'
 import { UserId } from 'generated/prisma/types'
-import { itemDTO } from './dto/cart.dto'
+import { CartItemDto } from './dto/cart.dto'
+import { CurrentUser } from 'src/user/user.util'
+import { User } from 'generated/prisma/browser'
 
 @Controller('cart')
 export class CartController {
@@ -17,7 +19,14 @@ export class CartController {
 
   @Post('items')
   @UseGuards(JwtAuthGuard)
-  async addItem(@Body() itemDTO: itemDTO): Promise<CartItemModel> {
-    return await this.cartService.addItem(itemDTO)
+  async addItem(
+    @CurrentUser() { id }: User,
+    @Body() cartItemDto: CartItemDto,
+  ): Promise<CartItemModel> {
+    return await this.cartService.addItem({
+      id,
+      productId: cartItemDto.productId,
+      qty: cartItemDto.qty,
+    })
   }
 }
