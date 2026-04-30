@@ -10,7 +10,7 @@ import {
 import { CartService } from './cart.service'
 import { JwtAuthGuard } from 'src/auth/auth.guard'
 import { CartItemModel, CartModel } from './dto/cart.model'
-import { CartItemDto } from './dto/cart.dto'
+import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 import { CurrentUser } from 'src/user/user.util'
 import { User } from 'generated/prisma/browser'
 
@@ -41,8 +41,12 @@ export class CartController {
   async updateItem(
     @CurrentUser() { id }: User,
     @Param('id') cartItemId: string,
-    @Body('qty') qty: number,
+    @Body() updateItemDto: UpdateCartItemDto,
   ): Promise<CartItemModel> {
-    return await this.cartService.updateItem({ id, cartItemId, qty })
+    return await this.cartService.updateItem({
+      id,
+      cartItemId,
+      ...updateItemDto,
+    })
   }
 }

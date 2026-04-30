@@ -7,7 +7,7 @@ import {
 import { PrismaService } from 'prisma/lib/prisma'
 import { CartItemModel, CartModel } from './dto/cart.model'
 import { UserId } from 'generated/prisma/types'
-import { CartItemDto } from './dto/cart.dto'
+import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 
 export type AddCartItem = {
   id: UserId
@@ -16,8 +16,7 @@ export type AddCartItem = {
 type UpdateCartItems = {
   id: UserId
   cartItemId: string
-  qty: number
-}
+} & UpdateCartItemDto
 
 @Injectable()
 export class CartService {
