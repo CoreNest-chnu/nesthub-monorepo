@@ -13,18 +13,21 @@ import { CartItemModel, CartModel } from './dto/cart.model'
 import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 import { CurrentUser } from 'src/user/user.util'
 import { User } from 'generated/prisma/browser'
+import { ApiResponse } from '@nestjs/swagger'
 
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Get(':id')
+  @ApiResponse({ status: 200, type: CartModel })
   @UseGuards(JwtAuthGuard)
   async getCart(@Param('id') id: string): Promise<CartModel> {
     return await this.cartService.getCart(id)
   }
 
   @Post('items')
+  @ApiResponse({ status: 201, type: CartItemModel })
   @UseGuards(JwtAuthGuard)
   async addItem(
     @CurrentUser() { id }: User,
@@ -37,6 +40,7 @@ export class CartController {
   }
 
   @Patch('items/:id')
+  @ApiResponse({ status: 200, type: CartItemModel })
   @UseGuards(JwtAuthGuard)
   async updateItem(
     @CurrentUser() { id }: User,
