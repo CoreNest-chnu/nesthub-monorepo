@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseBoolPipe,
-  Query,
-} from '@nestjs/common'
+import { Controller, Get, Param, ParseBoolPipe, Query } from '@nestjs/common'
 import { ProductService } from './product.service'
 import { PaginationQueryDto } from './dto/product.dto'
 import { PaginatedResponseDto, ProductModel } from './dto/product.model'
