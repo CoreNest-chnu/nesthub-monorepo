@@ -3,11 +3,11 @@ import { ProductId } from 'generated/prisma/types'
 
 export class CartItemDto {
   @ApiProperty({ type: String })
-  productId: ProductId
+  productId!: ProductId
 
-  qty: number
+  qty!: number
 }
 
 export class UpdateCartItemDto {
-  qty: number
+  qty!: number
 }
