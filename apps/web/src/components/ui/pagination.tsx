@@ -54,12 +54,12 @@ function PaginationLink({
       size={size}
       className={cn(className)}
     >
-      <a
-        aria-current={isActive ? 'page' : undefined}
-        data-slot={'pagination-link'}
-        data-active={isActive}
-        {...props}
-      />
+      {React.createElement('a', {
+        'aria-current': isActive ? 'page' : undefined,
+        'data-slot': 'pagination-link',
+        'data-active': isActive,
+        ...props,
+      })}
     </Button>
   )
 }
@@ -120,7 +120,7 @@ function PaginationEllipsis({
   )
 }
 
-type PageItem = number | 'ellipsis'
+type PageItem = number | 'ellipsis-left' | 'ellipsis-right'
 
 const buildPageItems = (current: number, total: number): PageItem[] => {
   if (total <= 7) {
@@ -131,9 +131,9 @@ const buildPageItems = (current: number, total: number): PageItem[] => {
   const start = Math.max(2, current - 1)
   const end = Math.min(total - 1, current + 1)
 
-  if (start > 2) items.push('ellipsis')
+  if (start > 2) items.push('ellipsis-left')
   for (let i = start; i <= end; i++) items.push(i)
-  if (end < total - 1) items.push('ellipsis')
+  if (end < total - 1) items.push('ellipsis-right')
 
   items.push(total)
   return items
@@ -182,6 +182,7 @@ function PaginationControls({
           />
         </PaginationItem>
 
+<<<<<<< HEAD
         {items.map((item, idx) =>
           item === 'ellipsis' ? (
             <PaginationItem
@@ -190,6 +191,11 @@ function PaginationControls({
                 idx
               }-${page}`}
             >
+=======
+        {items.map((item) =>
+          item === 'ellipsis-left' || item === 'ellipsis-right' ? (
+            <PaginationItem key={item}>
+>>>>>>> 6079ae6 (fix: product tests and lint issues)
               <PaginationEllipsis />
             </PaginationItem>
           ) : (

@@ -4,6 +4,13 @@ import { PrismaService } from 'prisma/lib/prisma'
 import { Role } from '../../generated/prisma/client'
 import { UserService } from './user.service'
 
+type PrismaMock = {
+  user: {
+    findUnique: ReturnType<typeof mock>
+    update: ReturnType<typeof mock>
+  }
+}
+
 const dbUser = {
   id: '1',
   email: 'test@test.com',
@@ -19,6 +26,7 @@ const dbUser = {
   createdAt: new Date(),
 }
 
+<<<<<<< HEAD
 type PrismaMock = {
   user: {
     findUnique: jest.Mock
@@ -26,6 +34,8 @@ type PrismaMock = {
   }
 }
 
+=======
+>>>>>>> 6079ae6 (fix: product tests and lint issues)
 let prisma: PrismaMock
 let service: UserService
 
@@ -37,8 +47,12 @@ beforeEach(() => {
     },
   }
 
+<<<<<<< HEAD
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   service = new UserService(prisma as unknown as PrismaService)
+=======
+  service = new UserService(prisma as unknown)
+>>>>>>> 6079ae6 (fix: product tests and lint issues)
 })
 
 describe('UserService', () => {
