@@ -106,6 +106,7 @@ async function main() {
         price: round(basePrice * (1 + variance)),
         imageUrl: imageUrl(keyword, imageSeed++),
         stock: Math.floor(Math.random() * 150) + 5,
+        rating: Math.floor(Math.random() * 5) + 1,
         categoryId: category.id,
       }
     })

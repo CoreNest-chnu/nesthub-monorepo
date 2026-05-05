@@ -15,9 +15,10 @@ export class ProductModel {
   imageUrl!: string | null
   stock!: number
   categoryId!: string
+  rating!: number
 
   @ApiProperty({ type: () => CategoryModel })
-  category!: CategoryModel
+  Category!: CategoryModel
 
   createdAt!: Date
   updatedAt!: Date
