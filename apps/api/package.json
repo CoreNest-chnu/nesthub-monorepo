@@ -75,8 +75,7 @@
   "coverageDirectory": "../coverage",
   "testEnvironment": "node",
   "moduleNameMapper": {
-    "^prisma/lib/prisma$": "<rootDir>/../prisma/lib/prisma",
-    "^dotenv/config$": "<rootDir>/../test/__mocks__/dotenv-config.js"
+    "^prisma/lib/prisma$": "<rootDir>/../prisma/lib/prisma"
   }
   }
 }
