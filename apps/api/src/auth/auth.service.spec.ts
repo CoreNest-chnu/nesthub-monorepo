@@ -1,17 +1,17 @@
-import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test'
 import { ConflictException, UnauthorizedException } from '@nestjs/common'
+import { PrismaService } from 'prisma/lib/prisma'
 import { Role } from '../../generated/prisma/client'
 import { AuthService } from './auth.service'
 
-const mockCompare = mock()
+const mockCompare = jest.fn<Promise<boolean>, [string, string]>()
 
-mock.module('bcrypt', () => ({
+jest.mock('bcrypt', () => ({
   compare: (data: string, encrypted: string) => mockCompare(data, encrypted),
 }))
 
-mock.module('./util/auth.util', () => ({
-  hashPassword: mock().mockResolvedValue('hashed'),
-  signToken: mock().mockReturnValue('token'),
+jest.mock('./util/auth.util', () => ({
+  hashPassword: jest.fn().mockResolvedValue('hashed'),
+  signToken: jest.fn().mockReturnValue('token'),
 }))
 
 const dbUser = {
@@ -29,19 +29,28 @@ const dbUser = {
   createdAt: new Date(),
 }
 
-let prisma: any
+type PrismaMock = {
+  user: {
+    findUnique: jest.Mock
+    create: jest.Mock
+    findFirst: jest.Mock
+  }
+}
+
+let prisma: PrismaMock
 let service: AuthService
 
 beforeEach(() => {
   prisma = {
     user: {
-      findUnique: mock(),
-      create: mock(),
-      findFirst: mock(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      findFirst: jest.fn(),
     },
   }
 
-  service = new AuthService(prisma)
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  service = new AuthService(prisma as unknown as PrismaService)
 
   process.env.STATIC_SALT = 'pepper'
 })

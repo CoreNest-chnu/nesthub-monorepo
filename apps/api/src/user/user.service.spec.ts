@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test'
+/// <reference types="jest" />
 import { NotFoundException } from '@nestjs/common'
+import { PrismaService } from 'prisma/lib/prisma'
 import { Role } from '../../generated/prisma/client'
 import { UserService } from './user.service'
 
@@ -18,18 +19,26 @@ const dbUser = {
   createdAt: new Date(),
 }
 
-let prisma: any
+type PrismaMock = {
+  user: {
+    findUnique: jest.Mock
+    update: jest.Mock
+  }
+}
+
+let prisma: PrismaMock
 let service: UserService
 
 beforeEach(() => {
   prisma = {
     user: {
-      findUnique: mock(),
-      update: mock(),
+      findUnique: jest.fn(),
+      update: jest.fn(),
     },
   }
 
-  service = new UserService(prisma)
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  service = new UserService(prisma as unknown as PrismaService)
 })
 
 describe('UserService', () => {

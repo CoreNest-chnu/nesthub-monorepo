@@ -1,20 +1,31 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test'
+type PrismaMock = {
+  product: {
+    findMany: jest.Mock<Promise<unknown[]>, [unknown?]>
+  }
+}
+
+type PaginationQuery = { page: number; limit: number }
+
+type Service = {
+  prisma: PrismaMock
+  getAllProducts: (query: PaginationQuery) => Promise<unknown[]>
+}
 
 describe('Product pagination', () => {
-  let prismaMock: any
-  let service: any
+  let prismaMock: PrismaMock
+  let service: Service
 
   beforeEach(() => {
     prismaMock = {
       product: {
-        findMany: mock(),
+        findMany: jest.fn<Promise<unknown[]>, [unknown?]>(),
       },
     }
 
     service = {
       prisma: prismaMock,
 
-      getAllProducts: async (query: { page: number; limit: number }) => {
+      getAllProducts: (query: PaginationQuery) => {
         const skip = (query.page - 1) * query.limit
 
         return prismaMock.product.findMany({
@@ -24,14 +35,11 @@ describe('Product pagination', () => {
       },
     }
 
-    mock.restore()
+    jest.clearAllMocks()
   })
 
   it('повертає продукти з пагінацією', async () => {
-    prismaMock.product.findMany.mockResolvedValue([
-      { id: 1 },
-      { id: 2 },
-    ])
+    prismaMock.product.findMany.mockResolvedValue([{ id: 1 }, { id: 2 }])
 
     const result = await service.getAllProducts({
       page: 1,

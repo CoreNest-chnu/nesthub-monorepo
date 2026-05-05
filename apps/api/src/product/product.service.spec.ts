@@ -1,26 +1,39 @@
-import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { NotFoundException } from '@nestjs/common'
 
+type PrismaMock = {
+  product: {
+    findMany: jest.Mock<Promise<unknown[]>, [unknown?]>
+    findUnique: jest.Mock<Promise<unknown>, [unknown]>
+  }
+}
+
+type Service = {
+  prisma: PrismaMock
+  getAllProducts: () => Promise<unknown[]>
+  getByCategory: (categoryId: number | string) => Promise<unknown[]>
+  getProductById: (id: number) => Promise<unknown>
+}
+
 describe('ProductService', () => {
-  let prismaMock: any
-  let service: any
+  let prismaMock: PrismaMock
+  let service: Service
 
   beforeEach(() => {
     prismaMock = {
       product: {
-        findMany: mock(),
-        findUnique: mock(),
+        findMany: jest.fn<Promise<unknown[]>, [unknown?]>(),
+        findUnique: jest.fn<Promise<unknown>, [unknown]>(),
       },
     }
 
     service = {
       prisma: prismaMock,
 
-      getAllProducts: async () => {
+      getAllProducts: () => {
         return prismaMock.product.findMany()
       },
 
-      getByCategory: async (categoryId: number | 'ALL') => {
+      getByCategory: (categoryId: number | string) => {
         if (categoryId === 'ALL') {
           return prismaMock.product.findMany()
         }
@@ -29,14 +42,14 @@ describe('ProductService', () => {
 
         return prismaMock.product.findMany({
           where: {
-            categoryId: Number.isNaN(id) ? NaN : id,
+            categoryId: Number.isNaN(id) ? Number.NaN : id,
           },
         })
       },
 
       getProductById: async (id: number) => {
         const product = await prismaMock.product.findUnique({
-          where: { id: Number(id) },
+          where: { id },
         })
 
         if (!product) {
@@ -47,7 +60,7 @@ describe('ProductService', () => {
       },
     }
 
-    mock.restore()
+    jest.clearAllMocks()
   })
 
   it('повертає всі продукти', async () => {
@@ -69,9 +82,7 @@ describe('ProductService', () => {
   })
 
   it('фільтрує продукти по categoryId', async () => {
-    prismaMock.product.findMany.mockResolvedValue([
-      { id: 1, categoryId: 2 },
-    ])
+    prismaMock.product.findMany.mockResolvedValue([{ id: 1, categoryId: 2 }])
 
     const result = await service.getByCategory('2')
 
@@ -79,7 +90,7 @@ describe('ProductService', () => {
       where: { categoryId: 2 },
     })
 
-    expect(result[0].categoryId).toBe(2)
+    expect(result[0]).toEqual({ id: 1, categoryId: 2 })
   })
 
   it('повертає продукт по id', async () => {
@@ -97,18 +108,16 @@ describe('ProductService', () => {
   it('кидає NotFoundException якщо продукт не знайдено', async () => {
     prismaMock.product.findUnique.mockResolvedValue(null)
 
-    await expect(service.getProductById(999)).rejects.toThrow(
-      NotFoundException,
-    )
+    await expect(service.getProductById(999)).rejects.toThrow(NotFoundException)
   })
 
   it('обробляє невалідний categoryId', async () => {
     prismaMock.product.findMany.mockResolvedValue([])
 
-    const result = await service.getByCategory('abc' as any)
+    const result = await service.getByCategory('abc')
 
     expect(prismaMock.product.findMany).toHaveBeenCalledWith({
-      where: { categoryId: NaN },
+      where: { categoryId: Number.NaN },
     })
 
     expect(result).toEqual([])

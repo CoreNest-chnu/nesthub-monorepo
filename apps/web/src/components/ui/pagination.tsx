@@ -162,11 +162,12 @@ function PaginationControls({
   const prevDisabled = page === 1
   const nextDisabled = page === totalPages
 
-  const handle = (target: number) => (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    if (target < 1 || target > totalPages || target === page) return
-    onPageChange(target)
-  }
+  const handle =
+    (target: number) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault()
+      if (target < 1 || target > totalPages || target === page) return
+      onPageChange(target)
+    }
 
   return (
     <Pagination className={className}>
@@ -183,7 +184,12 @@ function PaginationControls({
 
         {items.map((item, idx) =>
           item === 'ellipsis' ? (
-            <PaginationItem key={`ellipsis-${idx}-${page}`}>
+            <PaginationItem
+              key={`ellipsis-${
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                idx
+              }-${page}`}
+            >
               <PaginationEllipsis />
             </PaginationItem>
           ) : (
