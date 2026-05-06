@@ -118,7 +118,7 @@ function Carousel({
         canScrollNext,
       }}
     >
-      {/* biome-ignore lint/a11y/useSemanticElements: div is required for Embla carousel API to attach */}
+      {/** biome-ignore lint/a11y/useSemanticElements: <explanation> */}
       <div
         onKeyDownCapture={handleKeyDown}
         className={cn('relative', className)}
@@ -158,7 +158,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<'div'>) {
   const { orientation } = useCarousel()
 
   return (
-    // biome-ignore lint/a11y/useSemanticElements: div is required for Embla carousel slide structure
+    // biome-ignore lint/a11y/useSemanticElements: <explanation>
     <div
       role={'group'}
       aria-roledescription={'slide'}

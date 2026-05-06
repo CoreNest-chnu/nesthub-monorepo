@@ -15,23 +15,8 @@ type Service = {
 }
 
 describe('ProductService', () => {
-<<<<<<< HEAD
   let prismaMock: PrismaMock
   let service: Service
-=======
-  let prismaMock: {
-    product: {
-      findMany: ReturnType<typeof mock>
-      findUnique: ReturnType<typeof mock>
-    }
-  }
-
-  let service: {
-    getAllProducts: () => Promise<unknown>
-    getByCategory: (categoryId: number | 'ALL') => Promise<unknown>
-    getProductById: (id: number) => Promise<unknown>
-  }
->>>>>>> 6079ae6 (fix: product tests and lint issues)
 
   beforeEach(() => {
     prismaMock = {
@@ -42,13 +27,9 @@ describe('ProductService', () => {
     }
 
     service = {
-<<<<<<< HEAD
       prisma: prismaMock,
 
       getAllProducts: () => {
-=======
-      getAllProducts: async () => {
->>>>>>> 6079ae6 (fix: product tests and lint issues)
         return prismaMock.product.findMany()
       },
 
@@ -78,11 +59,8 @@ describe('ProductService', () => {
         return product
       },
     }
-<<<<<<< HEAD
 
     jest.clearAllMocks()
-=======
->>>>>>> 6079ae6 (fix: product tests and lint issues)
   })
 
   it('повертає всі продукти', async () => {
@@ -106,7 +84,7 @@ describe('ProductService', () => {
   it('фільтрує продукти по categoryId', async () => {
     prismaMock.product.findMany.mockResolvedValue([{ id: 1, categoryId: 2 }])
 
-    const result = await service.getByCategory('2') as Array<{ categoryId: number }>
+    const result = await service.getByCategory('2')
 
     expect(prismaMock.product.findMany).toHaveBeenCalledWith({
       where: { categoryId: 2 },

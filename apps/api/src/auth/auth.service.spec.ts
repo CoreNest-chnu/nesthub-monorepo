@@ -29,7 +29,6 @@ const dbUser = {
   createdAt: new Date(),
 }
 
-<<<<<<< HEAD
 type PrismaMock = {
   user: {
     findUnique: jest.Mock
@@ -39,15 +38,6 @@ type PrismaMock = {
 }
 
 let prisma: PrismaMock
-=======
-let prisma: {
-  user: {
-    findUnique: ReturnType<typeof mock>
-    create: ReturnType<typeof mock>
-    findFirst: ReturnType<typeof mock>
-  }
-}
->>>>>>> 6079ae6 (fix: product tests and lint issues)
 let service: AuthService
 
 beforeEach(() => {
