@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { writeFileSync } from 'node:fs'
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'

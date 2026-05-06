@@ -8,7 +8,7 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  @ApiResponse({ status: 200, type: CategoryModel })
+  @ApiResponse({ status: 200, type: CategoryModel, isArray: true })
   async findAll(): Promise<CategoryModel[]> {
     return await this.categoriesService.findAll()
   }

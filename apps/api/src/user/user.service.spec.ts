@@ -1,9 +1,8 @@
+/// <reference types="jest" />
 import { NotFoundException } from '@nestjs/common'
-import { mockDeep, type DeepMockProxy } from 'jest-mock-extended'
-import { type PrismaClient, Role } from '../../generated/prisma/client'
+import { PrismaService } from 'prisma/lib/prisma'
+import { Role } from '../../generated/prisma/client'
 import { UserService } from './user.service'
-
-jest.mock('prisma/lib/prisma')
 
 const dbUser = {
   id: '1',
@@ -20,36 +19,57 @@ const dbUser = {
   createdAt: new Date(),
 }
 
-let prisma: DeepMockProxy<PrismaClient>
+type PrismaMock = {
+  user: {
+    findUnique: jest.Mock
+    update: jest.Mock
+  }
+}
+
+let prisma: PrismaMock
 let service: UserService
 
 beforeEach(() => {
-  prisma = mockDeep<PrismaClient>()
-  service = new UserService(prisma)
-  jest.clearAllMocks()
+  prisma = {
+    user: {
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+  }
+
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  service = new UserService(prisma as unknown as PrismaService)
 })
 
-describe('getMyProfile', () => {
-  it('повертає профіль користувача', async () => {
-    prisma.user.findUnique.mockResolvedValue(dbUser)
+describe('UserService', () => {
+  describe('getMyProfile', () => {
+    it('повертає профіль користувача', async () => {
+      prisma.user.findUnique.mockResolvedValue(dbUser)
 
-    await expect(service.getMyProfile('1')).resolves.toEqual(dbUser)
+      await expect(service.getMyProfile('1')).resolves.toEqual(dbUser)
+    })
+
+    it('кидає NotFoundException якщо користувача немає', async () => {
+      prisma.user.findUnique.mockResolvedValue(null)
+
+      await expect(service.getMyProfile('1')).rejects.toThrow(
+        NotFoundException,
+      )
+    })
   })
 
-  it('кидає NotFoundException якщо користувача не існує', async () => {
-    prisma.user.findUnique.mockResolvedValue(null)
+  describe('updateProfile', () => {
+    it('оновлює та повертає профіль користувача', async () => {
+      const updated = { ...dbUser, firstName: 'Jane' }
 
-    await expect(service.getMyProfile('1')).rejects.toThrow(NotFoundException)
-  })
-})
+      prisma.user.update.mockResolvedValue(updated)
 
-describe('updateProfile', () => {
-  it('оновлює та повертає профіль', async () => {
-    const updated = { ...dbUser, firstName: 'Jane' }
-    prisma.user.update.mockResolvedValue(updated)
-
-    await expect(
-      service.updateProfile({ id: '1', data: { firstName: 'Jane' } }),
-    ).resolves.toEqual(updated)
+      await expect(
+        service.updateProfile({
+          id: '1',
+          data: { firstName: 'Jane' },
+        }),
+      ).resolves.toEqual(updated)
+    })
   })
 })
