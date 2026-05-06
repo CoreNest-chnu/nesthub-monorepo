@@ -45,8 +45,9 @@ function PaginationLink({
   className,
   isActive,
   size = 'icon',
+  children,
   ...props
-}: PaginationLinkProps) {
+}: PaginationLinkProps & { children?: React.ReactNode }) {
   return (
     <Button
       asChild
@@ -59,6 +60,7 @@ function PaginationLink({
         'data-slot': 'pagination-link',
         'data-active': isActive,
         ...props,
+        children,
       })}
     </Button>
   )
@@ -162,12 +164,11 @@ function PaginationControls({
   const prevDisabled = page === 1
   const nextDisabled = page === totalPages
 
-  const handle =
-    (target: number) => (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault()
-      if (target < 1 || target > totalPages || target === page) return
-      onPageChange(target)
-    }
+  const handle = (target: number) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    if (target < 1 || target > totalPages || target === page) return
+    onPageChange(target)
+  }
 
   return (
     <Pagination className={className}>
@@ -182,20 +183,9 @@ function PaginationControls({
           />
         </PaginationItem>
 
-<<<<<<< HEAD
-        {items.map((item, idx) =>
-          item === 'ellipsis' ? (
-            <PaginationItem
-              key={`ellipsis-${
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                idx
-              }-${page}`}
-            >
-=======
         {items.map((item) =>
           item === 'ellipsis-left' || item === 'ellipsis-right' ? (
             <PaginationItem key={item}>
->>>>>>> 6079ae6 (fix: product tests and lint issues)
               <PaginationEllipsis />
             </PaginationItem>
           ) : (

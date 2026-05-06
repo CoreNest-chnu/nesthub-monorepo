@@ -1,50 +1,20 @@
-type PrismaMock = {
-  product: {
-    findMany: jest.Mock<Promise<unknown[]>, [unknown?]>
-  }
-}
-
-type PaginationQuery = { page: number; limit: number }
-
-type Service = {
-  prisma: PrismaMock
-  getAllProducts: (query: PaginationQuery) => Promise<unknown[]>
-}
+import { describe, it, expect, beforeEach, mock } from 'bun:test'
 
 describe('Product pagination', () => {
-<<<<<<< HEAD
-  let prismaMock: PrismaMock
-  let service: Service
-=======
-  let prismaMock: {
-  product: {
-    findMany: ReturnType<typeof mock>
-  }
-}
-
-let service: {
-  getAllProducts: (query: { page: number; limit: number }) => Promise<unknown>
-}
->>>>>>> 6079ae6 (fix: product tests and lint issues)
+  let prismaMock: Record<string, unknown>
+let service: Record<string, unknown>
 
   beforeEach(() => {
     prismaMock = {
       product: {
-        findMany: jest.fn<Promise<unknown[]>, [unknown?]>(),
+        findMany: mock(),
       },
     }
 
     service = {
-      prisma: prismaMock,
-
-<<<<<<< HEAD
-      getAllProducts: (query: PaginationQuery) => {
-        const skip = (query.page - 1) * query.limit
-=======
       getAllProducts: async (query: { page: number; limit: number }) => {
         const page = Math.max(query.page, 1)
         const skip = (page - 1) * query.limit
->>>>>>> 6079ae6 (fix: product tests and lint issues)
 
         return prismaMock.product.findMany({
           skip,
@@ -52,20 +22,12 @@ let service: {
         })
       },
     }
-<<<<<<< HEAD
-
-    jest.clearAllMocks()
-=======
->>>>>>> 6079ae6 (fix: product tests and lint issues)
   })
 
   it('повертає продукти з пагінацією', async () => {
     prismaMock.product.findMany.mockResolvedValue([{ id: 1 }, { id: 2 }])
 
-    const result = await service.getAllProducts({
-      page: 1,
-      limit: 10,
-    })
+    const result = await service.getAllProducts({ page: 1, limit: 10 })
 
     expect(prismaMock.product.findMany).toHaveBeenCalledWith({
       skip: 0,
@@ -75,13 +37,10 @@ let service: {
     expect(result).toHaveLength(2)
   })
 
-  it('правильно рахує skip для сторінки', async () => {
+  it('правильно рахує skip', async () => {
     prismaMock.product.findMany.mockResolvedValue([])
 
-    await service.getAllProducts({
-      page: 3,
-      limit: 10,
-    })
+    await service.getAllProducts({ page: 3, limit: 10 })
 
     expect(prismaMock.product.findMany).toHaveBeenCalledWith({
       skip: 20,
@@ -89,13 +48,10 @@ let service: {
     })
   })
 
-  it('не дає негативний skip якщо page < 1', async () => {
+  it('не дає негативний page', async () => {
     prismaMock.product.findMany.mockResolvedValue([])
 
-    await service.getAllProducts({
-      page: -5,
-      limit: 10,
-    })
+    await service.getAllProducts({ page: -5, limit: 10 })
 
     expect(prismaMock.product.findMany).toHaveBeenCalledWith({
       skip: 0,

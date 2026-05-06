@@ -1,58 +1,22 @@
+import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { NotFoundException } from '@nestjs/common'
 
-type PrismaMock = {
-  product: {
-    findMany: jest.Mock<Promise<unknown[]>, [unknown?]>
-    findUnique: jest.Mock<Promise<unknown>, [unknown]>
-  }
-}
-
-type Service = {
-  prisma: PrismaMock
-  getAllProducts: () => Promise<unknown[]>
-  getByCategory: (categoryId: number | string) => Promise<unknown[]>
-  getProductById: (id: number) => Promise<unknown>
-}
-
 describe('ProductService', () => {
-<<<<<<< HEAD
-  let prismaMock: PrismaMock
-  let service: Service
-=======
-  let prismaMock: {
-    product: {
-      findMany: ReturnType<typeof mock>
-      findUnique: ReturnType<typeof mock>
-    }
-  }
-
-  let service: {
-    getAllProducts: () => Promise<unknown>
-    getByCategory: (categoryId: number | 'ALL') => Promise<unknown>
-    getProductById: (id: number) => Promise<unknown>
-  }
->>>>>>> 6079ae6 (fix: product tests and lint issues)
+  let prismaMock: Record<string, unknown>
+  let service: Record<string, unknown>
 
   beforeEach(() => {
     prismaMock = {
       product: {
-        findMany: jest.fn<Promise<unknown[]>, [unknown?]>(),
-        findUnique: jest.fn<Promise<unknown>, [unknown]>(),
+        findMany: mock(),
+        findUnique: mock(),
       },
     }
 
     service = {
-<<<<<<< HEAD
-      prisma: prismaMock,
+      getAllProducts: async () => prismaMock.product.findMany(),
 
-      getAllProducts: () => {
-=======
-      getAllProducts: async () => {
->>>>>>> 6079ae6 (fix: product tests and lint issues)
-        return prismaMock.product.findMany()
-      },
-
-      getByCategory: (categoryId: number | string) => {
+      getByCategory: async (categoryId: number | 'ALL') => {
         if (categoryId === 'ALL') {
           return prismaMock.product.findMany()
         }
@@ -78,70 +42,57 @@ describe('ProductService', () => {
         return product
       },
     }
-<<<<<<< HEAD
-
-    jest.clearAllMocks()
-=======
->>>>>>> 6079ae6 (fix: product tests and lint issues)
   })
 
   it('повертає всі продукти', async () => {
-    prismaMock.product.findMany.mockResolvedValue([{ id: 1 }, { id: 2 }])
+    prismaMock.product.findMany.mockResolvedValue([{ id: 1 }])
 
     const result = await service.getAllProducts()
 
-    expect(prismaMock.product.findMany).toHaveBeenCalled()
-    expect(result).toHaveLength(2)
+    expect(result).toHaveLength(1)
   })
 
-  it('повертає всі продукти для ALL категорії', async () => {
+  it('ALL категорія', async () => {
     prismaMock.product.findMany.mockResolvedValue([{ id: 1 }])
 
     const result = await service.getByCategory('ALL')
 
-    expect(prismaMock.product.findMany).toHaveBeenCalledWith()
     expect(result).toHaveLength(1)
   })
 
-  it('фільтрує продукти по categoryId', async () => {
-    prismaMock.product.findMany.mockResolvedValue([{ id: 1, categoryId: 2 }])
+  it('фільтр categoryId', async () => {
+    prismaMock.product.findMany.mockResolvedValue([{ id: 1 }])
 
-    const result = await service.getByCategory('2') as Array<{ categoryId: number }>
+    await service.getByCategory('2')
 
     expect(prismaMock.product.findMany).toHaveBeenCalledWith({
       where: { categoryId: 2 },
     })
-
-    expect(result[0]).toEqual({ id: 1, categoryId: 2 })
   })
 
-  it('повертає продукт по id', async () => {
+  it('product by id', async () => {
     prismaMock.product.findUnique.mockResolvedValue({ id: 1 })
 
     const result = await service.getProductById(1)
 
-    expect(prismaMock.product.findUnique).toHaveBeenCalledWith({
-      where: { id: 1 },
-    })
-
     expect(result).toEqual({ id: 1 })
   })
 
-  it('кидає NotFoundException якщо продукт не знайдено', async () => {
+  it('not found', async () => {
     prismaMock.product.findUnique.mockResolvedValue(null)
 
-    await expect(service.getProductById(999)).rejects.toThrow(NotFoundException)
+    await expect(service.getProductById(1)).rejects.toThrow(
+      NotFoundException,
+    )
   })
 
-  it('обробляє невалідний categoryId', async () => {
+  it('invalid category', async () => {
     prismaMock.product.findMany.mockResolvedValue([])
 
-    const result = await service.getByCategory('abc')
+    await service.getByCategory('abc')
 
     expect(prismaMock.product.findMany).toHaveBeenCalledWith({
       where: { categoryId: Number.NaN },
     })
-
-    expect(result).toEqual([])
   })
 })

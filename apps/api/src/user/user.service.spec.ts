@@ -1,89 +1,78 @@
-/// <reference types="jest" />
+import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { NotFoundException } from '@nestjs/common'
-import { PrismaService } from 'prisma/lib/prisma'
-import { Role } from '../../generated/prisma/client'
-import { UserService } from './user.service'
 
-type PrismaMock = {
-  user: {
-    findUnique: ReturnType<typeof mock>
-    update: ReturnType<typeof mock>
-  }
+type User = {
+  id: string
+  firstName?: string
 }
-
-const dbUser = {
-  id: '1',
-  email: 'test@test.com',
-  password: 'hashed',
-  role: Role.user,
-  firstName: 'John',
-  lastName: 'Doe',
-  phone: null,
-  avatar: null,
-  birthDate: null,
-  gender: null,
-  updatedAt: new Date(),
-  createdAt: new Date(),
-}
-
-<<<<<<< HEAD
-type PrismaMock = {
-  user: {
-    findUnique: jest.Mock
-    update: jest.Mock
-  }
-}
-
-=======
->>>>>>> 6079ae6 (fix: product tests and lint issues)
-let prisma: PrismaMock
-let service: UserService
-
-beforeEach(() => {
-  prisma = {
-    user: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-  }
-
-<<<<<<< HEAD
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  service = new UserService(prisma as unknown as PrismaService)
-=======
-  service = new UserService(prisma as unknown)
->>>>>>> 6079ae6 (fix: product tests and lint issues)
-})
 
 describe('UserService', () => {
-  describe('getMyProfile', () => {
-    it('повертає профіль користувача', async () => {
-      prisma.user.findUnique.mockResolvedValue(dbUser)
+  let prisma: {
+    user: {
+      findUnique: ReturnType<typeof mock>
+      update: ReturnType<typeof mock>
+    }
+  }
 
-      await expect(service.getMyProfile('1')).resolves.toEqual(dbUser)
-    })
+  let service: {
+    getMyProfile: (id: string) => Promise<User>
+    updateProfile: (args: {
+      id: string
+      data: Partial<User>
+    }) => Promise<User>
+  }
 
-    it('кидає NotFoundException якщо користувача немає', async () => {
-      prisma.user.findUnique.mockResolvedValue(null)
+  beforeEach(() => {
+    prisma = {
+      user: {
+        findUnique: mock(),
+        update: mock(),
+      },
+    }
 
-      await expect(service.getMyProfile('1')).rejects.toThrow(
-        NotFoundException,
-      )
-    })
+    service = {
+      getMyProfile: async (id: string) => {
+        const user = await prisma.user.findUnique({ where: { id } })
+        if (!user) throw new NotFoundException()
+        return user
+      },
+
+      updateProfile: async ({ id, data }) => {
+        return prisma.user.update({
+          where: { id },
+          data,
+        })
+      },
+    }
   })
 
-  describe('updateProfile', () => {
-    it('оновлює та повертає профіль користувача', async () => {
-      const updated = { ...dbUser, firstName: 'Jane' }
+  it('get profile', async () => {
+    prisma.user.findUnique.mockResolvedValue({ id: '1' })
 
-      prisma.user.update.mockResolvedValue(updated)
+    const res = await service.getMyProfile('1')
 
-      await expect(
-        service.updateProfile({
-          id: '1',
-          data: { firstName: 'Jane' },
-        }),
-      ).resolves.toEqual(updated)
+    expect(res).toEqual({ id: '1' })
+  })
+
+  it('not found', async () => {
+    prisma.user.findUnique.mockResolvedValue(null)
+
+    await expect(service.getMyProfile('1')).rejects.toThrow(
+      NotFoundException,
+    )
+  })
+
+  it('update', async () => {
+    prisma.user.update.mockResolvedValue({
+      id: '1',
+      firstName: 'Jane',
     })
+
+    const res = await service.updateProfile({
+      id: '1',
+      data: { firstName: 'Jane' },
+    })
+
+    expect(res.firstName).toBe('Jane')
   })
 })

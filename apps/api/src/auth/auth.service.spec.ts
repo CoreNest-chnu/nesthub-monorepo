@@ -1,138 +1,127 @@
+import { describe, it, expect, beforeEach, mock } from 'bun:test'
 import { ConflictException, UnauthorizedException } from '@nestjs/common'
-import { PrismaService } from 'prisma/lib/prisma'
 import { Role } from '../../generated/prisma/client'
-import { AuthService } from './auth.service'
 
-const mockCompare = jest.fn<Promise<boolean>, [string, string]>()
+const mockCompare = mock()
 
-jest.mock('bcrypt', () => ({
-  compare: (data: string, encrypted: string) => mockCompare(data, encrypted),
+mock.module('bcrypt', () => ({
+  compare: (a: string, b: string) => mockCompare(a, b),
 }))
 
-jest.mock('./util/auth.util', () => ({
-  hashPassword: jest.fn().mockResolvedValue('hashed'),
-  signToken: jest.fn().mockReturnValue('token'),
+mock.module('./util/auth.util', () => ({
+  hashPassword: mock().mockResolvedValue('hashed'),
+  signToken: mock().mockReturnValue('token'),
 }))
 
-const dbUser = {
-  id: '1',
-  email: 'test@test.com',
-  password: 'hashed',
-  role: Role.user,
-  firstName: 'John',
-  lastName: 'Doe',
-  phone: null,
-  avatar: null,
-  birthDate: null,
-  gender: null,
-  updatedAt: new Date(),
-  createdAt: new Date(),
+type User = {
+  id: string
+  email: string
+  password: string
+  role: Role
 }
-
-<<<<<<< HEAD
-type PrismaMock = {
-  user: {
-    findUnique: jest.Mock
-    create: jest.Mock
-    findFirst: jest.Mock
-  }
-}
-
-let prisma: PrismaMock
-=======
-let prisma: {
-  user: {
-    findUnique: ReturnType<typeof mock>
-    create: ReturnType<typeof mock>
-    findFirst: ReturnType<typeof mock>
-  }
-}
->>>>>>> 6079ae6 (fix: product tests and lint issues)
-let service: AuthService
-
-beforeEach(() => {
-  prisma = {
-    user: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      findFirst: jest.fn(),
-    },
-  }
-
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  service = new AuthService(prisma as unknown as PrismaService)
-
-  process.env.STATIC_SALT = 'pepper'
-})
-
-afterEach(() => {
-  delete process.env.STATIC_SALT
-})
 
 describe('AuthService', () => {
-  describe('registerUser', () => {
-    it('реєструє користувача і повертає токен', async () => {
-      prisma.user.findUnique.mockResolvedValue(null)
-      prisma.user.create.mockResolvedValue(dbUser)
+  let prisma: {
+    user: {
+      findUnique: ReturnType<typeof mock>
+      create: ReturnType<typeof mock>
+      findFirst: ReturnType<typeof mock>
+    }
+  }
 
-      await expect(
-        service.registerUser({
-          email: 'test@test.com',
-          password: '123',
-          firstName: 'A',
-          lastName: 'B',
-        }),
-      ).resolves.toEqual({ id: '1', token: 'token', role: Role.user })
+  let service: {
+  registerUser: (data: Record<string, unknown>) => Promise<unknown>
+  loginUser: (data: Record<string, unknown>) => Promise<unknown>
+}
+
+  const dbUser: User = {
+    id: '1',
+    email: 'test@test.com',
+    password: 'hashed',
+    role: Role.user,
+  }
+
+  beforeEach(() => {
+    prisma = {
+      user: {
+        findUnique: mock(),
+        create: mock(),
+        findFirst: mock(),
+      },
+    }
+
+    // 👉 тут ти підключаєш реальний AuthService, але з мок Prisma
+    const { AuthService } = require('./auth.service')
+    service = new AuthService(prisma)
+
+    process.env.STATIC_SALT = 'pepper'
+  })
+
+  it('register user', async () => {
+    prisma.user.findUnique.mockResolvedValue(null)
+    prisma.user.create.mockResolvedValue(dbUser)
+
+    const res = await service.registerUser({
+      email: 'test@test.com',
+      password: '123',
+      firstName: 'A',
+      lastName: 'B',
     })
 
-    it('кидає ConflictException якщо email вже зайнятий', async () => {
-      prisma.user.findUnique.mockResolvedValue(dbUser)
-
-      await expect(
-        service.registerUser({
-          email: 'test@test.com',
-          password: '123',
-          firstName: 'A',
-          lastName: 'B',
-        }),
-      ).rejects.toThrow(ConflictException)
+    expect(res).toEqual({
+      id: '1',
+      token: 'token',
+      role: Role.user,
     })
   })
 
-  describe('loginUser', () => {
-    it('логінить користувача і повертає токен', async () => {
-      prisma.user.findFirst.mockResolvedValue(dbUser)
-      mockCompare.mockResolvedValue(true)
+  it('email already exists', async () => {
+    prisma.user.findUnique.mockResolvedValue(dbUser)
 
-      await expect(
-        service.loginUser({ email: 'test@test.com', password: '123' }),
-      ).resolves.toEqual({ id: '1', token: 'token', role: Role.user })
+    await expect(
+      service.registerUser({
+        email: 'test@test.com',
+        password: '123',
+        firstName: 'A',
+        lastName: 'B',
+      }),
+    ).rejects.toThrow(ConflictException)
+  })
+
+  it('login success', async () => {
+    prisma.user.findFirst.mockResolvedValue(dbUser)
+    mockCompare.mockResolvedValue(true)
+
+    const res = await service.loginUser({
+      email: 'test@test.com',
+      password: '123',
     })
 
-    it('кидає UnauthorizedException якщо користувача немає', async () => {
-      prisma.user.findFirst.mockResolvedValue(null)
+    expect(res.id).toBe('1')
+    expect(res.token).toBe('token')
+  })
 
-      await expect(
-        service.loginUser({ email: 'x@x.com', password: '123' }),
-      ).rejects.toThrow(UnauthorizedException)
-    })
+  it('wrong password', async () => {
+    prisma.user.findFirst.mockResolvedValue(dbUser)
+    mockCompare.mockResolvedValue(false)
 
-    it('кидає UnauthorizedException якщо пароль неправильний', async () => {
-      prisma.user.findFirst.mockResolvedValue(dbUser)
-      mockCompare.mockResolvedValue(false)
+    await expect(
+      service.loginUser({
+        email: 'test@test.com',
+        password: 'wrong',
+      }),
+    ).rejects.toThrow(UnauthorizedException)
+  })
 
-      await expect(
-        service.loginUser({ email: 'test@test.com', password: 'wrong' }),
-      ).rejects.toThrow(UnauthorizedException)
-    })
+  it('missing salt', async () => {
+    delete process.env.STATIC_SALT
+    prisma.user.findFirst.mockResolvedValue(dbUser)
 
-    it('кидає помилку якщо STATIC_SALT не заданий', async () => {
-      delete process.env.STATIC_SALT
-      prisma.user.findFirst.mockResolvedValue(dbUser)
-
-      await expect(
-        service.loginUser({ email: 'test@test.com', password: '123' }),
-      ).rejects.toThrow('STATIC_SALT is not defined')
-    })
+    await expect(
+      service.loginUser({
+        email: 'test@test.com',
+        password: '123',
+      }),
+    ).rejects.toThrow('STATIC_SALT is not defined')
   })
 })
