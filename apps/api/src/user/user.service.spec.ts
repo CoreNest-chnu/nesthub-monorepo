@@ -36,7 +36,6 @@ describe('UserService', () => {
         if (!user) throw new NotFoundException()
         return user
       },
-
       updateProfile: async ({ id, data }) => {
         return prisma.user.update({
           where: { id },
@@ -48,18 +47,13 @@ describe('UserService', () => {
 
   it('get profile', async () => {
     prisma.user.findUnique.mockResolvedValue({ id: '1' })
-
     const res = await service.getMyProfile('1')
-
     expect(res).toEqual({ id: '1' })
   })
 
   it('not found', async () => {
     prisma.user.findUnique.mockResolvedValue(null)
-
-    await expect(service.getMyProfile('1')).rejects.toThrow(
-      NotFoundException,
-    )
+    await expect(service.getMyProfile('1')).rejects.toThrow(NotFoundException)
   })
 
   it('update', async () => {
@@ -67,12 +61,10 @@ describe('UserService', () => {
       id: '1',
       firstName: 'Jane',
     })
-
     const res = await service.updateProfile({
       id: '1',
       data: { firstName: 'Jane' },
     })
-
     expect(res.firstName).toBe('Jane')
   })
 })

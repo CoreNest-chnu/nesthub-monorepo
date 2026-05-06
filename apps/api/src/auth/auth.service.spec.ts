@@ -30,9 +30,9 @@ describe('AuthService', () => {
   }
 
   let service: {
-  registerUser: (data: Record<string, unknown>) => Promise<unknown>
-  loginUser: (data: Record<string, unknown>) => Promise<unknown>
-}
+    registerUser: (data: Record<string, unknown>) => Promise<unknown>
+    loginUser: (data: Record<string, unknown>) => Promise<unknown>
+  }
 
   const dbUser: User = {
     id: '1',
@@ -50,10 +50,8 @@ describe('AuthService', () => {
       },
     }
 
-    // 👉 тут ти підключаєш реальний AuthService, але з мок Prisma
     const { AuthService } = require('./auth.service')
     service = new AuthService(prisma)
-
     process.env.STATIC_SALT = 'pepper'
   })
 
