@@ -10,18 +10,14 @@ import { StepIndicator } from './StepIndicator'
 export const CartView: React.FC = () => {
   const { data: session, status } = useSession()
 
-  const userId = session?.user.id
   const accessToken = session?.accessToken
 
-  const { data: cartData, isLoading: cartLoading } = useCartControllerGetCart(
-    userId ?? '',
-    {
-      request: {
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-      },
-      query: { enabled: Boolean(userId) && Boolean(accessToken) },
+  const { data: cartData, isLoading: cartLoading } = useCartControllerGetCart({
+    request: {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     },
-  )
+    query: { enabled: Boolean(accessToken) },
+  })
 
   if (status === 'loading' || cartLoading) {
     return (
