@@ -19,7 +19,7 @@ type UpdateCartItems = {
 } & UpdateCartItemDto
 
 type DeleteCartItem = {
-  id: UserId
+  userId: UserId
   cartItemId: string
 }
 
@@ -138,7 +138,7 @@ export class CartService {
     })
   }
 
-  async deleteItem({ id, cartItemId }: DeleteCartItem): Promise<void> {
+  async deleteItem({ userId, cartItemId }: DeleteCartItem): Promise<void> {
     const cartItem = await this.prisma.cartItem.findUnique({
       where: { id: cartItemId },
       include: { Cart: true },
@@ -148,7 +148,7 @@ export class CartService {
       throw new NotFoundException('Wrong cart item id')
     }
 
-    if (cartItem.Cart.userId !== id) {
+    if (cartItem.Cart.userId !== userId) {
       throw new ForbiddenException('You do not have access to this cart item')
     }
 
