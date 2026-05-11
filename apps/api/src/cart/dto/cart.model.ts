@@ -25,6 +25,6 @@ export class CartItemWithStockModel extends CartItemModel {
 }
 
 export class CartWithStockModel extends CartModel {
-  @ApiProperty({ type: () => [CartItemWithStockModel] })
+  @ApiProperty({ type: () => CartItemWithStockModel, isArray: true })
   declare Items: CartItemWithStockModel[]
 }

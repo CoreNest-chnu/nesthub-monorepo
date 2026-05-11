@@ -49,7 +49,6 @@ export class CartService {
       ...cart,
       Items: cart.Items.map((item) => ({
         ...item,
-
         isOverStock: item.quantity > item.Product.stock,
       })),
     }
