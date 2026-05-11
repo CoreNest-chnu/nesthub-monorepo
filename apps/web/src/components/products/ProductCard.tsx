@@ -11,6 +11,7 @@ import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useCallback } from 'react'
 import { toast } from 'sonner'
 
 type ProductCardProps = {
@@ -71,22 +72,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const pathname = usePathname()
   const queryClient = useQueryClient()
 
-  const { mutate: addToCart, isPending } = useCartControllerAddItem({
-    mutation: {
-      onSuccess: () => {
-        toast.success('Товар додано до кошика')
-        if (session?.user.id) {
-          queryClient.invalidateQueries({
-            queryKey: getCartControllerGetCartQueryKey(session.user.id),
-          })
-        }
-      },
-      onError: (error) => {
-        toast.error(
-          error instanceof Error ? error.message : 'Помилка додавання до кошика',
-        )
-      },
-    },
+  const { mutateAsync: addToCart, isPending } = useCartControllerAddItem({
     request: {
       headers: session?.accessToken
         ? { Authorization: `Bearer ${session.accessToken}` }
@@ -94,13 +80,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     },
   })
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(async () => {
     if (!session) {
       router.push(`/login?returnUrl=${encodeURIComponent(pathname)}`)
       return
     }
-    addToCart({ data: { productId: product.id, qty: 1 } })
-  }
+    try {
+      await addToCart({ data: { productId: product.id, qty: 1 } })
+      toast.success('Товар додано до кошика')
+      queryClient.invalidateQueries({
+        queryKey: getCartControllerGetCartQueryKey(session.user.id),
+      })
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Помилка додавання до кошика',
+      )
+    }
+  }, [session, router, pathname, addToCart, product.id, queryClient])
 
   return (
     <article
