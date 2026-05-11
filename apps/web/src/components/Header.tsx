@@ -6,7 +6,6 @@ import {
   Search,
   LayoutGrid,
   Heart,
-  ShoppingCart,
   User,
   Settings,
   LogIn,
@@ -17,8 +16,9 @@ import { Button } from './ui/button'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import debounce from 'lodash/debounce'
 import { useSession } from 'next-auth/react'
-import { useCategoriesControllerFindAll, useCartControllerGetCart } from '@repo/api-client'
+import { useCategoriesControllerFindAll } from '@repo/api-client'
 import { useCatalogFilters } from '@/src/hooks/useCatalogFilters'
+import { CartBadge } from './cart/CartBadge'
 
 type NavAction = {
   href: string
@@ -129,29 +129,11 @@ export const Header: React.FC = () => {
   const isUnauthenticated = status === 'unauthenticated'
   const isCatalog = pathname === catalogPath
 
-  const userId = session?.user.id
-  const accessToken = session?.accessToken
-
-  const { data: cartData } = useCartControllerGetCart(userId ?? '', {
-    request: {
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-    },
-    query: { enabled: Boolean(userId) && Boolean(accessToken) },
-  })
-
-  const cartCount =
-    cartData?.data.Items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0
-
   const actions: NavAction[] = useMemo(
     () => [
       { href: '/catalog', label: 'Каталог', icon: <LayoutGrid /> },
       { href: '/favorites', label: 'Обране', icon: <Heart />, badge: 0 },
-      {
-        href: '/cart',
-        label: 'Кошик',
-        icon: <ShoppingCart />,
-        badge: cartCount,
-      },
+      { href: '/cart', label: 'Кошик', icon: <CartBadge /> },
       isUnauthenticated
         ? { href: '/login', label: 'Вхід', icon: <LogIn /> }
         : { href: '/profile', label: 'Профіль', icon: <User /> },
@@ -159,7 +141,7 @@ export const Header: React.FC = () => {
         ? [{ href: '/admin', label: 'Адмін', icon: <Settings /> }]
         : []),
     ],
-    [isAdmin, isUnauthenticated, cartCount],
+    [isAdmin, isUnauthenticated],
   )
 
   return (
