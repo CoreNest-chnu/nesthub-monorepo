@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -53,5 +54,18 @@ export class CartController {
       cartItemId,
       ...updateItemDto,
     })
+  }
+
+  @Delete('items/:id')
+  @ApiResponse({
+    status: 204,
+    description: 'Successfully deleted item from cart',
+  })
+  @UseGuards(JwtAuthGuard)
+  async deleteItem(
+    @CurrentUser() { id }: User,
+    @Param('id') cartItemId: string,
+  ): Promise<void> {
+    return await this.cartService.deleteItem({ id, cartItemId })
   }
 }
