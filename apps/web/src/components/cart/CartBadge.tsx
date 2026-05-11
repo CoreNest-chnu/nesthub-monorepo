@@ -10,7 +10,7 @@ export const CartBadge: React.FC = () => {
   const userId = session?.user.id
   const accessToken = session?.accessToken
 
-  const { data: cartData } = useCartControllerGetCart(userId ?? '', {
+  const { data: cartData } = useCartControllerGetCart({
     request: {
       headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     },
