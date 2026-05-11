@@ -13,7 +13,7 @@ import { hashPassword, signToken } from './util/auth.util'
 export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async registerUser({
+  async create({
     email: inputEmail,
     password,
     firstName,

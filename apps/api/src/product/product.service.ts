@@ -11,7 +11,7 @@ import { castArray } from 'lodash'
 export class ProductService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getProducts({
+  async get({
     page = 1,
     take = 20,
     categoryId,
@@ -81,7 +81,7 @@ export class ProductService {
     }
   }
 
-  async findById(id: ProductId): Promise<ProductModel> {
+  async find(id: ProductId): Promise<ProductModel> {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
