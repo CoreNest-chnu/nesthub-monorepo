@@ -13,7 +13,7 @@ export class AuthController {
   createUser(
     @Body() userCreateDTO: UserCreateDto,
   ): Promise<UserCreateResponseDto> {
-    return this.authService.registerUser(userCreateDTO)
+    return this.authService.create(userCreateDTO)
   }
 
   @Post('login')

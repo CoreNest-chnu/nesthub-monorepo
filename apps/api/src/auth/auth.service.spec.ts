@@ -66,7 +66,7 @@ describe('AuthService', () => {
       prisma.user.create.mockResolvedValue(dbUser)
 
       await expect(
-        service.registerUser({
+        service.create({
           email: 'test@test.com',
           password: '123',
           firstName: 'A',
@@ -79,7 +79,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(dbUser)
 
       await expect(
-        service.registerUser({
+        service.create({
           email: 'test@test.com',
           password: '123',
           firstName: 'A',

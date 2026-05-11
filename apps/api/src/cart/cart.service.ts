@@ -18,6 +18,11 @@ type UpdateCartItems = {
   cartItemId: string
 } & UpdateCartItemDto
 
+type DeleteCartItem = {
+  userId: UserId
+  cartItemId: string
+}
+
 @Injectable()
 export class CartService {
   constructor(private readonly prisma: PrismaService) {}
@@ -33,7 +38,7 @@ export class CartService {
     return cart
   }
 
-  async addItem({ id, productId, qty }: AddCartItem): Promise<CartItemModel> {
+  async add({ id, productId, qty }: AddCartItem): Promise<CartItemModel> {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       select: { stock: true },
@@ -86,7 +91,7 @@ export class CartService {
     })
   }
 
-  async updateItem({
+  async update({
     id,
     cartItemId,
     qty,
@@ -111,6 +116,25 @@ export class CartService {
     return this.prisma.cartItem.update({
       where: { id: cartItemId },
       data: { quantity: qty },
+    })
+  }
+
+  async delete({ userId, cartItemId }: DeleteCartItem): Promise<void> {
+    const cartItem = await this.prisma.cartItem.findUnique({
+      where: { id: cartItemId },
+      include: { Cart: true },
+    })
+
+    if (!cartItem) {
+      throw new NotFoundException('Wrong cart item id')
+    }
+
+    if (cartItem.Cart.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this cart item')
+    }
+
+    await this.prisma.cartItem.delete({
+      where: { id: cartItemId },
     })
   }
 }
