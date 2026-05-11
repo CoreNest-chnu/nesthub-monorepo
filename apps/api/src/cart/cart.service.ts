@@ -19,7 +19,7 @@ type UpdateCartItems = {
 } & UpdateCartItemDto
 
 type DeleteCartItem = {
-  id: UserId
+  userId: UserId
   cartItemId: string
 }
 
@@ -129,7 +129,7 @@ export class CartService {
       throw new NotFoundException('Wrong cart item id')
     }
 
-    if (cartItem.Cart.userId !== id) {
+    if (cartItem.Cart.userId !== userId) {
       throw new ForbiddenException('You do not have access to this cart item')
     }
 
