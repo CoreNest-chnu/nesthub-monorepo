@@ -1,18 +1,10 @@
 'use client'
 
-import {
-  type ProductModel,
-  useCartControllerAddItem,
-  getCartControllerGetCartQueryKey,
-} from '@repo/api-client'
-import { useQueryClient } from '@tanstack/react-query'
+import { type ProductModel } from '@repo/api-client'
 import { Heart, ShoppingCart, Star } from 'lucide-react'
-import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { useCallback } from 'react'
-import { toast } from 'sonner'
+import { useAddToCart } from '@/src/hooks/useAddToCart'
 
 type ProductCardProps = {
   product: ProductModel
@@ -67,36 +59,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const price = Number(product.price).toLocaleString('uk-UA')
   const href = `/products/${product.id}`
 
-  const { data: session } = useSession()
-  const router = useRouter()
-  const pathname = usePathname()
-  const queryClient = useQueryClient()
-
-  const { mutateAsync: addToCart, isPending } = useCartControllerAddItem({
-    request: {
-      headers: session?.accessToken
-        ? { Authorization: `Bearer ${session.accessToken}` }
-        : {},
-    },
-  })
-
-  const handleAddToCart = useCallback(async () => {
-    if (!session) {
-      router.push(`/login?returnUrl=${encodeURIComponent(pathname)}`)
-      return
-    }
-    try {
-      await addToCart({ data: { productId: product.id, qty: 1 } })
-      toast.success('Товар додано до кошика')
-      queryClient.invalidateQueries({
-        queryKey: getCartControllerGetCartQueryKey(session.user.id),
-      })
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Помилка додавання до кошика',
-      )
-    }
-  }, [session, router, pathname, addToCart, product.id, queryClient])
+  const { addToCart, isPending } = useAddToCart()
 
   return (
     <article
@@ -143,7 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <button
             type={'button'}
             disabled={!inStock || isPending}
-            onClick={handleAddToCart}
+            onClick={() => addToCart(product.id)}
             className={
               'flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium border-none cursor-pointer font-[inherit] bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed'
             }
