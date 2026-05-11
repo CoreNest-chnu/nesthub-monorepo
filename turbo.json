@@ -42,6 +42,7 @@
       "outputs": ["src/generated/**"]
     },
     "@repo/api-client#start:dev": {
+      "with": ["api#start:dev"],
       "cache": false,
       "persistent": false
     },
