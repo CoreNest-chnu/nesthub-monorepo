@@ -4,7 +4,7 @@ import { useProductControllerFindbyId } from '@repo/api-client'
 import { ChevronRight, ShoppingCart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { use } from 'react'
+import { use, useCallback } from 'react'
 import { Container } from '@/src/components/Container'
 import { useAddToCart } from '@/src/hooks/useAddToCart'
 
@@ -35,6 +35,12 @@ export default function ProductPage({ params }: Props) {
   const { addToCart, isPending } = useAddToCart()
 
   const product = data?.data
+
+  const handleAddToCart = useCallback(() => {
+    if (product) {
+      addToCart(product.id)
+    }
+  }, [addToCart, product])
 
   return (
     <div className={'min-h-screen bg-gray-50 py-8'}>
@@ -146,7 +152,7 @@ export default function ProductPage({ params }: Props) {
                 <button
                   type={'button'}
                   disabled={product.stock === 0 || isPending}
-                  onClick={() => addToCart(product.id)}
+                  onClick={handleAddToCart}
                   className={
                     'flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed cursor-pointer border-none font-[inherit]'
                   }

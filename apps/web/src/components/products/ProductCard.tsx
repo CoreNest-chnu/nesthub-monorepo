@@ -4,6 +4,7 @@ import { type ProductModel } from '@repo/api-client'
 import { Heart, ShoppingCart, Star } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useCallback } from 'react'
 import { useAddToCart } from '@/src/hooks/useAddToCart'
 
 type ProductCardProps = {
@@ -61,6 +62,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const { addToCart, isPending } = useAddToCart()
 
+  const handleAddToCart = useCallback(
+    () => addToCart(product.id),
+    [addToCart, product.id],
+  )
+
   return (
     <article
       className={
@@ -106,7 +112,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <button
             type={'button'}
             disabled={!inStock || isPending}
-            onClick={() => addToCart(product.id)}
+            onClick={handleAddToCart}
             className={
               'flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium border-none cursor-pointer font-[inherit] bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed'
             }
