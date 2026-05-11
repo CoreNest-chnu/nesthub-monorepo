@@ -51,8 +51,6 @@ export class CartService {
         ...item,
 
         isOverStock: item.quantity > item.Product.stock,
-
-        availableStock: item.Product.stock,
       })),
     }
   }

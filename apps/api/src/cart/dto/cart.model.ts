@@ -21,10 +21,10 @@ export class CartItemModel {
 }
 
 export class CartItemWithStockModel extends CartItemModel {
-  isOverStock: boolean
-  availableStock: number
+  isOverStock!: boolean
 }
 
 export class CartWithStockModel extends CartModel {
+  @ApiProperty({ type: () => [CartItemWithStockModel] })
   declare Items: CartItemWithStockModel[]
 }
