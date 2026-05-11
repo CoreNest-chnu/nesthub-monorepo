@@ -35,7 +35,7 @@ export class CartController {
     @CurrentUser() { id }: User,
     @Body() cartItemDto: CartItemDto,
   ): Promise<CartItemModel> {
-    return await this.cartService.addItem({
+    return await this.cartService.add({
       id,
       ...cartItemDto,
     })
@@ -49,7 +49,7 @@ export class CartController {
     @Param('id') cartItemId: string,
     @Body() updateItemDto: UpdateCartItemDto,
   ): Promise<CartItemModel> {
-    return await this.cartService.updateItem({
+    return await this.cartService.update({
       id,
       cartItemId,
       ...updateItemDto,
@@ -66,6 +66,6 @@ export class CartController {
     @CurrentUser() { id }: User,
     @Param('id') cartItemId: string,
   ): Promise<void> {
-    return await this.cartService.deleteItem({ userId: id, cartItemId })
+    return await this.cartService.delete({ userId: id, cartItemId })
   }
 }
