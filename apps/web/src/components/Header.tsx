@@ -9,8 +9,8 @@ import {
   User,
   Settings,
   LogIn,
-  ShoppingCart,
 } from 'lucide-react'
+import { CartBadge } from './cart/CartBadge'
 import { Container } from './Container'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
@@ -133,7 +133,7 @@ export const Header: React.FC = () => {
     () => [
       { href: '/catalog', label: 'Каталог', icon: <LayoutGrid /> },
       { href: '/favorites', label: 'Обране', icon: <Heart />, badge: 0 },
-      { href: '/cart', label: 'Кошик', icon: <ShoppingCart />, badge: 0 },
+      { href: '/cart', label: 'Кошик', icon: <CartBadge /> },
       isUnauthenticated
         ? { href: '/login', label: 'Вхід', icon: <LogIn /> }
         : { href: '/profile', label: 'Профіль', icon: <User /> },
