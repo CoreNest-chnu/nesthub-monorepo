@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common'
 import { CartService } from './cart.service'
 import { JwtAuthGuard } from 'src/auth/auth.guard'
-import { CartItemModel, CartModel } from './dto/cart.model'
+import { CartItemModel, CartModel, CartWithStockModel } from './dto/cart.model'
 import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 import { CurrentUser } from 'src/user/user.util'
 import { User } from 'generated/prisma/browser'
@@ -23,7 +23,7 @@ export class CartController {
   @Get()
   @ApiResponse({ status: 200, type: CartModel })
   @UseGuards(JwtAuthGuard)
-  async getCart(@CurrentUser() { id }: User): Promise<CartModel> {
+  async getCart(@CurrentUser() { id }: User): Promise<CartWithStockModel> {
     return await this.cartService.getCart(id)
   }
 
