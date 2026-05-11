@@ -66,6 +66,6 @@ export class CartController {
     @CurrentUser() { id }: User,
     @Param('id') cartItemId: string,
   ): Promise<void> {
-    return await this.cartService.delete({ id, cartItemId })
+    return await this.cartService.delete({ userId: id, cartItemId })
   }
 }

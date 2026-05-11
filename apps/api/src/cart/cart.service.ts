@@ -119,7 +119,7 @@ export class CartService {
     })
   }
 
-  async delete({ id, cartItemId }: DeleteCartItem): Promise<void> {
+  async delete({ userId, cartItemId }: DeleteCartItem): Promise<void> {
     const cartItem = await this.prisma.cartItem.findUnique({
       where: { id: cartItemId },
       include: { Cart: true },
