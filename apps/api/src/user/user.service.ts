@@ -14,7 +14,7 @@ type UpdateProfileArgs = {
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getMyProfile(id: UserId): Promise<UserGetProfile> {
+  async get(id: UserId): Promise<UserGetProfile> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       omit: {
@@ -29,7 +29,7 @@ export class UserService {
     return user
   }
 
-  updateProfile({ id, data }: UpdateProfileArgs): Promise<UserGetProfile> {
+  update({ id, data }: UpdateProfileArgs): Promise<UserGetProfile> {
     return this.prisma.user.update({
       where: { id },
       data,

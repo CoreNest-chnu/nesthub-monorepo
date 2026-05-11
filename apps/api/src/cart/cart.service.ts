@@ -38,7 +38,7 @@ export class CartService {
     return cart
   }
 
-  async addItem({ id, productId, qty }: AddCartItem): Promise<CartItemModel> {
+  async add({ id, productId, qty }: AddCartItem): Promise<CartItemModel> {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       select: { stock: true },
@@ -91,7 +91,7 @@ export class CartService {
     })
   }
 
-  async updateItem({
+  async update({
     id,
     cartItemId,
     qty,
@@ -119,7 +119,7 @@ export class CartService {
     })
   }
 
-  async deleteItem({ id, cartItemId }: DeleteCartItem): Promise<void> {
+  async delete({ id, cartItemId }: DeleteCartItem): Promise<void> {
     const cartItem = await this.prisma.cartItem.findUnique({
       where: { id: cartItemId },
       include: { Cart: true },

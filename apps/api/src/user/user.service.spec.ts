@@ -46,15 +46,13 @@ describe('UserService', () => {
     it('повертає профіль користувача', async () => {
       prisma.user.findUnique.mockResolvedValue(dbUser)
 
-      await expect(service.getMyProfile('1')).resolves.toEqual(dbUser)
+      await expect(service.get('1')).resolves.toEqual(dbUser)
     })
 
     it('кидає NotFoundException якщо користувача немає', async () => {
       prisma.user.findUnique.mockResolvedValue(null)
 
-      await expect(service.getMyProfile('1')).rejects.toThrow(
-        NotFoundException,
-      )
+      await expect(service.get('1')).rejects.toThrow(NotFoundException)
     })
   })
 
@@ -65,7 +63,7 @@ describe('UserService', () => {
       prisma.user.update.mockResolvedValue(updated)
 
       await expect(
-        service.updateProfile({
+        service.update({
           id: '1',
           data: { firstName: 'Jane' },
         }),
