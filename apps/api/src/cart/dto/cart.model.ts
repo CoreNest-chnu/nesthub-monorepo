@@ -19,12 +19,3 @@ export class CartItemModel {
   createdAt!: Date
   updatedAt!: Date
 }
-
-export class CartItemWithStockModel extends CartItemModel {
-  isOverStock: boolean
-  availableStock: number
-}
-
-export class CartWithStockModel extends CartModel {
-  declare Items: CartItemWithStockModel[]
-}

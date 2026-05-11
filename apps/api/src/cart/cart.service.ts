@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
-import { CartItemModel, CartWithStockModel } from './dto/cart.model'
+import { CartItemModel, CartModel } from './dto/cart.model'
 import { UserId } from 'generated/prisma/types'
 import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 
@@ -27,37 +27,18 @@ type DeleteCartItem = {
 export class CartService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCart(userId: string): Promise<CartWithStockModel> {
+  async getCart(userId: string): Promise<CartModel> {
     const cart = await this.prisma.cart.findUniqueOrThrow({
-      where: {
-        userId,
-      },
+      where: { userId },
       include: {
-        Items: {
-          include: {
-            Product: {
-              select: {
-                stock: true,
-              },
-            },
-          },
-        },
+        Items: true,
       },
     })
 
-    return {
-      ...cart,
-      Items: cart.Items.map((item) => ({
-        ...item,
-
-        isOverStock: item.quantity > item.Product.stock,
-
-        availableStock: item.Product.stock,
-      })),
-    }
+    return cart
   }
 
-  async addItem({ id, productId, qty }: AddCartItem): Promise<CartItemModel> {
+  async add({ id, productId, qty }: AddCartItem): Promise<CartItemModel> {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       select: { stock: true },
@@ -110,7 +91,7 @@ export class CartService {
     })
   }
 
-  async updateItem({
+  async update({
     id,
     cartItemId,
     qty,
@@ -138,7 +119,7 @@ export class CartService {
     })
   }
 
-  async deleteItem({ userId, cartItemId }: DeleteCartItem): Promise<void> {
+  async delete({ userId, cartItemId }: DeleteCartItem): Promise<void> {
     const cartItem = await this.prisma.cartItem.findUnique({
       where: { id: cartItemId },
       include: { Cart: true },

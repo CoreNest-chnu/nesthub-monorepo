@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common'
 import { CartService } from './cart.service'
 import { JwtAuthGuard } from 'src/auth/auth.guard'
-import { CartItemModel, CartModel, CartWithStockModel } from './dto/cart.model'
+import { CartItemModel, CartModel } from './dto/cart.model'
 import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 import { CurrentUser } from 'src/user/user.util'
 import { User } from 'generated/prisma/browser'
@@ -24,7 +24,7 @@ export class CartController {
   @Get(':id')
   @ApiResponse({ status: 200, type: CartModel })
   @UseGuards(JwtAuthGuard)
-  async getCart(@Param('id') id: UserId): Promise<CartWithStockModel> {
+  async getCart(@Param('id') id: UserId): Promise<CartModel> {
     return await this.cartService.getCart(id)
   }
 
@@ -35,7 +35,7 @@ export class CartController {
     @CurrentUser() { id }: User,
     @Body() cartItemDto: CartItemDto,
   ): Promise<CartItemModel> {
-    return await this.cartService.addItem({
+    return await this.cartService.add({
       id,
       ...cartItemDto,
     })
@@ -49,7 +49,7 @@ export class CartController {
     @Param('id') cartItemId: string,
     @Body() updateItemDto: UpdateCartItemDto,
   ): Promise<CartItemModel> {
-    return await this.cartService.updateItem({
+    return await this.cartService.update({
       id,
       cartItemId,
       ...updateItemDto,
@@ -66,6 +66,6 @@ export class CartController {
     @CurrentUser() { id }: User,
     @Param('id') cartItemId: string,
   ): Promise<void> {
-    return await this.cartService.deleteItem({ userId: id, cartItemId })
+    return await this.cartService.delete({ userId: id, cartItemId })
   }
 }
