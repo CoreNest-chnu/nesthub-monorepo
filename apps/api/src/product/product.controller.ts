@@ -15,12 +15,12 @@ export class ProductController {
     @Query() query: PaginationQueryDto,
     @Query('stock', new ParseBoolPipe({ optional: true })) stock?: boolean,
   ): Promise<PaginatedResponseDto> {
-    return await this.productService.getProducts({ ...query, stock })
+    return await this.productService.get({ ...query, stock })
   }
 
   @Get(':id')
   @ApiResponse({ status: 200, type: ProductModel })
   async findbyId(@Param('id') id: ProductId): Promise<ProductModel> {
-    return await this.productService.findById(id)
+    return await this.productService.find(id)
   }
 }

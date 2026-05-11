@@ -14,7 +14,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: 200, type: UserProfileResponseDto })
   async getMe(@CurrentUser() { id }: User): Promise<UserGetProfile> {
-    return await this.userService.getMyProfile(id)
+    return await this.userService.get(id)
   }
 
   @Patch('profile')
@@ -24,6 +24,6 @@ export class UserController {
     @CurrentUser() { id }: User,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserGetProfile> {
-    return await this.userService.updateProfile({ id, data: updateUserDto })
+    return await this.userService.update({ id, data: updateUserDto })
   }
 }
