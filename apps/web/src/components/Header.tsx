@@ -9,6 +9,7 @@ import {
   User,
   Settings,
   LogIn,
+  ShoppingCart,
 } from 'lucide-react'
 import { Container } from './Container'
 import { Input } from './ui/input'
@@ -18,7 +19,6 @@ import debounce from 'lodash/debounce'
 import { useSession } from 'next-auth/react'
 import { useCategoriesControllerFindAll } from '@repo/api-client'
 import { useCatalogFilters } from '@/src/hooks/useCatalogFilters'
-import { CartBadge } from './cart/CartBadge'
 
 type NavAction = {
   href: string
@@ -133,7 +133,7 @@ export const Header: React.FC = () => {
     () => [
       { href: '/catalog', label: 'Каталог', icon: <LayoutGrid /> },
       { href: '/favorites', label: 'Обране', icon: <Heart />, badge: 0 },
-      { href: '/cart', label: 'Кошик', icon: <CartBadge /> },
+      { href: '/cart', label: 'Кошик', icon: <ShoppingCart />, badge: 0 },
       isUnauthenticated
         ? { href: '/login', label: 'Вхід', icon: <LogIn /> }
         : { href: '/profile', label: 'Профіль', icon: <User /> },
@@ -174,7 +174,7 @@ export const Header: React.FC = () => {
               >
                 <span className={'relative'}>
                   <span className={'block size-6 [&_svg]:size-6'}>{icon}</span>
-                  {badge !== undefined && badge > 0 && (
+                  {badge !== undefined && (
                     <span
                       className={
                         'absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white'

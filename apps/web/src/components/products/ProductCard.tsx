@@ -1,17 +1,11 @@
 'use client'
 
-import {
-  type ProductModel,
-  useCartControllerAddItem,
-  getCartControllerGetCartQueryKey,
-} from '@repo/api-client'
-import { useQueryClient } from '@tanstack/react-query'
+import { type ProductModel } from '@repo/api-client'
 import { Heart, ShoppingCart, Star } from 'lucide-react'
-import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { useCallback } from 'react'
+import { useAddToCart } from '@/src/hooks/useAddToCart'
 
 type ProductCardProps = {
   product: ProductModel
@@ -66,41 +60,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const price = Number(product.price).toLocaleString('uk-UA')
   const href = `/products/${product.id}`
 
-  const { data: session } = useSession()
-  const router = useRouter()
-  const pathname = usePathname()
-  const queryClient = useQueryClient()
+  const { addToCart, isPending } = useAddToCart()
 
-  const { mutate: addToCart, isPending } = useCartControllerAddItem({
-    mutation: {
-      onSuccess: () => {
-        toast.success('Товар додано до кошика')
-        if (session?.user.id) {
-          queryClient.invalidateQueries({
-            queryKey: getCartControllerGetCartQueryKey(session.user.id),
-          })
-        }
-      },
-      onError: (error) => {
-        toast.error(
-          error instanceof Error ? error.message : 'Помилка додавання до кошика',
-        )
-      },
-    },
-    request: {
-      headers: session?.accessToken
-        ? { Authorization: `Bearer ${session.accessToken}` }
-        : {},
-    },
-  })
-
-  const handleAddToCart = () => {
-    if (!session) {
-      router.push(`/login?returnUrl=${encodeURIComponent(pathname)}`)
-      return
-    }
-    addToCart({ data: { productId: product.id, qty: 1 } })
-  }
+  const handleAddToCart = useCallback(
+    () => addToCart(product.id),
+    [addToCart, product.id],
+  )
 
   return (
     <article
