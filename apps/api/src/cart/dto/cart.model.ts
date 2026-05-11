@@ -22,3 +22,12 @@ export class CartItemModel {
   createdAt!: Date
   updatedAt!: Date
 }
+
+export class CartItemWithStockModel extends CartItemModel {
+  isOverStock!: boolean
+}
+
+export class CartWithStockModel extends CartModel {
+  @ApiProperty({ type: () => CartItemWithStockModel, isArray: true })
+  declare Items: CartItemWithStockModel[]
+}
