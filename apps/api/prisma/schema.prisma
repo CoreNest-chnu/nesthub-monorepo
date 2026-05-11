@@ -43,6 +43,8 @@ model User {
 
   Cart Cart?
 
+  Orders Order[]
+
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
@@ -73,6 +75,8 @@ model Product {
   categoryId String
 
   CartItems CartItem[]
+
+  OrderItems OrderItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -107,4 +111,54 @@ model CartItem {
   updatedAt DateTime @updatedAt
 
   @@unique([cartId, productId])
+}
+
+enum OrderStatus {
+  pending
+  paid
+  shipped
+  completed
+  cancelled
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  status OrderStatus @default(pending)
+
+  shippingAddress Json
+
+  totalAmount Decimal @db.Decimal(10, 2)
+
+  Items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  Order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  Product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  productName String
+
+  priceAtPurchase Decimal @db.Decimal(10, 2)
+
+  quantity Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([productId])
 }

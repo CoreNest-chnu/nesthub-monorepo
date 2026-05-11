@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
-import { CartItemModel, CartModel } from './dto/cart.model'
+import { CartItemModel, CartWithStockModel } from './dto/cart.model'
 import { UserId } from 'generated/prisma/types'
 import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 
@@ -27,9 +27,11 @@ type DeleteCartItem = {
 export class CartService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCart(userId: string): Promise<CartModel> {
+  async getCart(userId: string): Promise<CartWithStockModel> {
     const cart = await this.prisma.cart.findUniqueOrThrow({
-      where: { userId },
+      where: {
+        userId,
+      },
       include: {
         Items: {
           include: {
@@ -39,7 +41,13 @@ export class CartService {
       },
     })
 
-    return cart
+    return {
+      ...cart,
+      Items: cart.Items.map((item) => ({
+        ...item,
+        isOverStock: item.quantity > item.Product.stock,
+      })),
+    }
   }
 
   async add({ id, productId, qty }: AddCartItem): Promise<CartItemModel> {
