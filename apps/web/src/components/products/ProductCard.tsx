@@ -1,9 +1,17 @@
 'use client'
 
-import type { ProductModel } from '@repo/api-client'
+import {
+  type ProductModel,
+  useCartControllerAddItem,
+  getCartControllerGetCartQueryKey,
+} from '@repo/api-client'
+import { useQueryClient } from '@tanstack/react-query'
 import { Heart, ShoppingCart, Star } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 type ProductCardProps = {
   product: ProductModel
@@ -58,6 +66,42 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const price = Number(product.price).toLocaleString('uk-UA')
   const href = `/products/${product.id}`
 
+  const { data: session } = useSession()
+  const router = useRouter()
+  const pathname = usePathname()
+  const queryClient = useQueryClient()
+
+  const { mutate: addToCart, isPending } = useCartControllerAddItem({
+    mutation: {
+      onSuccess: () => {
+        toast.success('Товар додано до кошика')
+        if (session?.user.id) {
+          queryClient.invalidateQueries({
+            queryKey: getCartControllerGetCartQueryKey(session.user.id),
+          })
+        }
+      },
+      onError: (error) => {
+        toast.error(
+          error instanceof Error ? error.message : 'Помилка додавання до кошика',
+        )
+      },
+    },
+    request: {
+      headers: session?.accessToken
+        ? { Authorization: `Bearer ${session.accessToken}` }
+        : {},
+    },
+  })
+
+  const handleAddToCart = () => {
+    if (!session) {
+      router.push(`/login?returnUrl=${encodeURIComponent(pathname)}`)
+      return
+    }
+    addToCart({ data: { productId: product.id, qty: 1 } })
+  }
+
   return (
     <article
       className={
@@ -102,7 +146,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className={'flex items-center gap-2'}>
           <button
             type={'button'}
-            disabled={!inStock}
+            disabled={!inStock || isPending}
+            onClick={handleAddToCart}
             className={
               'flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium border-none cursor-pointer font-[inherit] bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed'
             }

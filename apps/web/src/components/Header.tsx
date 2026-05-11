@@ -17,7 +17,7 @@ import { Button } from './ui/button'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import debounce from 'lodash/debounce'
 import { useSession } from 'next-auth/react'
-import { useCategoriesControllerFindAll } from '@repo/api-client'
+import { useCategoriesControllerFindAll, useCartControllerGetCart } from '@repo/api-client'
 import { useCatalogFilters } from '@/src/hooks/useCatalogFilters'
 
 type NavAction = {
@@ -129,11 +129,29 @@ export const Header: React.FC = () => {
   const isUnauthenticated = status === 'unauthenticated'
   const isCatalog = pathname === catalogPath
 
+  const userId = session?.user.id
+  const accessToken = session?.accessToken
+
+  const { data: cartData } = useCartControllerGetCart(userId ?? '', {
+    request: {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    },
+    query: { enabled: Boolean(userId) && Boolean(accessToken) },
+  })
+
+  const cartCount =
+    cartData?.data.Items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0
+
   const actions: NavAction[] = useMemo(
     () => [
       { href: '/catalog', label: 'Каталог', icon: <LayoutGrid /> },
       { href: '/favorites', label: 'Обране', icon: <Heart />, badge: 0 },
-      { href: '/cart', label: 'Кошик', icon: <ShoppingCart />, badge: 0 },
+      {
+        href: '/cart',
+        label: 'Кошик',
+        icon: <ShoppingCart />,
+        badge: cartCount,
+      },
       isUnauthenticated
         ? { href: '/login', label: 'Вхід', icon: <LogIn /> }
         : { href: '/profile', label: 'Профіль', icon: <User /> },
@@ -141,7 +159,7 @@ export const Header: React.FC = () => {
         ? [{ href: '/admin', label: 'Адмін', icon: <Settings /> }]
         : []),
     ],
-    [isAdmin, isUnauthenticated],
+    [isAdmin, isUnauthenticated, cartCount],
   )
 
   return (
@@ -174,7 +192,7 @@ export const Header: React.FC = () => {
               >
                 <span className={'relative'}>
                   <span className={'block size-6 [&_svg]:size-6'}>{icon}</span>
-                  {badge !== undefined && (
+                  {badge !== undefined && badge > 0 && (
                     <span
                       className={
                         'absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white'
