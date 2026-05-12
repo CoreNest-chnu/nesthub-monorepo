@@ -2,32 +2,41 @@ import { ConflictException, Injectable } from '@nestjs/common'
 import { OrderStatus } from 'generated/prisma/enums'
 import { PrismaService } from 'prisma/lib/prisma'
 import { OrderModel } from './dto/order.model'
+import { UserId } from 'generated/prisma/types'
+import { ShippingAddressDto } from './dto/order.dto'
+
+export type CreateOrder = {
+  id: UserId
+} & ShippingAddressDto
 
 @Injectable()
 export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createOrder(
-    userId: string,
-    shippingAddress: {
-      city: string
-      street: string
-      building: string
-      zip: string
-    },
-  ): Promise<OrderModel> {
+  async createOrder({
+    id,
+    city,
+    street,
+    building,
+    zip,
+  }: CreateOrder): Promise<OrderModel> {
     return await this.prisma.$transaction(async (tx) => {
+      const shippingAddress = {
+        city,
+        street,
+        building,
+        zip,
+      }
       const cartItems = await this.prisma.cartItem.findMany({
         where: {
           Cart: {
-            userId,
+            userId: id,
           },
         },
         include: {
           Product: true,
         },
       })
-
       for (const item of cartItems) {
         if (item.Product.stock < item.quantity) {
           throw new ConflictException(
@@ -42,7 +51,7 @@ export class OrderService {
 
       const createdOrder = await tx.order.create({
         data: {
-          userId,
+          userId: id,
           status: OrderStatus.pending,
           shippingAddress,
           totalAmount,

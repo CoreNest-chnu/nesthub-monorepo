@@ -1,12 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { OrderStatus } from 'generated/prisma/browser'
-
-export class ShippingAddressModel {
-  city!: string
-  street!: string
-  building!: string
-  zip!: string
-}
+import { ShippingAddressDto } from './order.dto'
 
 export class OrderItemModel {
   id!: string
@@ -24,8 +18,8 @@ export class OrderModel {
   userId!: string
   @ApiProperty({ enum: OrderStatus })
   status!: OrderStatus
-  @ApiProperty({ type: ShippingAddressModel })
-  shippingAddress!: ShippingAddressModel
+  @ApiProperty({ type: ShippingAddressDto })
+  shippingAddress!: ShippingAddressDto
   totalAmount!: number
   @ApiProperty({ type: () => [OrderItemModel] })
   Items!: OrderItemModel[]
