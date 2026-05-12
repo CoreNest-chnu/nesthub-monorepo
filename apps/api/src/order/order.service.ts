@@ -115,7 +115,7 @@ export class OrderService {
     })
   }
 
-  async getOrder({ userId, orderId }: GetOrder): Promise<OrderModel> {
+  async findById({ userId, orderId }: GetOrder): Promise<OrderModel> {
     const order = await this.prisma.order.findUnique({
       where: {
         id: orderId,

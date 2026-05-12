@@ -25,6 +25,6 @@ export class OrderController {
     @CurrentUser() { id }: User,
     @Param('id') orderId: string,
   ): Promise<OrderModel> {
-    return await this.orderService.getOrder({ userId: id, orderId })
+    return await this.orderService.findById({ userId: id, orderId })
   }
 }
