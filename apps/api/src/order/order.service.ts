@@ -27,7 +27,7 @@ export class OrderService {
         building,
         zip,
       }
-      const cartItems = await this.prisma.cartItem.findMany({
+      const cartItems = await tx.cartItem.findMany({
         where: {
           Cart: {
             userId: id,
@@ -66,6 +66,29 @@ export class OrderService {
         },
         include: {
           Items: true,
+        },
+      })
+
+      await Promise.all(
+        cartItems.map((item) =>
+          tx.product.update({
+            where: {
+              id: item.productId,
+            },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          }),
+        ),
+      )
+
+      await tx.cartItem.deleteMany({
+        where: {
+          Cart: {
+            userId: id,
+          },
         },
       })
 
