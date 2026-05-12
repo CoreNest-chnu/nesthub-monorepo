@@ -1,13 +1,24 @@
-import { ConflictException, Injectable } from '@nestjs/common'
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { OrderStatus } from 'generated/prisma/enums'
 import { PrismaService } from 'prisma/lib/prisma'
 import { OrderModel } from './dto/order.model'
 import { UserId } from 'generated/prisma/types'
 import { ShippingAddressDto } from './dto/order.dto'
+import { toShippingAddressDto } from './util/order.util'
 
 export type CreateOrder = {
   id: UserId
 } & ShippingAddressDto
+
+export type GetOrder = {
+  userId: UserId
+  orderId: string
+}
 
 @Injectable()
 export class OrderService {
@@ -102,5 +113,37 @@ export class OrderService {
         })),
       }
     })
+  }
+
+  async getOrder({ userId, orderId }: GetOrder): Promise<OrderModel> {
+    const order = await this.prisma.order.findUnique({
+      where: {
+        id: orderId,
+      },
+      include: {
+        Items: true,
+      },
+    })
+
+    if (!order) {
+      throw new NotFoundException('There is no order with such id')
+    }
+
+    if (order.userId !== userId) {
+      throw new UnauthorizedException('You do not have access to this order')
+    }
+
+    return {
+      ...order,
+
+      shippingAddress: toShippingAddressDto(order.shippingAddress),
+
+      totalAmount: Number(order.totalAmount),
+
+      Items: order.Items.map((item) => ({
+        ...item,
+        priceAtPurchase: Number(item.priceAtPurchase),
+      })),
+    }
   }
 }
