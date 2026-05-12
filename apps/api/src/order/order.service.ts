@@ -146,4 +146,28 @@ export class OrderService {
       })),
     }
   }
+
+  async findAllByUser(id: UserId): Promise<OrderModel[]> {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        userId: id,
+      },
+      include: {
+        Items: true,
+      },
+    })
+
+    return orders.map((order) => ({
+      ...order,
+
+      shippingAddress: toShippingAddressDto(order.shippingAddress),
+
+      totalAmount: Number(order.totalAmount),
+
+      Items: order.Items.map((item) => ({
+        ...item,
+        priceAtPurchase: Number(item.priceAtPurchase),
+      })),
+    }))
+  }
 }

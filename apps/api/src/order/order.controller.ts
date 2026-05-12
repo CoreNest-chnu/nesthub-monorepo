@@ -27,4 +27,10 @@ export class OrderController {
   ): Promise<OrderModel> {
     return await this.orderService.findById({ userId: id, orderId })
   }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async allOrders(@CurrentUser() { id }: User): Promise<OrderModel[]> {
+    return await this.orderService.findAllByUser(id)
+  }
 }
