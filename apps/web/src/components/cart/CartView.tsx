@@ -4,6 +4,7 @@ import { useCartControllerGetCart } from '@repo/api-client'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { CartItemsList } from './CartItemsList'
+import { EmptyCart } from './EmptyCart'
 import { OrderSummary } from './OrderSummary'
 import { StepIndicator } from './StepIndicator'
 
@@ -12,14 +13,14 @@ export const CartView: React.FC = () => {
 
   const accessToken = session?.accessToken
 
-  const { data: cartData, isLoading: cartLoading } = useCartControllerGetCart({
+  const { data: cartData, isPending: cartPending } = useCartControllerGetCart({
     request: {
       headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     },
     query: { enabled: Boolean(accessToken) },
   })
 
-  if (status === 'loading' || cartLoading) {
+  if (status === 'loading' || cartPending) {
     return (
       <div
         className={
@@ -54,6 +55,10 @@ export const CartView: React.FC = () => {
   }
 
   const cartItems = cartData?.data.Items ?? []
+
+  if (cartItems.length === 0) {
+    return <EmptyCart />
+  }
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
   const totalAmount = cartItems.reduce(
