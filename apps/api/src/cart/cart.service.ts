@@ -35,11 +35,7 @@ export class CartService {
       include: {
         Items: {
           include: {
-            Product: {
-              select: {
-                stock: true,
-              },
-            },
+            Product: { include: { Category: true } },
           },
         },
       },
@@ -104,6 +100,7 @@ export class CartService {
         productId,
         quantity: qty,
       },
+      include: { Product: { include: { Category: true } } },
     })
   }
 
@@ -132,6 +129,7 @@ export class CartService {
     return this.prisma.cartItem.update({
       where: { id: cartItemId },
       data: { quantity: qty },
+      include: { Product: { include: { Category: true } } },
     })
   }
 
