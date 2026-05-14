@@ -1,18 +1,18 @@
 'use client'
 
+import type { OrderModel } from '@repo/api-client'
 import { format } from 'date-fns'
 import Link from 'next/link'
 
-import type { Order } from '../../hooks/useGetOrders'
 import { StatusBadge } from './StatusBadge'
 
 type OrderRowProps = {
-  order: Order
+  order: OrderModel
 }
 
 export const OrderRow = ({ order }: OrderRowProps) => {
   const itemsCount = order.Items.reduce(
-    (sum, item) => sum + item.quantity,
+    (sum, { quantity }) => sum + quantity,
     0,
   )
 

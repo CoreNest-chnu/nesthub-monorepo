@@ -1,17 +1,27 @@
 'use client'
 
+import { useOrderControllerAllOrders } from '@repo/api-client'
+import { useSession } from 'next-auth/react'
+
 import { OrderRow } from '../../../../components/orders/OrderRow'
-import { useGetOrders } from '../../../../hooks/useGetOrders'
 
 export default function OrdersPage() {
-  const { orders, isLoading, isError } = useGetOrders()
+  const { data: session, status } = useSession()
+  const accessToken = session?.accessToken
+
+  const { data, isLoading, isError } = useOrderControllerAllOrders({
+    query: { enabled: status === 'authenticated' },
+    request: {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    },
+  })
+
+  const orders = data?.data ?? []
 
   if (isLoading) {
     return (
       <div className={''}>
-        <p className={'text-gray-500'}>
-          {'Завантаження замовлень...'}
-        </p>
+        <p className={'text-gray-500'}>{'Завантаження замовлень...'}</p>
       </div>
     )
   }
@@ -19,9 +29,7 @@ export default function OrdersPage() {
   if (isError) {
     return (
       <div className={''}>
-        <p className={'text-red-500'}>
-          {'Не вдалося завантажити замовлення'}
-        </p>
+        <p className={'text-red-500'}>{'Не вдалося завантажити замовлення'}</p>
       </div>
     )
   }
@@ -54,10 +62,7 @@ export default function OrdersPage() {
         </h1>
 
         {orders.map((order) => (
-          <OrderRow
-            key={order.id}
-            order={order}
-          />
+          <OrderRow key={order.id} order={order} />
         ))}
       </div>
     </main>

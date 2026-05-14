@@ -19,58 +19,18 @@ type ProfileLayoutProps = {
   children: ReactNode
 }
 
-const baseLinkClass =
-  'flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm'
+const baseLinkClass = 'flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm'
 
-const activeLinkClass =
-  'bg-gray-900 font-medium text-white'
+const activeLinkClass = 'bg-gray-900 font-medium text-white'
 
-const inactiveLinkClass =
-  'text-gray-700 hover:bg-gray-100'
+const inactiveLinkClass = 'text-gray-700 hover:bg-gray-100'
 
-export default function ProfileLayout({
-  children,
-}: ProfileLayoutProps) {
+export default function ProfileLayout({ children }: ProfileLayoutProps) {
   const pathname = usePathname()
 
   const handleSignOut = useCallback(() => {
     signOut({ callbackUrl: '/login' })
   }, [])
-
-  const personalDataClass =
-    pathname === '/profile/personal-data'
-      ? `${baseLinkClass} ${activeLinkClass}`
-      : `${baseLinkClass} ${inactiveLinkClass}`
-
-  const ordersClass =
-    pathname === '/profile/orders'
-      ? `${baseLinkClass} ${activeLinkClass}`
-      : `${baseLinkClass} ${inactiveLinkClass}`
-
-  const addressesClass =
-    pathname === '/profile/addresses'
-      ? `${baseLinkClass} ${activeLinkClass}`
-      : `${baseLinkClass} ${inactiveLinkClass}`
-
-  const paymentsClass =
-    pathname === '/profile/payments'
-      ? `${baseLinkClass} ${activeLinkClass}`
-      : `${baseLinkClass} ${inactiveLinkClass}`
-
-  const favoritesClass =
-    pathname === '/profile/favorites'
-      ? `${baseLinkClass} ${activeLinkClass}`
-      : `${baseLinkClass} ${inactiveLinkClass}`
-
-  const reviewsClass =
-    pathname === '/profile/reviews'
-      ? `${baseLinkClass} ${activeLinkClass}`
-      : `${baseLinkClass} ${inactiveLinkClass}`
-
-  const settingsClass =
-    pathname === '/profile/settings'
-      ? `${baseLinkClass} ${activeLinkClass}`
-      : `${baseLinkClass} ${inactiveLinkClass}`
 
   return (
     <div className={'min-h-screen bg-gray-50 p-6'}>
@@ -88,7 +48,11 @@ export default function ProfileLayout({
             <nav className={'flex flex-col gap-1'}>
               <Link
                 href={'/profile/personal-data'}
-                className={personalDataClass}
+                className={
+                  pathname === '/profile/personal-data'
+                    ? `${baseLinkClass} ${activeLinkClass}`
+                    : `${baseLinkClass} ${inactiveLinkClass}`
+                }
               >
                 <UserIcon size={16} />
                 <span>{'Особисті дані'}</span>
@@ -96,7 +60,11 @@ export default function ProfileLayout({
 
               <Link
                 href={'/profile/orders'}
-                className={ordersClass}
+                className={
+                  pathname === '/profile/orders'
+                    ? `${baseLinkClass} ${activeLinkClass}`
+                    : `${baseLinkClass} ${inactiveLinkClass}`
+                }
               >
                 <Package size={16} />
                 <span>{'Мої замовлення'}</span>
@@ -104,7 +72,11 @@ export default function ProfileLayout({
 
               <Link
                 href={'/profile/addresses'}
-                className={addressesClass}
+                className={
+                  pathname === '/profile/addresses'
+                    ? `${baseLinkClass} ${activeLinkClass}`
+                    : `${baseLinkClass} ${inactiveLinkClass}`
+                }
               >
                 <MapPin size={16} />
                 <span>{'Адреси доставки'}</span>
@@ -112,7 +84,11 @@ export default function ProfileLayout({
 
               <Link
                 href={'/profile/payments'}
-                className={paymentsClass}
+                className={
+                  pathname === '/profile/payments'
+                    ? `${baseLinkClass} ${activeLinkClass}`
+                    : `${baseLinkClass} ${inactiveLinkClass}`
+                }
               >
                 <CreditCard size={16} />
                 <span>{'Способи оплати'}</span>
@@ -120,7 +96,11 @@ export default function ProfileLayout({
 
               <Link
                 href={'/profile/favorites'}
-                className={favoritesClass}
+                className={
+                  pathname === '/profile/favorites'
+                    ? `${baseLinkClass} ${activeLinkClass}`
+                    : `${baseLinkClass} ${inactiveLinkClass}`
+                }
               >
                 <Heart size={16} />
                 <span>{'Обрані товари'}</span>
@@ -128,7 +108,11 @@ export default function ProfileLayout({
 
               <Link
                 href={'/profile/reviews'}
-                className={reviewsClass}
+                className={
+                  pathname === '/profile/reviews'
+                    ? `${baseLinkClass} ${activeLinkClass}`
+                    : `${baseLinkClass} ${inactiveLinkClass}`
+                }
               >
                 <Star size={16} />
                 <span>{'Відгуки'}</span>
@@ -136,7 +120,11 @@ export default function ProfileLayout({
 
               <Link
                 href={'/profile/settings'}
-                className={settingsClass}
+                className={
+                  pathname === '/profile/settings'
+                    ? `${baseLinkClass} ${activeLinkClass}`
+                    : `${baseLinkClass} ${inactiveLinkClass}`
+                }
               >
                 <Settings size={16} />
                 <span>{'Налаштування'}</span>
