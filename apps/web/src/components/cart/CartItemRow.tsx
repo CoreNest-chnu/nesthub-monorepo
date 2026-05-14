@@ -24,38 +24,42 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
   const { data: session } = useSession()
   const queryClient = useQueryClient()
 
-  const [qty, setQty] = useState(item.quantity)
-  const subtotal = unitPrice * qty
+  const [quantity, setQuantity] = useState(item.quantity)
+  const subtotal = unitPrice * quantity
 
-  const { mutate: updateQty, isPending } = useCartControllerUpdateItem({
-    request: {
-      headers: session?.accessToken
-        ? { Authorization: `Bearer ${session.accessToken}` }
-        : {},
-    },
-  })
+  const { mutateAsync: updateQuantity, isPending } =
+    useCartControllerUpdateItem({
+      request: {
+        headers: session?.accessToken
+          ? { Authorization: `Bearer ${session.accessToken}` }
+          : {},
+      },
+    })
 
   const handleChange = useCallback(
-    (newQty: number) => {
-      const prevQty = qty
-      setQty(newQty)
-      updateQty(
-        { id: item.id, data: { qty: newQty } },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({
-              queryKey: getCartControllerGetCartQueryKey(),
-            })
-          },
-          onError: () => {
-            setQty(prevQty)
-            toast.error('Не вдалось оновити кількість')
-          },
-        },
-      )
+    async (newQuantity: number) => {
+      const prevQuantity = quantity
+      setQuantity(newQuantity)
+      try {
+        await updateQuantity({ id: item.id, data: { qty: newQuantity } })
+        await queryClient.invalidateQueries({
+          queryKey: getCartControllerGetCartQueryKey(),
+        })
+      } catch {
+        setQuantity(prevQuantity)
+        toast.error('Не вдалось оновити кількість')
+      }
     },
-    [qty, item.id, updateQty, queryClient],
+    [quantity, item.id, updateQuantity, queryClient],
   )
+
+  const handleDecrement = useCallback(() => {
+    handleChange(quantity - 1)
+  }, [handleChange, quantity])
+
+  const handleIncrement = useCallback(() => {
+    handleChange(quantity + 1)
+  }, [handleChange, quantity])
 
   return (
     <div
@@ -100,8 +104,8 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
         <button
           type={'button'}
           aria-label={'Зменшити кількість'}
-          disabled={qty <= 1 || isPending}
-          onClick={() => handleChange(qty - 1)}
+          disabled={quantity <= 1 || isPending}
+          onClick={handleDecrement}
           className={
             'flex items-center justify-center w-6 h-6 rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors'
           }
@@ -109,13 +113,15 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
           <Minus size={11} />
         </button>
 
-        <span className={'w-8 text-center text-sm font-medium'}>{qty}</span>
+        <span className={'w-8 text-center text-sm font-medium'}>
+          {quantity}
+        </span>
 
         <button
           type={'button'}
           aria-label={'Збільшити кількість'}
-          disabled={qty >= product.stock || isPending}
-          onClick={() => handleChange(qty + 1)}
+          disabled={quantity >= product.stock || isPending}
+          onClick={handleIncrement}
           className={
             'flex items-center justify-center w-6 h-6 rounded border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors'
           }
