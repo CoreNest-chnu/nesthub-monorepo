@@ -143,11 +143,11 @@ export const CheckoutView: React.FC = () => {
                 </h2>
 
                 <div className={'grid grid-cols-2 gap-4'}>
-                  <div>
-                    <label className={'block text-sm text-gray-700 mb-1'}>
+                  <label className={'block'}>
+                    <span className={'block text-sm text-gray-700 mb-1'}>
                       {'Місто'}
                       <span className={'text-red-500'}>{'*'}</span>
-                    </label>
+                    </span>
                     <input
                       {...register('city')}
                       placeholder={'Київ'}
@@ -156,13 +156,13 @@ export const CheckoutView: React.FC = () => {
                     {errors.city && (
                       <p className={errorClass}>{errors.city.message}</p>
                     )}
-                  </div>
+                  </label>
 
-                  <div>
-                    <label className={'block text-sm text-gray-700 mb-1'}>
+                  <label className={'block'}>
+                    <span className={'block text-sm text-gray-700 mb-1'}>
                       {'Поштовий індекс'}
                       <span className={'text-red-500'}>{'*'}</span>
-                    </label>
+                    </span>
                     <input
                       {...register('zip')}
                       placeholder={'01001'}
@@ -171,13 +171,13 @@ export const CheckoutView: React.FC = () => {
                     {errors.zip && (
                       <p className={errorClass}>{errors.zip.message}</p>
                     )}
-                  </div>
+                  </label>
 
-                  <div className={'col-span-2'}>
-                    <label className={'block text-sm text-gray-700 mb-1'}>
+                  <label className={'block col-span-2'}>
+                    <span className={'block text-sm text-gray-700 mb-1'}>
                       {'Вулиця'}
                       <span className={'text-red-500'}>{'*'}</span>
-                    </label>
+                    </span>
                     <input
                       {...register('street')}
                       placeholder={'вул. Хрещатик'}
@@ -186,13 +186,13 @@ export const CheckoutView: React.FC = () => {
                     {errors.street && (
                       <p className={errorClass}>{errors.street.message}</p>
                     )}
-                  </div>
+                  </label>
 
-                  <div>
-                    <label className={'block text-sm text-gray-700 mb-1'}>
+                  <label className={'block'}>
+                    <span className={'block text-sm text-gray-700 mb-1'}>
                       {'Будинок'}
                       <span className={'text-red-500'}>{'*'}</span>
-                    </label>
+                    </span>
                     <input
                       {...register('building')}
                       placeholder={'10'}
@@ -201,17 +201,17 @@ export const CheckoutView: React.FC = () => {
                     {errors.building && (
                       <p className={errorClass}>{errors.building.message}</p>
                     )}
-                  </div>
+                  </label>
 
-                  <div>
-                    <label className={'block text-sm text-gray-700 mb-1'}>
+                  <label className={'block'}>
+                    <span className={'block text-sm text-gray-700 mb-1'}>
                       {'Квартира'}
                       <span className={'text-gray-400 text-xs ml-1'}>
                         {'(необов’язково)'}
                       </span>
-                    </label>
+                    </span>
                     <input placeholder={'25'} className={inputClass} />
-                  </div>
+                  </label>
                 </div>
               </section>
             </div>
