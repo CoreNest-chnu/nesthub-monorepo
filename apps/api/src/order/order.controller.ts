@@ -12,7 +12,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  @ApiResponse({ status: 200, type: ShippingAddressDto })
+  @ApiResponse({ status: 200, type: OrderModel })
   @UseGuards(JwtAuthGuard)
   async createOrder(
     @CurrentUser() { id }: User,
