@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
 import { OrderService } from './order.service'
 import { JwtAuthGuard } from 'src/auth/auth.guard'
 import { CurrentUser } from 'src/user/user.util'
@@ -12,12 +12,22 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  @ApiResponse({ status: 200, type: OrderModel })
+  @ApiResponse({ status: 201, type: OrderModel })
   @UseGuards(JwtAuthGuard)
   async createOrder(
     @CurrentUser() { id }: User,
     @Body() shippingAddressDto: ShippingAddressDto,
   ): Promise<OrderModel> {
     return await this.orderService.create({ userId: id, ...shippingAddressDto })
+  }
+
+  @Get(':id')
+  @ApiResponse({ status: 200, type: OrderModel })
+  @UseGuards(JwtAuthGuard)
+  async getOrder(
+    @CurrentUser() { id }: User,
+    @Param('id') orderId: string,
+  ): Promise<OrderModel> {
+    return await this.orderService.findById({ userId: id, orderId })
   }
 }
