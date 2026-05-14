@@ -13,14 +13,14 @@ export const CartView: React.FC = () => {
 
   const accessToken = session?.accessToken
 
-  const { data: cartData, isPending: cartPending } = useCartControllerGetCart({
+  const { data: cartData, isLoading: cartLoading } = useCartControllerGetCart({
     request: {
       headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     },
     query: { enabled: Boolean(accessToken) },
   })
 
-  if (status === 'loading' || cartPending) {
+  if (status === 'loading' || cartLoading) {
     return (
       <div
         className={
