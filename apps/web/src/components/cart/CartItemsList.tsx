@@ -1,8 +1,8 @@
-import { CartItemModel } from '@repo/api-client'
+import { CartItemWithStockModel } from '@repo/api-client'
 import { CartItemRow } from './CartItemRow'
 
 type CartItemsListProps = {
-  items: CartItemModel[]
+  items: CartItemWithStockModel[]
 }
 
 export const CartItemsList: React.FC<CartItemsListProps> = ({ items }) => (
