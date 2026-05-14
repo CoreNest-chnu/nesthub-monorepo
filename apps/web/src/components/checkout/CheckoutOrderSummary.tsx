@@ -1,4 +1,5 @@
 import type { CartItemWithStockModel } from '@repo/api-client'
+import { Loader2 } from 'lucide-react'
 
 type CheckoutOrderSummaryProps = {
   items: CartItemWithStockModel[]
@@ -65,11 +66,14 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
       <button
         type={'submit'}
         disabled={hasOverStock || isPending}
-        style={{ display: 'block', width: '100%' }}
+        style={{ display: 'flex', width: '100%' }}
         className={
-          'py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold cursor-pointer hover:bg-gray-700 border-none font-[inherit] text-center disabled:opacity-50 disabled:cursor-not-allowed'
+          'py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold cursor-pointer hover:bg-gray-700 border-none font-[inherit] items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
         }
       >
+        {isPending && (
+          <Loader2 size={16} className={'animate-spin'} aria-hidden />
+        )}
         {isPending ? 'Оформлення…' : 'Підтвердити замовлення'}
       </button>
     </div>
