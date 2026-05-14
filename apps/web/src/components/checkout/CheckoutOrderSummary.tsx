@@ -74,7 +74,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
         {isPending && (
           <Loader2 size={16} className={'animate-spin'} aria-hidden />
         )}
-        {isPending ? 'Оформлення…' : 'Підтвердити замовлення'}
+        {isPending ? 'Збереження…' : 'Продовжити до оплати'}
       </button>
     </div>
   </div>

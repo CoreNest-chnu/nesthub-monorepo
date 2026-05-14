@@ -1,15 +1,11 @@
 'use client'
 
-import {
-  useCartControllerGetCart,
-  useOrderControllerCreateOrder,
-} from '@repo/api-client'
+import { useCartControllerGetCart } from '@repo/api-client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import { z } from 'zod'
 import { CartItemsList } from '../cart/CartItemsList'
 import { EmptyCart } from '../cart/EmptyCart'
@@ -41,14 +37,6 @@ export const CheckoutView: React.FC = () => {
     query: { enabled: Boolean(accessToken) },
   })
 
-  const { mutateAsync: createOrder, isPending } = useOrderControllerCreateOrder(
-    {
-      request: {
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-      },
-    },
-  )
-
   const {
     register,
     handleSubmit,
@@ -57,14 +45,9 @@ export const CheckoutView: React.FC = () => {
     resolver: zodResolver(addressSchema),
   })
 
-  const onSubmit = async (formData: AddressFormData) => {
-    try {
-      const result = await createOrder({ data: formData })
-      const orderId = z.string().parse(result.data.id)
-      router.push(`/orders/${orderId}/payment`)
-    } catch {
-      toast.error('Не вдалось оформити замовлення')
-    }
+  const onSubmit = (formData: AddressFormData) => {
+    sessionStorage.setItem('checkout_shipping', JSON.stringify(formData))
+    router.push('/orders/new/payment')
   }
 
   if (status === 'loading' || cartLoading) {
@@ -218,7 +201,7 @@ export const CheckoutView: React.FC = () => {
               items={cartItems}
               totalAmount={totalAmount}
               hasOverStock={hasOverStock}
-              isPending={isPending}
+              isPending={false}
             />
           </div>
         </form>
