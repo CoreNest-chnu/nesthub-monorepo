@@ -44,9 +44,7 @@ export const CheckoutView: React.FC = () => {
   const { mutateAsync: createOrder, isPending } = useOrderControllerCreateOrder(
     {
       request: {
-        headers: accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : {},
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
       },
     },
   )
@@ -63,7 +61,7 @@ export const CheckoutView: React.FC = () => {
     try {
       const result = await createOrder({ data: formData })
       const orderId = z.string().parse(result.data.id)
-      router.push(`/orders/${orderId}/confirmation`)
+      router.push(`/orders/${orderId}/payment`)
     } catch {
       toast.error('Не вдалось оформити замовлення')
     }
