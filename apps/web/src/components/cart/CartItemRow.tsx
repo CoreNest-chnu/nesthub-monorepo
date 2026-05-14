@@ -3,6 +3,7 @@
 import {
   type CartItemModel,
   getCartControllerGetCartQueryKey,
+  useCartControllerDeleteItem,
   useCartControllerUpdateItem,
 } from '@repo/api-client'
 import { useQueryClient } from '@tanstack/react-query'
@@ -25,6 +26,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
   const queryClient = useQueryClient()
 
   const [quantity, setQuantity] = useState(item.quantity)
+  const [isRemoving, setIsRemoving] = useState(false)
   const subtotal = unitPrice * quantity
 
   const { mutateAsync: updateQuantity, isPending } =
@@ -61,11 +63,34 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
     handleChange(quantity + 1)
   }, [handleChange, quantity])
 
+  const { mutateAsync: deleteItem, isPending: isDeleting } =
+    useCartControllerDeleteItem({
+      request: {
+        headers: session?.accessToken
+          ? { Authorization: `Bearer ${session.accessToken}` }
+          : {},
+      },
+    })
+
+  const handleDelete = useCallback(async () => {
+    setIsRemoving(true)
+    try {
+      await deleteItem({ id: item.id })
+      toast.success('Товар видалено')
+      await queryClient.invalidateQueries({
+        queryKey: getCartControllerGetCartQueryKey(),
+      })
+    } catch {
+      setIsRemoving(false)
+      toast.error('Не вдалось видалити товар')
+    }
+  }, [deleteItem, item.id, queryClient])
+
   return (
     <div
-      className={
-        'flex items-center gap-4 py-4 border-b border-gray-100 last:border-0'
-      }
+      className={`flex items-center gap-4 py-4 border-b border-gray-100 last:border-0 transition-opacity duration-200 ${
+        isRemoving ? 'opacity-0' : 'opacity-100'
+      }`}
     >
       <div
         className={
@@ -141,8 +166,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
       <button
         type={'button'}
         aria-label={'Видалити товар'}
+        disabled={isDeleting || isRemoving}
+        onClick={handleDelete}
         className={
-          'text-gray-300 hover:text-red-400 cursor-pointer bg-transparent border-none p-1 shrink-0'
+          'text-gray-300 hover:text-red-400 cursor-pointer bg-transparent border-none p-1 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed'
         }
       >
         <Trash2 size={16} />
