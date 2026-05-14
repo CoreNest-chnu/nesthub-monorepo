@@ -54,9 +54,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   )
 
   const discountAmount = promoResult ? Number(promoResult.discountAmount) : 0
-  const finalTotal = promoResult
-    ? Number(promoResult.finalTotal)
-    : totalAmount
+  const finalTotal = promoResult ? Number(promoResult.finalTotal) : totalAmount
 
   return (
     <div className={'w-[320px] shrink-0'}>
@@ -67,9 +65,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
 
         <div className={'flex flex-col gap-3 mb-5'}>
           <div className={'flex justify-between text-sm'}>
-            <span
-              className={'text-gray-500'}
-            >{`Товари (${totalItems})`}</span>
+            <span className={'text-gray-500'}>{`Товари (${totalItems})`}</span>
             <span
               className={'text-gray-800'}
             >{`${totalAmount.toLocaleString('uk-UA')} ₴`}</span>
