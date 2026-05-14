@@ -7,7 +7,7 @@ import {
 import { PrismaService } from 'prisma/lib/prisma'
 import { OrderModel } from './dto/order.model'
 import { UserId } from 'generated/prisma/types'
-import { FindAllOrderDto, ShippingAddressDto } from './dto/order.dto'
+import { FindAllByUserArgs, ShippingAddressDto } from './dto/order.dto'
 import { toShippingAddressDto } from './util/order.util'
 import { Decimal } from '@prisma/client/runtime/client'
 import { Prisma } from 'generated/prisma/client'
@@ -142,7 +142,7 @@ export class OrderService {
     }
   }
 
-  async findAllByUser({ userId }: FindAllOrderDto): Promise<OrderModel[]> {
+  async findAllByUser({ userId }: FindAllByUserArgs): Promise<OrderModel[]> {
     const orders = await this.prisma.order.findMany({
       where: {
         userId,

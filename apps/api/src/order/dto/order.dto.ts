@@ -13,6 +13,6 @@ export class CreateOrderDto {
   shippingAddress!: ShippingAddressDto
 }
 
-export class FindAllOrderDto {
+export class FindAllByUserArgs {
   userId!: UserId
 }

@@ -4,7 +4,7 @@ import { JwtAuthGuard } from 'src/auth/auth.guard'
 import { CurrentUser } from 'src/user/user.util'
 import { User } from 'generated/prisma/browser'
 import { OrderModel } from './dto/order.model'
-import { FindAllOrderDto, ShippingAddressDto } from './dto/order.dto'
+import { ShippingAddressDto } from './dto/order.dto'
 import { ApiResponse } from '@nestjs/swagger'
 
 @Controller('orders')
@@ -34,9 +34,7 @@ export class OrderController {
   @Get()
   @ApiResponse({ status: 200, type: OrderModel })
   @UseGuards(JwtAuthGuard)
-  async allOrders(
-    @CurrentUser() findAllOrderDto: FindAllOrderDto,
-  ): Promise<OrderModel[]> {
-    return await this.orderService.findAllByUser({ ...findAllOrderDto })
+  async allOrders(@CurrentUser() { id }: User): Promise<OrderModel[]> {
+    return await this.orderService.findAllByUser({ userId: id })
   }
 }
