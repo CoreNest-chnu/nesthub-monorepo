@@ -10,7 +10,7 @@ import { UserId } from 'generated/prisma/types'
 import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 import { ProductModel } from '../product/dto/product.model'
 
-const recommendationLimit = 8
+const recommendationLimit = 6
 
 export type AddCartItem = {
   id: UserId

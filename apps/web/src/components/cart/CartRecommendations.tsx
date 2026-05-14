@@ -51,7 +51,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   return (
     <div
       className={
-        'w-44 shrink-0 flex flex-col gap-2 p-3 rounded-xl border border-gray-200 bg-white'
+        'flex flex-col gap-2 p-3 rounded-xl border border-gray-200 bg-white'
       }
     >
       <div
@@ -128,7 +128,7 @@ export const CartRecommendations: React.FC = () => {
       <h2 className={'text-base font-semibold text-gray-900 mb-4'}>
         {'Часто купують разом'}
       </h2>
-      <div className={'flex gap-3 overflow-x-auto pb-2'}>
+      <div className={'grid grid-cols-3 gap-3'}>
         {products.map((product) => (
           <RecommendationCard
             key={product.id}
