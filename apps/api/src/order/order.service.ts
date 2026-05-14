@@ -74,10 +74,10 @@ export class OrderService {
 
       const totalAmount = promoCode
         ? subtotal.sub(
-            this.promoService.computeDiscount(
-              await this.promoService.validateCode(promoCode),
+            this.promoService.computeDiscount({
+              promo: await this.promoService.validateCode(promoCode),
               subtotal,
-            ),
+            }),
           )
         : subtotal
 
