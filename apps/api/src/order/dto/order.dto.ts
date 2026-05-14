@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { UserId } from 'generated/prisma/types'
 
 export class ShippingAddressDto {
   city!: string
@@ -10,4 +11,8 @@ export class ShippingAddressDto {
 export class CreateOrderDto {
   @ApiProperty({ type: ShippingAddressDto })
   shippingAddress!: ShippingAddressDto
+}
+
+export class FindAllOrderDto {
+  userId!: UserId
 }

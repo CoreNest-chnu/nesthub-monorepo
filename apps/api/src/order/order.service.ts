@@ -7,7 +7,7 @@ import {
 import { PrismaService } from 'prisma/lib/prisma'
 import { OrderModel } from './dto/order.model'
 import { UserId } from 'generated/prisma/types'
-import { ShippingAddressDto } from './dto/order.dto'
+import { FindAllOrderDto, ShippingAddressDto } from './dto/order.dto'
 import { toShippingAddressDto } from './util/order.util'
 import { Decimal } from '@prisma/client/runtime/client'
 import { Prisma } from 'generated/prisma/client'
@@ -142,10 +142,10 @@ export class OrderService {
     }
   }
 
-  async findAllByUser(id: UserId): Promise<OrderModel[]> {
+  async findAllByUser({ userId }: FindAllOrderDto): Promise<OrderModel[]> {
     const orders = await this.prisma.order.findMany({
       where: {
-        userId: id,
+        userId,
       },
       include: {
         Items: true,
@@ -154,15 +154,7 @@ export class OrderService {
 
     return orders.map((order) => ({
       ...order,
-
       shippingAddress: toShippingAddressDto(order.shippingAddress),
-
-      totalAmount: Number(order.totalAmount),
-
-      Items: order.Items.map((item) => ({
-        ...item,
-        priceAtPurchase: Number(item.priceAtPurchase),
-      })),
     }))
   }
 }
