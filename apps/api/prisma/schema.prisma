@@ -162,3 +162,18 @@ model OrderItem {
   @@index([orderId])
   @@index([productId])
 }
+
+model PromoCode {
+  id String @id @default(cuid())
+
+  code String @unique
+
+  discountPercent Int?
+  discountAmount  Decimal? @db.Decimal(10, 2)
+
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

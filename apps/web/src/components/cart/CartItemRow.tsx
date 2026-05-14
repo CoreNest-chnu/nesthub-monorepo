@@ -49,6 +49,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
         await queryClient.invalidateQueries({
           queryKey: getCartControllerGetCartQueryKey(),
         })
+        toast.success('Кількість оновлена')
       } catch {
         setQuantity(prevQuantity)
         toast.error('Не вдалось оновити кількість')

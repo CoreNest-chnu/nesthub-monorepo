@@ -117,9 +117,24 @@ async function main() {
     console.log(`✅ Added ${data.length} products to "${categoryName}"`)
   }
 
+  console.log('Seeding promo codes...')
+  const promoCodes = [
+    { code: 'SAVE10', discountPercent: 10 },
+    { code: 'SAVE20', discountPercent: 20 },
+    { code: 'WELCOME100', discountAmount: 100 },
+  ]
+  for (const promo of promoCodes) {
+    await prisma.promoCode.upsert({
+      where: { code: promo.code },
+      update: {},
+      create: promo,
+    })
+  }
+  console.log(`✅ Added ${promoCodes.length} promo codes`)
+
   console.log('🎉 Database seeding completed successfully!')
   console.log(
-    `📊 Total: ${Object.keys(productsByCategory).length} categories, ${totalProducts} products`,
+    `📊 Total: ${Object.keys(productsByCategory).length} categories, ${totalProducts} products, ${promoCodes.length} promo codes`,
   )
 }
 
