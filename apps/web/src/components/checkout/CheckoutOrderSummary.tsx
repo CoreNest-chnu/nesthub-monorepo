@@ -1,4 +1,5 @@
 import type { CartItemWithStockModel } from '@repo/api-client'
+import { Loader2 } from 'lucide-react'
 
 type CheckoutOrderSummaryProps = {
   items: CartItemWithStockModel[]
@@ -71,29 +72,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
         }
       >
         {isPending && (
-          <svg
-            className={'animate-spin'}
-            width={16}
-            height={16}
-            viewBox={'0 0 16 16'}
-            fill={'none'}
-            aria-hidden
-          >
-            <circle
-              cx={8}
-              cy={8}
-              r={6}
-              stroke={'currentColor'}
-              strokeOpacity={0.3}
-              strokeWidth={2}
-            />
-            <path
-              d={'M14 8a6 6 0 0 0-6-6'}
-              stroke={'currentColor'}
-              strokeWidth={2}
-              strokeLinecap={'round'}
-            />
-          </svg>
+          <Loader2 size={16} className={'animate-spin'} aria-hidden />
         )}
         {isPending ? 'Оформлення…' : 'Підтвердити замовлення'}
       </button>
