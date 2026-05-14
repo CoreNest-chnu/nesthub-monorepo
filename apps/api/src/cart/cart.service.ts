@@ -28,10 +28,10 @@ export class CartService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getCart(userId: string): Promise<CartWithStockModel> {
-    const cart = await this.prisma.cart.findUniqueOrThrow({
-      where: {
-        userId,
-      },
+    const cart = await this.prisma.cart.upsert({
+      where: { userId },
+      create: { userId },
+      update: {},
       include: {
         Items: {
           include: {
@@ -60,14 +60,12 @@ export class CartService {
       throw new NotFoundException('Product not found')
     }
 
-    const cart = await this.prisma.cart.findUnique({
+    const cart = await this.prisma.cart.upsert({
       where: { userId: id },
+      create: { userId: id },
+      update: {},
       select: { id: true },
     })
-
-    if (!cart) {
-      throw new NotFoundException("You don't have cart, pls contact support")
-    }
 
     const cartItem = await this.prisma.cartItem.findUnique({
       where: {
