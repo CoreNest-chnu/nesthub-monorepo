@@ -1,4 +1,5 @@
-// TODO: Checkout page — UC-14
+import { CheckoutView } from '../../../components/checkout/CheckoutView'
+
 export default function CheckoutPage() {
-  return null
+  return <CheckoutView />
 }
