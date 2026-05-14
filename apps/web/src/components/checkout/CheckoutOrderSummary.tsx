@@ -65,11 +65,36 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
       <button
         type={'submit'}
         disabled={hasOverStock || isPending}
-        style={{ display: 'block', width: '100%' }}
+        style={{ display: 'flex', width: '100%' }}
         className={
-          'py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold cursor-pointer hover:bg-gray-700 border-none font-[inherit] text-center disabled:opacity-50 disabled:cursor-not-allowed'
+          'py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold cursor-pointer hover:bg-gray-700 border-none font-[inherit] items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed'
         }
       >
+        {isPending && (
+          <svg
+            className={'animate-spin'}
+            width={16}
+            height={16}
+            viewBox={'0 0 16 16'}
+            fill={'none'}
+            aria-hidden
+          >
+            <circle
+              cx={8}
+              cy={8}
+              r={6}
+              stroke={'currentColor'}
+              strokeOpacity={0.3}
+              strokeWidth={2}
+            />
+            <path
+              d={'M14 8a6 6 0 0 0-6-6'}
+              stroke={'currentColor'}
+              strokeWidth={2}
+              strokeLinecap={'round'}
+            />
+          </svg>
+        )}
         {isPending ? 'Оформлення…' : 'Підтвердити замовлення'}
       </button>
     </div>
