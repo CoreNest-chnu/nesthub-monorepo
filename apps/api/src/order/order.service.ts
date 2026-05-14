@@ -3,7 +3,6 @@ import { PrismaService } from 'prisma/lib/prisma'
 import { OrderModel } from './dto/order.model'
 import { UserId } from 'generated/prisma/types'
 import { ShippingAddressDto } from './dto/order.dto'
-import { Decimal } from '@prisma/client/runtime/client'
 import { Prisma } from 'generated/prisma/client'
 
 export type CreateOrder = {
@@ -99,11 +98,6 @@ export class OrderService {
       return {
         ...createdOrder,
         shippingAddress,
-        totalAmount: Decimal(createdOrder.totalAmount),
-        Items: createdOrder.Items.map((item) => ({
-          ...item,
-          priceAtPurchase: Decimal(item.priceAtPurchase),
-        })),
       }
     })
   }

@@ -23,7 +23,7 @@ export class OrderModel {
   @ApiProperty({ type: ShippingAddressDto })
   shippingAddress!: ShippingAddressDto
   totalAmount!: Prisma.Decimal
-  @ApiProperty({ type: () => [OrderItemModel] })
+  @ApiProperty({ type: () => OrderItemModel, isArray: true })
   Items!: OrderItemModel[]
   createdAt!: Date
   updatedAt!: Date
