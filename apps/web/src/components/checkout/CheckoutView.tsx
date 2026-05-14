@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  type PromoResultModel,
   useCartControllerGetCart,
   useOrderControllerCreateOrder,
 } from '@repo/api-client'
@@ -8,12 +9,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { CartItemsList } from '../cart/CartItemsList'
 import { EmptyCart } from '../cart/EmptyCart'
 import { StepIndicator } from '../cart/StepIndicator'
+import { clearAppliedPromo, readAppliedPromo } from '../../lib/promoStorage'
 import { CheckoutOrderSummary } from './CheckoutOrderSummary'
 
 const addressSchema = z.object({
@@ -57,9 +60,18 @@ export const CheckoutView: React.FC = () => {
     resolver: zodResolver(addressSchema),
   })
 
+  const [promoResult, setPromoResult] = useState<PromoResultModel | null>(null)
+
+  useEffect(() => {
+    setPromoResult(readAppliedPromo())
+  }, [])
+
   const onSubmit = async (formData: AddressFormData) => {
     try {
-      const result = await createOrder({ data: formData })
+      const result = await createOrder({
+        data: { ...formData, promoCode: promoResult?.code },
+      })
+      clearAppliedPromo()
       const orderId = z.string().parse(result.data.id)
       router.push(`/orders/${orderId}/payment`)
     } catch {
@@ -219,6 +231,7 @@ export const CheckoutView: React.FC = () => {
               totalAmount={totalAmount}
               hasOverStock={hasOverStock}
               isPending={isPending}
+              promoResult={promoResult}
             />
           </div>
         </form>

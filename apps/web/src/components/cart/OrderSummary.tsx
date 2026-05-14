@@ -5,9 +5,15 @@ import {
   usePromoControllerApply,
 } from '@repo/api-client'
 import { useSession } from 'next-auth/react'
-import { useCallback, useState } from 'react'
+import Link from 'next/link'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { X } from 'lucide-react'
+import {
+  clearAppliedPromo,
+  readAppliedPromo,
+  writeAppliedPromo,
+} from '../../lib/promoStorage'
 
 type OrderSummaryProps = {
   totalItems: number
@@ -22,6 +28,10 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   const [code, setCode] = useState('')
   const [promoResult, setPromoResult] = useState<PromoResultModel | null>(null)
 
+  useEffect(() => {
+    setPromoResult(readAppliedPromo())
+  }, [])
+
   const { mutateAsync: applyPromo, isPending } = usePromoControllerApply({
     request: {
       headers: session?.accessToken
@@ -35,6 +45,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
     try {
       const response = await applyPromo({ data: { code: code.trim() } })
       setPromoResult(response.data)
+      writeAppliedPromo(response.data)
       toast.success('Промокод застосовано')
     } catch {
       toast.error('Невірний промокод')
@@ -44,6 +55,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   const handleRemovePromo = useCallback(() => {
     setPromoResult(null)
     setCode('')
+    clearAppliedPromo()
   }, [])
 
   const handleCodeChange = useCallback(
@@ -101,15 +113,15 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
           </span>
         </div>
 
-        <button
-          type={'button'}
+        <Link
+          href={'/checkout'}
           style={{ display: 'block', width: '100%' }}
           className={
-            'py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold cursor-pointer hover:bg-gray-700 border-none font-[inherit] text-center'
+            'py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold cursor-pointer hover:bg-gray-700 text-center'
           }
         >
           {'Оформити замовлення'}
-        </button>
+        </Link>
 
         <div className={'mt-5 flex flex-col gap-2'}>
           <p className={'text-sm text-gray-700'}>{'Промокод:'}</p>
