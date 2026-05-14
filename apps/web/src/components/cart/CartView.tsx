@@ -4,6 +4,7 @@ import { useCartControllerGetCart } from '@repo/api-client'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { CartItemsList } from './CartItemsList'
+import { EmptyCart } from './EmptyCart'
 import { OrderSummary } from './OrderSummary'
 import { StepIndicator } from './StepIndicator'
 
@@ -54,6 +55,10 @@ export const CartView: React.FC = () => {
   }
 
   const cartItems = cartData?.data.Items ?? []
+
+  if (cartItems.length === 0) {
+    return <EmptyCart />
+  }
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
   const totalAmount = cartItems.reduce(
