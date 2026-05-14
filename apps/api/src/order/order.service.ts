@@ -20,6 +20,10 @@ export type GetOrder = {
   orderId: string
 }
 
+type FindAllByUserArgs = {
+  userId: UserId
+}
+
 @Injectable()
 export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
@@ -135,5 +139,21 @@ export class OrderService {
       ...order,
       shippingAddress: toShippingAddressDto(order.shippingAddress),
     }
+  }
+
+  async findAllByUser({ userId }: FindAllByUserArgs): Promise<OrderModel[]> {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        Items: true,
+      },
+    })
+
+    return orders.map((order) => ({
+      ...order,
+      shippingAddress: toShippingAddressDto(order.shippingAddress),
+    }))
   }
 }
