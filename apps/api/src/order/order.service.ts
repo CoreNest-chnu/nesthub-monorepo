@@ -110,11 +110,6 @@ export class OrderService {
       return {
         ...createdOrder,
         shippingAddress,
-        totalAmount: Decimal(createdOrder.totalAmount),
-        Items: createdOrder.Items.map((item) => ({
-          ...item,
-          priceAtPurchase: Decimal(item.priceAtPurchase),
-        })),
       }
     })
   }
