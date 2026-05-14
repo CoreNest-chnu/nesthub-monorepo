@@ -1,31 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { OrderStatus } from 'generated/prisma/browser'
 import { ShippingAddressDto } from './order.dto'
-import { OrderId, OrderItemId } from 'generated/prisma/types'
-import { Prisma } from 'generated/prisma/client'
+import { Type } from 'class-transformer'
+import { ValidateNested } from 'class-validator'
 
 export class OrderItemModel {
-  id!: OrderItemId
+  id!: string
   orderId!: string
   productId!: string
   productName!: string
-  priceAtPurchase!: Prisma.Decimal
+  priceAtPurchase!: number
   quantity!: number
   createdAt!: Date
   updatedAt!: Date
 }
 
 export class OrderModel {
-  id!: OrderId
+  id!: string
   userId!: string
   @ApiProperty({ enum: OrderStatus })
   status!: OrderStatus
-  totalAmount!: Prisma.Decimal
+  totalAmount!: number
   @ApiProperty({ type: () => [OrderItemModel] })
   Items!: OrderItemModel[]
   createdAt!: Date
   updatedAt!: Date
 
-  @ApiProperty({ type: () => [ShippingAddressDto] })
+  @Type(() => ShippingAddressDto)
+  @ValidateNested()
   shippingAddress!: ShippingAddressDto
 }

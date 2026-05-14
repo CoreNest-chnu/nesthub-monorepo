@@ -16,7 +16,7 @@ export class OrderController {
     @CurrentUser() { id }: User,
     @Body() shippingAddressDto: ShippingAddressDto,
   ): Promise<OrderModel> {
-    return await this.orderService.create({ userId: id, ...shippingAddressDto })
+    return await this.orderService.createOrder({ id, ...shippingAddressDto })
   }
 
   @Get(':id')

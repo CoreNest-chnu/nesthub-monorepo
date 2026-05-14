@@ -4,16 +4,15 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
+import { OrderStatus } from 'generated/prisma/enums'
 import { PrismaService } from 'prisma/lib/prisma'
 import { OrderModel } from './dto/order.model'
 import { UserId } from 'generated/prisma/types'
 import { ShippingAddressDto } from './dto/order.dto'
 import { toShippingAddressDto } from './util/order.util'
-import { Prisma } from 'generated/prisma/client'
-import { Decimal } from '@prisma/client/runtime/index-browser'
 
 export type CreateOrder = {
-  userId: UserId
+  id: UserId
 } & ShippingAddressDto
 
 export type GetOrder = {
@@ -25,8 +24,8 @@ export type GetOrder = {
 export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create({
-    userId,
+  async createOrder({
+    id,
     city,
     street,
     building,
@@ -39,18 +38,16 @@ export class OrderService {
         building,
         zip,
       }
-
       const cartItems = await tx.cartItem.findMany({
         where: {
           Cart: {
-            userId,
+            userId: id,
           },
         },
         include: {
           Product: true,
         },
       })
-
       for (const item of cartItems) {
         if (item.Product.stock < item.quantity) {
           throw new ConflictException(
@@ -59,23 +56,22 @@ export class OrderService {
         }
       }
 
-      const totalAmount = cartItems.reduce(
-        (sum, { Product, quantity }) => sum.add(Product.price.mul(quantity)),
-        new Prisma.Decimal(0),
-      )
+      const totalAmount = cartItems.reduce((sum, Item) => {
+        return sum + Number(Item.Product.price) * Item.quantity
+      }, 0)
 
       const createdOrder = await tx.order.create({
         data: {
-          userId,
-          status: 'pending',
+          userId: id,
+          status: OrderStatus.pending,
           shippingAddress,
           totalAmount,
           Items: {
-            create: cartItems.map(({ productId, Product, quantity }) => ({
-              productId,
-              productName: Product.name,
-              priceAtPurchase: Product.price,
-              quantity,
+            create: cartItems.map((item) => ({
+              productId: item.productId,
+              productName: item.Product.name,
+              priceAtPurchase: item.Product.price,
+              quantity: item.quantity,
             })),
           },
         },
@@ -85,14 +81,14 @@ export class OrderService {
       })
 
       await Promise.all(
-        cartItems.map(({ productId, quantity }) =>
+        cartItems.map((item) =>
           tx.product.update({
             where: {
-              id: productId,
+              id: item.productId,
             },
             data: {
               stock: {
-                decrement: quantity,
+                decrement: item.quantity,
               },
             },
           }),
@@ -102,7 +98,7 @@ export class OrderService {
       await tx.cartItem.deleteMany({
         where: {
           Cart: {
-            userId,
+            userId: id,
           },
         },
       })
@@ -110,10 +106,10 @@ export class OrderService {
       return {
         ...createdOrder,
         shippingAddress,
-        totalAmount: Decimal(createdOrder.totalAmount),
+        totalAmount: Number(createdOrder.totalAmount),
         Items: createdOrder.Items.map((item) => ({
           ...item,
-          priceAtPurchase: Decimal(item.priceAtPurchase),
+          priceAtPurchase: Number(item.priceAtPurchase),
         })),
       }
     })
@@ -142,11 +138,11 @@ export class OrderService {
 
       shippingAddress: toShippingAddressDto(order.shippingAddress),
 
-      totalAmount: Decimal(order.totalAmount),
+      totalAmount: Number(order.totalAmount),
 
       Items: order.Items.map((item) => ({
         ...item,
-        priceAtPurchase: Decimal(item.priceAtPurchase),
+        priceAtPurchase: Number(item.priceAtPurchase),
       })),
     }
   }
@@ -166,11 +162,11 @@ export class OrderService {
 
       shippingAddress: toShippingAddressDto(order.shippingAddress),
 
-      totalAmount: Decimal(order.totalAmount),
+      totalAmount: Number(order.totalAmount),
 
       Items: order.Items.map((item) => ({
         ...item,
-        priceAtPurchase: Decimal(item.priceAtPurchase),
+        priceAtPurchase: Number(item.priceAtPurchase),
       })),
     }))
   }

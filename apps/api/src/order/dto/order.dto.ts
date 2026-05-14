@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
 
 export class ShippingAddressDto {
   city!: string
@@ -9,5 +10,6 @@ export class ShippingAddressDto {
 
 export class CreateOrderDto {
   @ApiProperty({ type: ShippingAddressDto })
+  @Type(() => ShippingAddressDto)
   shippingAddress!: ShippingAddressDto
 }
