@@ -7,7 +7,7 @@ import {
 import { PrismaService } from 'prisma/lib/prisma'
 import { OrderModel } from './dto/order.model'
 import { UserId } from 'generated/prisma/types'
-import { FindAllByUserArgs, ShippingAddressDto } from './dto/order.dto'
+import { ShippingAddressDto } from './dto/order.dto'
 import { toShippingAddressDto } from './util/order.util'
 import { Decimal } from '@prisma/client/runtime/client'
 import { Prisma } from 'generated/prisma/client'
@@ -19,6 +19,10 @@ export type CreateOrder = {
 export type GetOrder = {
   userId: UserId
   orderId: string
+}
+
+type FindAllByUserArgs = {
+  userId: UserId
 }
 
 @Injectable()
