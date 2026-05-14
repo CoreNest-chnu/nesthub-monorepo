@@ -1,5 +1,5 @@
-import { ComingSoon } from '@/src/components/ComingSoon'
+import { CartView } from '@/src/components/cart/CartView'
 
 export default function CartPage() {
-  return <ComingSoon title={'Кошик'} />
+  return <CartView />
 }
