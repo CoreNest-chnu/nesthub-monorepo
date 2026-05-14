@@ -15,6 +15,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setReady(true))
+
     return () => cancelAnimationFrame(id)
   }, [])
 

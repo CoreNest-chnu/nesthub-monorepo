@@ -62,7 +62,8 @@ export const CheckoutView: React.FC = () => {
   const onSubmit = async (formData: AddressFormData) => {
     try {
       const result = await createOrder({ data: formData })
-      router.push(`/orders/${result.data.id}/confirmation`)
+      const orderId = z.string().parse(result.data.id)
+      router.push(`/orders/${orderId}/confirmation`)
     } catch {
       toast.error('Не вдалось оформити замовлення')
     }
