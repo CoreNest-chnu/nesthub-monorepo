@@ -16,6 +16,7 @@ export class OrderItemModel {
 }
 
 export class OrderModel {
+  @ApiProperty({ type: String })
   id!: OrderId
   userId!: string
   @ApiProperty({ enum: OrderStatus })
