@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 type OrderSummaryProps = {
   totalItems: number
   totalAmount: number
@@ -45,15 +47,15 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
         </span>
       </div>
 
-      <button
-        type={'button'}
+      <Link
+        href={'/checkout'}
         style={{ display: 'block', width: '100%' }}
         className={
-          'py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold cursor-pointer hover:bg-gray-700 border-none font-[inherit] text-center'
+          'py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold cursor-pointer hover:bg-gray-700 text-center'
         }
       >
         {'Оформити замовлення'}
-      </button>
+      </Link>
 
       <div className={'mt-5 flex flex-col gap-2'}>
         <p className={'text-sm text-gray-700'}>{'Промокод:'}</p>
