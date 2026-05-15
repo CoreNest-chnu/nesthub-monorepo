@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
-const steps = ['Кошик', 'Доставка', 'Оплата', 'Підтвердження']
+// const steps = ['Кошик', 'Доставка', 'Оплата', 'Підтвердження']
+const steps = ['Кошик', 'Доставка', 'Підтвердження']
 
 type StepIndicatorProps = {
   current?: number
@@ -41,11 +42,9 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
                   'flex items-center justify-center w-7 h-7 rounded-full text-sm font-semibold'
                 }
                 style={{
-                  backgroundColor:
-                    isActive || isPast ? '#111827' : '#e5e7eb',
+                  backgroundColor: isActive || isPast ? '#111827' : '#e5e7eb',
                   color: isActive || isPast ? '#fff' : '#6b7280',
-                  transform:
-                    ready && isActive ? 'scale(1.18)' : 'scale(1)',
+                  transform: ready && isActive ? 'scale(1.18)' : 'scale(1)',
                   boxShadow:
                     ready && isActive
                       ? '0 0 0 5px rgba(17,24,39,0.12)'
@@ -62,7 +61,9 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
 
             {i < steps.length - 1 && (
               <div
-                className={'flex-1 h-px bg-gray-200 mx-3 relative overflow-hidden'}
+                className={
+                  'flex-1 h-px bg-gray-200 mx-3 relative overflow-hidden'
+                }
               >
                 {isPast && (
                   <div

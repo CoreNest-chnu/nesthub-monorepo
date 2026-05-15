@@ -6,10 +6,10 @@ import {
   useOrderControllerCreateOrder,
 } from '@repo/api-client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import confetti from 'canvas-confetti'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -34,7 +34,6 @@ const errorClass = 'mt-1 text-xs text-red-500'
 
 export const CheckoutView: React.FC = () => {
   const { data: session, status } = useSession()
-  const router = useRouter()
   const accessToken = session?.accessToken
 
   const { data: cartData, isLoading: cartLoading } = useCartControllerGetCart({
@@ -61,22 +60,104 @@ export const CheckoutView: React.FC = () => {
   })
 
   const [promoResult, setPromoResult] = useState<PromoResultModel | null>(null)
+  const [mode, setMode] = useState<'edit' | 'review'>('edit')
+  const [reviewData, setReviewData] = useState<AddressFormData | null>(null)
+  const [successOrderId, setSuccessOrderId] = useState<string | null>(null)
 
   useEffect(() => {
     setPromoResult(readAppliedPromo())
   }, [])
 
+  useEffect(() => {
+    if (!successOrderId) return
+
+    const duration = 1500
+    const end = Date.now() + duration
+    const fire = () => {
+      confetti({
+        particleCount: 4,
+        angle: 60,
+        spread: 70,
+        origin: { x: 0 },
+      })
+      confetti({
+        particleCount: 4,
+        angle: 120,
+        spread: 70,
+        origin: { x: 1 },
+      })
+
+      if (Date.now() < end) {
+        requestAnimationFrame(fire)
+      }
+    }
+    fire()
+  }, [successOrderId])
+
   const onSubmit = async (formData: AddressFormData) => {
+    if (mode === 'edit') {
+      setReviewData(formData)
+      setMode('review')
+
+      return
+    }
+
     try {
       const result = await createOrder({
         data: { ...formData, promoCode: promoResult?.code },
       })
       clearAppliedPromo()
       const orderId = z.string().parse(result.data.id)
-      router.push(`/orders/${orderId}/payment`)
+      setSuccessOrderId(orderId)
     } catch {
       toast.error('Не вдалось оформити замовлення')
     }
+  }
+
+  const handleBackToEdit = useCallback(() => {
+    setMode('edit')
+  }, [])
+
+  if (successOrderId) {
+    return (
+      <div
+        className={
+          'min-h-screen bg-gray-50 flex items-center justify-center p-6'
+        }
+      >
+        <div
+          className={
+            'bg-white rounded-2xl border border-gray-200 p-10 max-w-md w-full text-center flex flex-col items-center gap-4'
+          }
+        >
+          <div className={'text-5xl'}>{'🎉'}</div>
+          <h1 className={'text-2xl font-bold text-gray-900'}>
+            {'Ура! Замовлення оформлено'}
+          </h1>
+          <p className={'text-sm text-gray-600'}>
+            {'Ми вже почали обробку — деталі будуть надіслані на вашу пошту.'}
+          </p>
+          <div className={'flex gap-3 mt-2'}>
+            <Link
+              href={`/profile/orders/${successOrderId}`}
+              className={
+                'px-5 h-11 inline-flex items-center rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-700'
+              }
+            >
+              {'Переглянути замовлення'}
+            </Link>
+            <Link
+              href={'/'}
+              className={
+                'px-5 h-11 inline-flex items-center rounded-lg border border-gray-200 text-sm text-gray-700 hover:bg-gray-50'
+              }
+            >
+              {'На головну'}
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (status === 'loading' || cartLoading) {
@@ -128,7 +209,7 @@ export const CheckoutView: React.FC = () => {
   return (
     <div className={'min-h-screen bg-gray-50 p-6'}>
       <div className={'max-w-[1200px] mx-auto'}>
-        <StepIndicator current={1} />
+        <StepIndicator current={mode === 'review' ? 2 : 1} />
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={'flex gap-6 items-start'}>
@@ -148,11 +229,28 @@ export const CheckoutView: React.FC = () => {
               <section
                 className={'bg-white rounded-2xl border border-gray-200 p-6'}
               >
-                <h2 className={'text-base font-semibold text-gray-900 mb-5'}>
-                  {'Адреса доставки'}
-                </h2>
+                <div className={'flex items-center justify-between mb-5'}>
+                  <h2 className={'text-base font-semibold text-gray-900'}>
+                    {'Адреса доставки'}
+                  </h2>
+                  {mode === 'review' && (
+                    <button
+                      type={'button'}
+                      onClick={handleBackToEdit}
+                      className={
+                        'text-sm text-blue-600 hover:underline cursor-pointer bg-transparent border-none p-0'
+                      }
+                    >
+                      {'Редагувати'}
+                    </button>
+                  )}
+                </div>
 
-                <div className={'grid grid-cols-2 gap-4'}>
+                <div
+                  className={
+                    mode === 'review' ? 'hidden' : 'grid grid-cols-2 gap-4'
+                  }
+                >
                   <label className={'block'}>
                     <span className={'block text-sm text-gray-700 mb-1'}>
                       {'Місто'}
@@ -223,6 +321,35 @@ export const CheckoutView: React.FC = () => {
                     <input placeholder={'25'} className={inputClass} />
                   </label>
                 </div>
+
+                {mode === 'review' && reviewData && (
+                  <dl className={'grid grid-cols-2 gap-x-4 gap-y-3 text-sm'}>
+                    <div>
+                      <dt className={'text-gray-500'}>{'Місто'}</dt>
+                      <dd className={'text-gray-900 font-medium'}>
+                        {reviewData.city}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className={'text-gray-500'}>{'Поштовий індекс'}</dt>
+                      <dd className={'text-gray-900 font-medium'}>
+                        {reviewData.zip}
+                      </dd>
+                    </div>
+                    <div className={'col-span-2'}>
+                      <dt className={'text-gray-500'}>{'Вулиця'}</dt>
+                      <dd className={'text-gray-900 font-medium'}>
+                        {reviewData.street}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className={'text-gray-500'}>{'Будинок'}</dt>
+                      <dd className={'text-gray-900 font-medium'}>
+                        {reviewData.building}
+                      </dd>
+                    </div>
+                  </dl>
+                )}
               </section>
             </div>
 
@@ -232,6 +359,7 @@ export const CheckoutView: React.FC = () => {
               hasOverStock={hasOverStock}
               isPending={isPending}
               promoResult={promoResult}
+              mode={mode}
             />
           </div>
         </form>
