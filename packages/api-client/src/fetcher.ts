@@ -4,6 +4,18 @@ export interface ApiError {
   statusCode: number
 }
 
+export class ApiResponseError extends Error {
+  statusCode: number
+  data: unknown
+
+  constructor(message: string, statusCode: number, data: unknown) {
+    super(message)
+    this.name = 'ApiResponseError'
+    this.statusCode = statusCode
+    this.data = data
+  }
+}
+
 export async function fetcher<T>(
   url: string,
   options?: RequestInit,
@@ -13,8 +25,11 @@ export async function fetcher<T>(
   const parsed = body ? JSON.parse(body) : {}
 
   if (!res.ok) {
-    const err = parsed as ApiError
-    throw new Error(err.message ?? res.statusText)
+    throw new ApiResponseError(
+      (parsed as ApiError).message ?? res.statusText,
+      res.status,
+      parsed,
+    )
   }
 
   return { data: parsed, status: res.status, headers: res.headers } as T

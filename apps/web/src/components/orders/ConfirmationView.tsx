@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  ApiResponseError,
   useCartControllerGetCart,
   useOrderControllerCreateOrder,
   useOrderControllerGetOrder,
@@ -12,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { StepIndicator } from '../cart/StepIndicator'
+import { OutOfStockModal, type OutOfStockItem } from './OutOfStockModal'
 
 type ShippingData = {
   city: string
@@ -205,6 +207,8 @@ function PreviewView({ orderId }: PreviewViewProps) {
 
   const [shipping, setShipping] = useState<ShippingData | null>(null)
   const [payment, setPayment] = useState<PaymentSummary | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [outOfStockItems, setOutOfStockItems] = useState<OutOfStockItem[]>([])
 
   useEffect(() => {
     const s = sessionStorage.getItem('checkout_shipping')
@@ -241,8 +245,14 @@ function PreviewView({ orderId }: PreviewViewProps) {
       sessionStorage.removeItem('checkout_shipping')
       sessionStorage.removeItem('checkout_payment')
       router.replace(`/orders/${newId}/confirmation`)
-    } catch {
-      toast.error('Не вдалось створити замовлення')
+    } catch (err) {
+      if (err instanceof ApiResponseError && err.statusCode === 409) {
+        const body = err.data as { outOfStockItems?: OutOfStockItem[] }
+        setOutOfStockItems(body.outOfStockItems ?? [])
+        setModalOpen(true)
+      } else {
+        toast.error('Не вдалось створити замовлення')
+      }
     }
   }
 
@@ -256,7 +266,8 @@ function PreviewView({ orderId }: PreviewViewProps) {
   }
 
   return (
-    <div className={'min-h-screen bg-gray-50 p-6'}>
+    <>
+      <div className={'min-h-screen bg-gray-50 p-6'}>
       <div className={'max-w-[1200px] mx-auto'}>
         <StepIndicator current={3} />
 
@@ -364,6 +375,12 @@ function PreviewView({ orderId }: PreviewViewProps) {
         </div>
       </div>
     </div>
+    <OutOfStockModal
+      open={modalOpen}
+      onOpenChange={setModalOpen}
+      items={outOfStockItems}
+    />
+    </>
   )
 }
 
