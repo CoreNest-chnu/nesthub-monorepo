@@ -170,14 +170,24 @@ function ConfirmedOrderView({ orderId }: ConfirmedOrderViewProps) {
             </div>
           </div>
 
-          <a
-            href={'/profile/orders'}
-            className={
-              'py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 text-center hover:bg-gray-50 transition'
-            }
-          >
-            {'Перейти до замовлень'}
-          </a>
+          <div className={'flex flex-col gap-3'}>
+            <a
+              href={'/profile/orders'}
+              className={
+                'py-3 rounded-xl bg-gray-900 text-white text-sm font-semibold text-center hover:bg-gray-700 transition'
+              }
+            >
+              {'Перейти до моїх замовлень'}
+            </a>
+            <a
+              href={'/catalog'}
+              className={
+                'py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 text-center hover:bg-gray-50 transition'
+              }
+            >
+              {'Продовжити покупки'}
+            </a>
+          </div>
         </div>
       </div>
     </div>
