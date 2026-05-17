@@ -10,6 +10,7 @@ type CheckoutOrderSummaryProps = {
   hasOverStock: boolean
   isPending: boolean
   promoResult: PromoResultModel | null
+  mode: 'edit' | 'review'
 }
 
 export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
@@ -18,9 +19,16 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
   hasOverStock,
   isPending,
   promoResult,
+  mode,
 }) => {
   const discountAmount = promoResult ? Number(promoResult.discountAmount) : 0
   const finalTotal = promoResult ? Number(promoResult.finalTotal) : totalAmount
+
+  const submitLabel = (() => {
+    if (isPending) return 'Оформлення…'
+    if (mode === 'edit') return 'Далі'
+    return 'Підтвердити замовлення'
+  })()
 
   return (
     <div className={'w-[320px] shrink-0'}>
@@ -100,7 +108,7 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
           {isPending && (
             <Loader2 size={16} className={'animate-spin'} aria-hidden />
           )}
-          {isPending ? 'Оформлення…' : 'Підтвердити замовлення'}
+          {submitLabel}
         </button>
       </div>
     </div>
