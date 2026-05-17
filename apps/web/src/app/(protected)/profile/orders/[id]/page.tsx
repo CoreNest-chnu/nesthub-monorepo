@@ -74,6 +74,17 @@ export default function OrderPage({ params }: OrderPageProps) {
         {format(new Date(order.createdAt), 'dd.MM.yyyy HH:mm')}
       </p>
 
+      {order.status === 'pending' && (
+        <Link
+          href={`/profile/orders/${order.id}/payment`}
+          className={
+            'px-5 h-11 self-start inline-flex items-center rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700'
+          }
+        >
+          {'Оплатити Замовлення'}
+        </Link>
+      )}
+
       <section className={'bg-white rounded-2xl border border-gray-200 p-6'}>
         <h2 className={'text-base font-semibold text-gray-900 mb-4'}>
           {`Товари (${itemsCount})`}

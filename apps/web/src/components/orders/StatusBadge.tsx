@@ -11,7 +11,7 @@ type StatusBadgeProps = {
 
 const statusConfig = {
   pending: {
-    label: 'Очікує',
+    label: 'Чекає на оплату',
     className: 'bg-yellow-100 text-yellow-800',
   },
   paid: {

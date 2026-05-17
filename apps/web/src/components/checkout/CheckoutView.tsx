@@ -6,9 +6,9 @@ import {
   useOrderControllerCreateOrder,
 } from '@repo/api-client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import confetti from 'canvas-confetti'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -34,6 +34,7 @@ const errorClass = 'mt-1 text-xs text-red-500'
 
 export const CheckoutView: React.FC = () => {
   const { data: session, status } = useSession()
+  const router = useRouter()
   const accessToken = session?.accessToken
 
   const { data: cartData, isLoading: cartLoading } = useCartControllerGetCart({
@@ -62,37 +63,10 @@ export const CheckoutView: React.FC = () => {
   const [promoResult, setPromoResult] = useState<PromoResultModel | null>(null)
   const [mode, setMode] = useState<'edit' | 'review'>('edit')
   const [reviewData, setReviewData] = useState<AddressFormData | null>(null)
-  const [successOrderId, setSuccessOrderId] = useState<string | null>(null)
 
   useEffect(() => {
     setPromoResult(readAppliedPromo())
   }, [])
-
-  useEffect(() => {
-    if (!successOrderId) return
-
-    const duration = 1500
-    const end = Date.now() + duration
-    const fire = () => {
-      confetti({
-        particleCount: 4,
-        angle: 60,
-        spread: 70,
-        origin: { x: 0 },
-      })
-      confetti({
-        particleCount: 4,
-        angle: 120,
-        spread: 70,
-        origin: { x: 1 },
-      })
-
-      if (Date.now() < end) {
-        requestAnimationFrame(fire)
-      }
-    }
-    fire()
-  }, [successOrderId])
 
   const onSubmit = async (formData: AddressFormData) => {
     if (mode === 'edit') {
@@ -108,7 +82,7 @@ export const CheckoutView: React.FC = () => {
       })
       clearAppliedPromo()
       const orderId = z.string().parse(result.data.id)
-      setSuccessOrderId(orderId)
+      router.push(`/profile/orders/${orderId}/payment`)
     } catch {
       toast.error('Не вдалось оформити замовлення')
     }
@@ -117,48 +91,6 @@ export const CheckoutView: React.FC = () => {
   const handleBackToEdit = useCallback(() => {
     setMode('edit')
   }, [])
-
-  if (successOrderId) {
-    return (
-      <div
-        className={
-          'min-h-screen bg-gray-50 flex items-center justify-center p-6'
-        }
-      >
-        <div
-          className={
-            'bg-white rounded-2xl border border-gray-200 p-10 max-w-md w-full text-center flex flex-col items-center gap-4'
-          }
-        >
-          <div className={'text-5xl'}>{'🎉'}</div>
-          <h1 className={'text-2xl font-bold text-gray-900'}>
-            {'Ура! Замовлення оформлено'}
-          </h1>
-          <p className={'text-sm text-gray-600'}>
-            {'Ми вже почали обробку — деталі будуть надіслані на вашу пошту.'}
-          </p>
-          <div className={'flex gap-3 mt-2'}>
-            <Link
-              href={`/profile/orders/${successOrderId}`}
-              className={
-                'px-5 h-11 inline-flex items-center rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-700'
-              }
-            >
-              {'Переглянути замовлення'}
-            </Link>
-            <Link
-              href={'/'}
-              className={
-                'px-5 h-11 inline-flex items-center rounded-lg border border-gray-200 text-sm text-gray-700 hover:bg-gray-50'
-              }
-            >
-              {'На головну'}
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   if (status === 'loading' || cartLoading) {
     return (
