@@ -1,15 +1,28 @@
+import Link from 'next/link'
+
 const columns = [
   {
     title: 'Про нас',
-    links: ['Про компанію', 'Контакти', "Кар'єра"],
+    links: [
+      { label: 'Про компанію', href: '/info/about' },
+      { label: 'Контакти', href: '/info/contacts' },
+      { label: "Кар'єра", href: '/info/career' },
+    ],
   },
   {
     title: 'Покупцям',
-    links: ['Доставка та оплата', 'Повернення товару', 'Гарантія'],
+    links: [
+      { label: 'Доставка та оплата', href: '/info/delivery' },
+      { label: 'Повернення товару', href: '/info/return' },
+      { label: 'Гарантія', href: '/info/warranty' },
+    ],
   },
   {
     title: 'Партнерам',
-    links: ['Співпраця', 'Оптові закупівлі'],
+    links: [
+      { label: 'Співпраця', href: '/info/partnership' },
+      { label: 'Оптові закупівлі', href: '/info/wholesale' },
+    ],
   },
 ]
 
@@ -23,14 +36,14 @@ export const Footer: React.FC = () => (
               {title}
             </h4>
             <ul className={'flex flex-col gap-2'}>
-              {links.map((link) => (
-                <li key={link}>
-                  <a
-                    href={'/info'}
+              {links.map(({ label, href }) => (
+                <li key={label}>
+                  <Link
+                    href={href}
                     className={'text-sm text-gray-500 hover:text-gray-800'}
                   >
-                    {link}
-                  </a>
+                    {label}
+                  </Link>
                 </li>
               ))}
             </ul>
