@@ -15,6 +15,7 @@ import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 import { CurrentUser } from 'src/user/user.util'
 import { User } from 'generated/prisma/browser'
 import { ApiResponse } from '@nestjs/swagger'
+import { ProductModel } from '../product/dto/product.model'
 
 @Controller('cart')
 export class CartController {
@@ -25,6 +26,15 @@ export class CartController {
   @UseGuards(JwtAuthGuard)
   async getCart(@CurrentUser() { id }: User): Promise<CartWithStockModel> {
     return await this.cartService.getCart(id)
+  }
+
+  @Get('recommendations')
+  @ApiResponse({ status: 200, type: ProductModel, isArray: true })
+  @UseGuards(JwtAuthGuard)
+  async getRecommendations(
+    @CurrentUser() { id }: User,
+  ): Promise<ProductModel[]> {
+    return await this.cartService.getRecommendations(id)
   }
 
   @Post('items')

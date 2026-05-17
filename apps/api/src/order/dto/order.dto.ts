@@ -5,6 +5,9 @@ export class ShippingAddressDto {
   street!: string
   building!: string
   zip!: string
+
+  @ApiProperty({ required: false })
+  promoCode?: string
 }
 
 export class CreateOrderDto {

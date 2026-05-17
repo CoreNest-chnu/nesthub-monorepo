@@ -5,6 +5,7 @@ import { ProductModule } from './product/product.module'
 import { CategoriesModule } from './category/category.module'
 import { CartModule } from './cart/cart.module'
 import { OrderModule } from './order/order.module'
+import { PromoModule } from './promo/promo.module'
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OrderModule } from './order/order.module'
     CategoriesModule,
     CartModule,
     OrderModule,
+    PromoModule,
   ],
   controllers: [],
   providers: [],

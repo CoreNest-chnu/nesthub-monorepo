@@ -10,6 +10,7 @@ import { UserId } from 'generated/prisma/types'
 import { ShippingAddressDto } from './dto/order.dto'
 import { toShippingAddressDto } from './util/order.util'
 import { Prisma } from 'generated/prisma/client'
+import { PromoService } from '../promo/promo.service'
 
 export type CreateOrder = {
   userId: UserId
@@ -26,7 +27,10 @@ type FindAllByUserArgs = {
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly promoService: PromoService,
+  ) {}
 
   async create({
     userId,
@@ -34,6 +38,7 @@ export class OrderService {
     street,
     building,
     zip,
+    promoCode,
   }: CreateOrder): Promise<OrderModel> {
     return await this.prisma.$transaction(async (tx) => {
       const shippingAddress = {
@@ -62,10 +67,19 @@ export class OrderService {
         }
       }
 
-      const totalAmount = cartItems.reduce(
+      const subtotal = cartItems.reduce(
         (sum, { Product, quantity }) => sum.add(Product.price.mul(quantity)),
         new Prisma.Decimal(0),
       )
+
+      const totalAmount = promoCode
+        ? subtotal.sub(
+            this.promoService.computeDiscount({
+              promo: await this.promoService.validateCode(promoCode),
+              subtotal,
+            }),
+          )
+        : subtotal
 
       const createdOrder = await tx.order.create({
         data: {

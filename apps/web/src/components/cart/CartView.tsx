@@ -4,6 +4,7 @@ import { useCartControllerGetCart } from '@repo/api-client'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { CartItemsList } from './CartItemsList'
+import { CartRecommendations } from './CartRecommendations'
 import { EmptyCart } from './EmptyCart'
 import { OrderSummary } from './OrderSummary'
 import { StepIndicator } from './StepIndicator'
@@ -79,7 +80,10 @@ export const CartView: React.FC = () => {
         <StepIndicator />
 
         <div className={'flex gap-6 items-start'}>
-          <CartItemsList items={cartItems} />
+          <div className={'flex-1 flex flex-col gap-6'}>
+            <CartItemsList items={cartItems} />
+            <CartRecommendations />
+          </div>
           <OrderSummary totalItems={totalItems} totalAmount={totalAmount} />
         </div>
       </div>
