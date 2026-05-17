@@ -43,7 +43,8 @@ model User {
 
   Cart Cart?
 
-  Orders Order[]
+  Orders     Order[]
+  SavedCards SavedCard[]
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
@@ -135,6 +136,8 @@ model Order {
 
   Items OrderItem[]
 
+  Payment Payment?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -176,4 +179,58 @@ model PromoCode {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum CardBrand {
+  visa
+  mastercard
+  other
+}
+
+enum PaymentStatus {
+  succeeded
+  failed
+}
+
+model SavedCard {
+  id String @id @default(cuid())
+
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  last4          String
+  brand          CardBrand
+  expiryMonth    Int
+  expiryYear     Int
+  cardholderName String
+
+  Payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  Order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String @unique
+
+  SavedCard   SavedCard? @relation(fields: [savedCardId], references: [id], onDelete: SetNull)
+  savedCardId String?
+
+  last4          String
+  brand          CardBrand
+  expiryMonth    Int
+  expiryYear     Int
+  cardholderName String
+
+  status PaymentStatus @default(succeeded)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([savedCardId])
 }
