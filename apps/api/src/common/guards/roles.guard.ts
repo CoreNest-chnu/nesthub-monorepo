@@ -7,11 +7,12 @@ import {
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import type { Request } from 'express'
+import { Role } from 'generated/prisma/enums'
 
 type JwtUser = {
   role?: string
   data?: {
-    role?: string
+    role?: Role
   }
 }
 

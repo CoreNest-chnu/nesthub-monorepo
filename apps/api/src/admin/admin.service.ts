@@ -24,7 +24,6 @@ export class AdminService {
         imageUrl,
         categoryId,
       },
-
       include: {
         Category: true,
       },
