@@ -7,9 +7,11 @@ import { CartModule } from './cart/cart.module'
 import { OrderModule } from './order/order.module'
 import { PromoModule } from './promo/promo.module'
 import { PaymentModule } from './payment/payment.module'
+import { AdminModule } from './admin/admin.module'
 
 @Module({
   imports: [
+    AdminModule,
     AuthModule,
     UserModule,
     ProductModule,
