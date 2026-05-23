@@ -25,3 +25,17 @@ export const loginSchema = z.object({
 })
 
 export type LoginFormData = z.infer<typeof loginSchema>
+
+export const createProductSchema = z.object({
+  name: z.string().min(1, "Назва товару обов'язкова"),
+  description: z.string().optional(),
+  price: z.coerce.number().positive('Ціна повинна бути більше 0'),
+  categoryId: z.string().min(1, 'Виберіть категорію'),
+  stock: z.coerce
+    .number()
+    .int('Кількість має бути цілим числом')
+    .min(0, "Кількість не може бути від'ємною"),
+  imageUrl: z.url('Невалідний URL зображення').or(z.literal('')).optional(),
+})
+
+export type CreateProductFormData = z.infer<typeof createProductSchema>
