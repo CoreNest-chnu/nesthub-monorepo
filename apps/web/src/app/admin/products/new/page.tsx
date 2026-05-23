@@ -2,6 +2,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCategoriesControllerFindAll } from '@repo/api-client'
+import { useMutation } from '@tanstack/react-query'
+import { useSession } from 'next-auth/react'
 import { ArrowLeft, ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -10,7 +12,6 @@ import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Field } from '@/src/components/Field'
-import { useCreateProduct } from '@/src/hooks/useCreateProduct'
 import {
   type CreateProductFormData,
   createProductSchema,
@@ -33,11 +34,47 @@ const inputClass = (hasError: boolean) =>
 
 const CreateProductPage: React.FC = () => {
   const router = useRouter()
+  const { data: session } = useSession()
 
   const { data: categoriesData } = useCategoriesControllerFindAll()
   const categories = categoriesData?.data ?? []
 
-  const { mutateAsync: createProduct, isPending } = useCreateProduct()
+  // TODO: replace with useProductControllerCreate once BE implements POST /api/products
+  const { mutateAsync: createProduct, isPending } = useMutation({
+    mutationFn: async (dto: CreateProductFormData): Promise<unknown> => {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.accessToken
+            ? { Authorization: `Bearer ${session.accessToken}` }
+            : {}),
+        },
+        body: JSON.stringify(dto),
+      })
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        let message = res.statusText
+        try {
+          const body: unknown = JSON.parse(text)
+          if (
+            typeof body === 'object' &&
+            body !== null &&
+            'message' in body &&
+            typeof body.message === 'string'
+          ) {
+            message = body.message
+          }
+        } catch { /* fallback to statusText */ }
+        throw new Error(message)
+      }
+
+      const data: unknown = await res.json()
+
+      return data
+    },
+  })
 
   const {
     register,
