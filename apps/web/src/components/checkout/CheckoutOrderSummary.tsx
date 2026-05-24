@@ -1,7 +1,4 @@
-import type {
-  CartItemWithStockModel,
-  PromoResultModel,
-} from '@repo/api-client'
+import type { CartItemWithStockModel, PromoResultModel } from '@repo/api-client'
 import { Loader2 } from 'lucide-react'
 
 type CheckoutOrderSummaryProps = {
@@ -25,9 +22,13 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
   const finalTotal = promoResult ? Number(promoResult.finalTotal) : totalAmount
 
   const submitLabel = (() => {
-    if (isPending) return 'Оформлення…'
+    if (isPending) {
+      return 'Оформлення…'
+    }
 
-    if (mode === 'edit') return 'Далі'
+    if (mode === 'edit') {
+      return 'Далі'
+    }
 
     return 'Підтвердити замовлення'
   })()

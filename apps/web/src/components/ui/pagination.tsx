@@ -131,11 +131,17 @@ const buildPageItems = (current: number, total: number): PageItem[] => {
   const start = Math.max(2, current - 1)
   const end = Math.min(total - 1, current + 1)
 
-  if (start > 2) items.push('ellipsis')
+  if (start > 2) {
+    items.push('ellipsis')
+  }
 
-  for (let i = start; i <= end; i++) items.push(i)
+  for (let i = start; i <= end; i++) {
+    items.push(i)
+  }
 
-  if (end < total - 1) items.push('ellipsis')
+  if (end < total - 1) {
+    items.push('ellipsis')
+  }
 
   items.push(total)
 
