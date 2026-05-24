@@ -26,7 +26,9 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
 
   const submitLabel = (() => {
     if (isPending) return 'Оформлення…'
+
     if (mode === 'edit') return 'Далі'
+
     return 'Підтвердити замовлення'
   })()
 

@@ -21,6 +21,7 @@ function isValidImageUrl(url: string | undefined): boolean {
   if (!url) return false
   try {
     new URL(url)
+
     return true
   } catch {
     return false
@@ -28,8 +29,7 @@ function isValidImageUrl(url: string | undefined): boolean {
 }
 
 const inputClass = (hasError: boolean) =>
-  `w-full border rounded-lg px-3 h-[42px] text-sm outline-none font-[inherit] text-gray-900 bg-white ${
-    hasError ? 'border-red-400 bg-red-50' : 'border-gray-300'
+  `w-full border rounded-lg px-3 h-[42px] text-sm outline-none font-[inherit] text-gray-900 bg-white ${hasError ? 'border-red-400 bg-red-50' : 'border-gray-300'
   }`
 
 const CreateProductPage: React.FC = () => {
@@ -39,10 +39,9 @@ const CreateProductPage: React.FC = () => {
   const { data: categoriesData } = useCategoriesControllerFindAll()
   const categories = categoriesData?.data ?? []
 
-  // TODO: replace with useProductControllerCreate once BE implements POST /api/products
   const { mutateAsync: createProduct, isPending } = useMutation({
     mutationFn: async (dto: CreateProductFormData): Promise<unknown> => {
-      const res = await fetch('/api/products', {
+      const res = await fetch('/api/admin/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,6 +57,7 @@ const CreateProductPage: React.FC = () => {
         let message = res.statusText
         try {
           const body: unknown = JSON.parse(text)
+
           if (
             typeof body === 'object' &&
             body !== null &&
@@ -177,11 +177,10 @@ const CreateProductPage: React.FC = () => {
                 {...register('description')}
                 rows={3}
                 placeholder={"Опис товару (необов'язково)"}
-                className={`w-full border rounded-lg px-3 py-2 text-sm outline-none font-[inherit] text-gray-900 bg-white resize-none ${
-                  errors.description
+                className={`w-full border rounded-lg px-3 py-2 text-sm outline-none font-[inherit] text-gray-900 bg-white resize-none ${errors.description
                     ? 'border-red-400 bg-red-50'
                     : 'border-gray-300'
-                }`}
+                  }`}
               />
             </Field>
 
@@ -193,7 +192,7 @@ const CreateProductPage: React.FC = () => {
               >
                 <input
                   id={'price'}
-                  {...register('price')}
+                  {...register('price', { valueAsNumber: true })}
                   type={'number'}
                   min={'0'}
                   step={'0.01'}
@@ -209,7 +208,7 @@ const CreateProductPage: React.FC = () => {
               >
                 <input
                   id={'stock'}
-                  {...register('stock')}
+                  {...register('stock', { valueAsNumber: true })}
                   type={'number'}
                   min={'0'}
                   step={'1'}
@@ -300,11 +299,10 @@ const CreateProductPage: React.FC = () => {
             <button
               type={'submit'}
               disabled={isPending}
-              className={`px-5 h-10 rounded-lg text-sm font-medium border-none font-[inherit] transition-colors ${
-                isPending
+              className={`px-5 h-10 rounded-lg text-sm font-medium border-none font-[inherit] transition-colors ${isPending
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-gray-900 text-white hover:bg-gray-800 cursor-pointer'
-              }`}
+                }`}
             >
               {isPending ? 'Збереження…' : 'Створити товар'}
             </button>

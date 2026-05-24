@@ -132,10 +132,13 @@ const buildPageItems = (current: number, total: number): PageItem[] => {
   const end = Math.min(total - 1, current + 1)
 
   if (start > 2) items.push('ellipsis')
+
   for (let i = start; i <= end; i++) items.push(i)
+
   if (end < total - 1) items.push('ellipsis')
 
   items.push(total)
+
   return items
 }
 
@@ -165,7 +168,9 @@ function PaginationControls({
   const handle =
     (target: number) => (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault()
+
       if (target < 1 || target > totalPages || target === page) return
+
       onPageChange(target)
     }
 
