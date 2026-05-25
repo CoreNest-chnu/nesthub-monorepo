@@ -1,8 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useCategoriesControllerFindAll } from '@repo/api-client'
-import { useMutation } from '@tanstack/react-query'
+import { useAdminControllerCreate, useCategoriesControllerFindAll } from '@repo/api-client'
 import { useSession } from 'next-auth/react'
 import { ArrowLeft, ImageIcon } from 'lucide-react'
 import Image from 'next/image'
@@ -17,7 +16,7 @@ import {
   createProductSchema,
 } from '@/src/validation/validationSchema'
 
-function isValidImageUrl(url: string | undefined): boolean {
+const isValidImageUrl = (url: string | undefined): boolean => {
   if (!url) return false
   try {
     new URL(url)
@@ -39,40 +38,11 @@ const CreateProductPage: React.FC = () => {
   const { data: categoriesData } = useCategoriesControllerFindAll()
   const categories = categoriesData?.data ?? []
 
-  const { mutateAsync: createProduct, isPending } = useMutation({
-    mutationFn: async (dto: CreateProductFormData): Promise<unknown> => {
-      const res = await fetch('/api/admin/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(session?.accessToken
-            ? { Authorization: `Bearer ${session.accessToken}` }
-            : {}),
-        },
-        body: JSON.stringify(dto),
-      })
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        let message = res.statusText
-        try {
-          const body: unknown = JSON.parse(text)
-
-          if (
-            typeof body === 'object' &&
-            body !== null &&
-            'message' in body &&
-            typeof body.message === 'string'
-          ) {
-            message = body.message
-          }
-        } catch { /* fallback to statusText */ }
-        throw new Error(message)
-      }
-
-      const data: unknown = await res.json()
-
-      return data
+  const { mutateAsync: createProduct, isPending } = useAdminControllerCreate({
+    request: {
+      headers: session?.accessToken
+        ? { Authorization: `Bearer ${session.accessToken}` }
+        : {},
     },
   })
 
@@ -101,12 +71,14 @@ const CreateProductPage: React.FC = () => {
     async (values: CreateProductFormData) => {
       try {
         await createProduct({
-          name: values.name,
-          description: values.description ?? undefined,
-          price: values.price,
-          categoryId: values.categoryId,
-          stock: values.stock,
-          imageUrl: values.imageUrl !== '' ? values.imageUrl : undefined,
+          data: {
+            name: values.name,
+            description: values.description ?? undefined,
+            price: values.price,
+            categoryId: values.categoryId,
+            stock: values.stock,
+            imageUrl: values.imageUrl !== '' ? values.imageUrl : undefined,
+          },
         })
         toast.success('Товар успішно створено')
         router.push('/admin/products')
