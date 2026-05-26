@@ -1,4 +1,5 @@
 export * from './generated/index.schemas'
+export * from './generated/admin/admin'
 export * from './generated/auth/auth'
 export * from './generated/product/product'
 export * from './generated/user/user'
