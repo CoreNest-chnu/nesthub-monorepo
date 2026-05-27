@@ -42,6 +42,7 @@ export default function AdminOrdersPage() {
   })
 
   const allOrders = data?.data ?? []
+  // FIXME: client-side pagination — replace with server-side once BE supports it
   const totalPages = Math.max(1, Math.ceil(allOrders.length / take))
   const orders = allOrders.slice((page - 1) * take, page * take)
 
