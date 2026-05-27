@@ -1,6 +1,9 @@
 'use client'
 
-import { type CategoryModel, useCategoriesControllerFindAll } from '@repo/api-client'
+import {
+  type CategoryModel,
+  useCategoriesControllerFindAll,
+} from '@repo/api-client'
 import { useMemo } from 'react'
 import { type CustomColumn, Table } from '@/src/components/ui/Table/Table'
 
@@ -40,8 +43,14 @@ export default function AdminCategoriesPage() {
     return (
       <div className={'flex flex-col gap-4'}>
         <h2 className={'text-lg font-semibold text-gray-900'}>{'Категорії'}</h2>
-        <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
-          <div className={'p-8 text-center text-sm text-gray-500'}>{'Завантаження…'}</div>
+        <div
+          className={
+            'bg-white rounded-2xl border border-gray-200 overflow-hidden'
+          }
+        >
+          <div className={'p-8 text-center text-sm text-gray-500'}>
+            {'Завантаження…'}
+          </div>
         </div>
       </div>
     )
@@ -51,9 +60,13 @@ export default function AdminCategoriesPage() {
     <div className={'flex flex-col gap-4'}>
       <h2 className={'text-lg font-semibold text-gray-900'}>{'Категорії'}</h2>
 
-      <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
+      <div
+        className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}
+      >
         {categories.length === 0 ? (
-          <div className={'p-8 text-center text-sm text-gray-500'}>{'Категорій немає'}</div>
+          <div className={'p-8 text-center text-sm text-gray-500'}>
+            {'Категорій немає'}
+          </div>
         ) : (
           <Table data={categories} columns={columns} borderless />
         )}

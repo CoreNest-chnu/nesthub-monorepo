@@ -1,6 +1,9 @@
 'use client'
 
-import { type ProductModel, useProductControllerProducts } from '@repo/api-client'
+import {
+  type ProductModel,
+  useProductControllerProducts,
+} from '@repo/api-client'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
@@ -93,8 +96,14 @@ export default function AdminProductsPage() {
         <div className={'flex items-center justify-between'}>
           <h2 className={'text-lg font-semibold text-gray-900'}>{'Товари'}</h2>
         </div>
-        <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
-          <div className={'p-8 text-center text-sm text-gray-500'}>{'Завантаження…'}</div>
+        <div
+          className={
+            'bg-white rounded-2xl border border-gray-200 overflow-hidden'
+          }
+        >
+          <div className={'p-8 text-center text-sm text-gray-500'}>
+            {'Завантаження…'}
+          </div>
         </div>
       </div>
     )
@@ -114,9 +123,13 @@ export default function AdminProductsPage() {
         </Link>
       </div>
 
-      <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
+      <div
+        className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}
+      >
         {products.length === 0 ? (
-          <div className={'p-8 text-center text-sm text-gray-500'}>{'Товарів немає'}</div>
+          <div className={'p-8 text-center text-sm text-gray-500'}>
+            {'Товарів немає'}
+          </div>
         ) : (
           <Table data={products} columns={columns} borderless />
         )}

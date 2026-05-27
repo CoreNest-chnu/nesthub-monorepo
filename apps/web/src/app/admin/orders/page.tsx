@@ -67,7 +67,8 @@ export default function AdminOrdersPage() {
         header: 'Статус',
         contentPosition: 'left',
         cell: ({ row: { original } }) => {
-          const color = statusColor[original.status] ?? 'bg-gray-100 text-gray-600'
+          const color =
+            statusColor[original.status] ?? 'bg-gray-100 text-gray-600'
           const label = statusLabel[original.status] ?? original.status
 
           return (
@@ -109,9 +110,17 @@ export default function AdminOrdersPage() {
   if (isLoading) {
     return (
       <div className={'flex flex-col gap-4'}>
-        <h2 className={'text-lg font-semibold text-gray-900'}>{'Замовлення'}</h2>
-        <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
-          <div className={'p-8 text-center text-sm text-gray-500'}>{'Завантаження…'}</div>
+        <h2 className={'text-lg font-semibold text-gray-900'}>
+          {'Замовлення'}
+        </h2>
+        <div
+          className={
+            'bg-white rounded-2xl border border-gray-200 overflow-hidden'
+          }
+        >
+          <div className={'p-8 text-center text-sm text-gray-500'}>
+            {'Завантаження…'}
+          </div>
         </div>
       </div>
     )
@@ -120,13 +129,21 @@ export default function AdminOrdersPage() {
   return (
     <div className={'flex flex-col gap-4'}>
       <div className={'flex items-center justify-between'}>
-        <h2 className={'text-lg font-semibold text-gray-900'}>{'Замовлення'}</h2>
-        <span className={'text-sm text-gray-500'}>{`Всього: ${allOrders.length}`}</span>
+        <h2 className={'text-lg font-semibold text-gray-900'}>
+          {'Замовлення'}
+        </h2>
+        <span
+          className={'text-sm text-gray-500'}
+        >{`Всього: ${allOrders.length}`}</span>
       </div>
 
-      <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
+      <div
+        className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}
+      >
         {orders.length === 0 ? (
-          <div className={'p-8 text-center text-sm text-gray-500'}>{'Замовлень немає'}</div>
+          <div className={'p-8 text-center text-sm text-gray-500'}>
+            {'Замовлень немає'}
+          </div>
         ) : (
           <Table data={orders} columns={columns} borderless />
         )}
