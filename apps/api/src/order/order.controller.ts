@@ -34,7 +34,7 @@ export class OrderController {
   @Get()
   @ApiResponse({ status: 200, type: OrderModel, isArray: true })
   @UseGuards(JwtAuthGuard)
-  async allOrders(@CurrentUser() { id }: User): Promise<OrderModel[]> {
-    return await this.orderService.findAllByUser({ userId: id })
+  async allOrders(@CurrentUser() { id, role }: User): Promise<OrderModel[]> {
+    return await this.orderService.findAllByUser({ userId: id, role })
   }
 }
