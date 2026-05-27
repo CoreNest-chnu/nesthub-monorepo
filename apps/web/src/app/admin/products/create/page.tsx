@@ -92,8 +92,7 @@ const CreateProductPage: React.FC = () => {
   )
 
   return (
-    <div className={'min-h-screen bg-gray-50 p-6'}>
-      <div className={'max-w-[800px] mx-auto'}>
+    <div className={'max-w-[800px]'}>
         <div className={'flex items-center gap-3 mb-6'}>
           <Link
             href={'/admin/products'}
@@ -280,7 +279,6 @@ const CreateProductPage: React.FC = () => {
             </button>
           </div>
         </form>
-      </div>
     </div>
   )
 }
