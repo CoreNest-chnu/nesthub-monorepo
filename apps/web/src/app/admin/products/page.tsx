@@ -4,7 +4,7 @@ import { type ProductModel, useProductControllerProducts } from '@repo/api-clien
 import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
-import { type CustomColumn, Table } from '@/src/components/ui/Table'
+import { type CustomColumn, Table } from '@/src/components/ui/Table/Table'
 import { PaginationControls } from '@/src/components/ui/pagination'
 
 const take = 10

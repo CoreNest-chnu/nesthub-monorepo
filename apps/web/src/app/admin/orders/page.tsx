@@ -7,7 +7,7 @@ import {
 } from '@repo/api-client'
 import { useSession } from 'next-auth/react'
 import { useMemo, useState } from 'react'
-import { type CustomColumn, Table } from '@/src/components/ui/Table'
+import { type CustomColumn, Table } from '@/src/components/ui/Table/Table'
 import { PaginationControls } from '@/src/components/ui/pagination'
 
 const take = 10

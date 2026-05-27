@@ -2,7 +2,7 @@
 
 import { type CategoryModel, useCategoriesControllerFindAll } from '@repo/api-client'
 import { useMemo } from 'react'
-import { type CustomColumn, Table } from '@/src/components/ui/Table'
+import { type CustomColumn, Table } from '@/src/components/ui/Table/Table'
 
 export default function AdminCategoriesPage() {
   const { data, isLoading } = useCategoriesControllerFindAll()
