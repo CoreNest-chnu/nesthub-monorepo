@@ -1,33 +1,36 @@
 'use client'
 
-import { type OrderModel, useOrderControllerAllOrders } from '@repo/api-client'
 import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
+  type OrderModel,
+  OrderModelStatus,
+  useOrderControllerAllOrders,
+} from '@repo/api-client'
 import { useSession } from 'next-auth/react'
-import { useCallback } from 'react'
-import { OrderRow } from '@/src/components/admin/OrderRow'
+import { useMemo, useState } from 'react'
+import { type CustomColumn, Table } from '@/src/components/ui/Table'
 import { PaginationControls } from '@/src/components/ui/pagination'
 
 const take = 10
 
-const columnHelper = createColumnHelper<OrderModel>()
+const statusLabel: Record<string, string> = {
+  [OrderModelStatus.pending]: 'Очікує',
+  [OrderModelStatus.paid]: 'Оплачено',
+  [OrderModelStatus.shipped]: 'Відправлено',
+  [OrderModelStatus.completed]: 'Виконано',
+  [OrderModelStatus.cancelled]: 'Скасовано',
+}
 
-const columns = [
-  columnHelper.accessor('id', { header: 'ID замовлення' }),
-  columnHelper.accessor('userId', { header: 'ID користувача' }),
-  columnHelper.accessor('status', { header: 'Статус' }),
-  columnHelper.accessor('totalAmount', { header: 'Сума' }),
-  columnHelper.display({ id: 'items', header: 'Товарів' }),
-  columnHelper.accessor('createdAt', { header: 'Дата' }),
-]
+const statusColor: Record<string, string> = {
+  [OrderModelStatus.pending]: 'bg-yellow-100 text-yellow-700',
+  [OrderModelStatus.paid]: 'bg-blue-100 text-blue-700',
+  [OrderModelStatus.shipped]: 'bg-purple-100 text-purple-700',
+  [OrderModelStatus.completed]: 'bg-green-100 text-green-700',
+  [OrderModelStatus.cancelled]: 'bg-red-100 text-red-600',
+}
 
 export default function AdminOrdersPage() {
   const { data: session, status } = useSession()
+  const [page, setPage] = useState(1)
 
   const { data, isLoading } = useOrderControllerAllOrders({
     query: { enabled: status === 'authenticated' },
@@ -39,20 +42,67 @@ export default function AdminOrdersPage() {
   })
 
   const allOrders = data?.data ?? []
+  const totalPages = Math.max(1, Math.ceil(allOrders.length / take))
+  const orders = allOrders.slice((page - 1) * take, page * take)
 
-  const table = useReactTable({
-    data: allOrders,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: { pageSize: take, pageIndex: 0 },
-    },
-  })
+  const columns = useMemo<CustomColumn<OrderModel>[]>(
+    () => [
+      {
+        accessorKey: 'id',
+        header: 'ID замовлення',
+        contentPosition: 'left',
+        cell: ({ row: { original } }) => `${original.id.slice(0, 8)}…`,
+        cellClass: 'font-mono text-gray-500',
+      },
+      {
+        accessorKey: 'userId',
+        header: 'ID користувача',
+        contentPosition: 'left',
+        cell: ({ row: { original } }) => `${original.userId.slice(0, 8)}…`,
+        cellClass: 'font-mono text-gray-700',
+      },
+      {
+        accessorKey: 'status',
+        header: 'Статус',
+        contentPosition: 'left',
+        cell: ({ row: { original } }) => {
+          const color = statusColor[original.status] ?? 'bg-gray-100 text-gray-600'
+          const label = statusLabel[original.status] ?? original.status
 
-  const handlePageChange = useCallback(
-    (p: number) => { table.setPageIndex(p - 1) },
-    [table],
+          return (
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${color}`}
+            >
+              {label}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: 'totalAmount',
+        header: 'Сума',
+        contentPosition: 'left',
+        cell: ({ row: { original } }) =>
+          `₴${Number(original.totalAmount).toFixed(2)}`,
+        cellClass: 'font-medium text-gray-900',
+      },
+      {
+        id: 'items',
+        header: 'Товарів',
+        contentPosition: 'center',
+        cell: ({ row: { original } }) => original.Items.length,
+        cellClass: 'text-gray-500',
+      },
+      {
+        accessorKey: 'createdAt',
+        header: 'Дата',
+        contentPosition: 'left',
+        cell: ({ row: { original } }) =>
+          new Date(original.createdAt).toLocaleDateString('uk-UA'),
+        cellClass: 'text-gray-500',
+      },
+    ],
+    [],
   )
 
   if (isLoading) {
@@ -74,40 +124,18 @@ export default function AdminOrdersPage() {
       </div>
 
       <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
-        {allOrders.length === 0 ? (
+        {orders.length === 0 ? (
           <div className={'p-8 text-center text-sm text-gray-500'}>{'Замовлень немає'}</div>
         ) : (
-          <table className={'w-full'}>
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className={'bg-gray-50 text-left'}>
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className={
-                        'px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide'
-                      }
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <OrderRow key={row.id} order={row.original} />
-              ))}
-            </tbody>
-          </table>
+          <Table data={orders} columns={columns} borderless />
         )}
       </div>
 
-      {table.getPageCount() > 1 && (
+      {totalPages > 1 && (
         <PaginationControls
-          page={table.getState().pagination.pageIndex + 1}
-          totalPages={table.getPageCount()}
-          onPageChange={handlePageChange}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
           prevText={'Назад'}
           nextText={'Вперед'}
         />
