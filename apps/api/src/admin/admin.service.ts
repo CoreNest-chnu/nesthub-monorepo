@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
 import { ProductModel } from 'src/product/dto/product.model'
-import { CreateProductDto } from './dto/admin.dto'
+import { CreateProductDto, UpdateProductDto } from './dto/admin.dto'
+import { ProductId } from 'generated/prisma/types'
+
+type UpdateProductArgs = {
+  id: ProductId
+  data: UpdateProductDto
+}
 
 @Injectable()
 export class AdminService {
@@ -24,6 +30,16 @@ export class AdminService {
         imageUrl,
         categoryId,
       },
+      include: {
+        Category: true,
+      },
+    })
+  }
+
+  async updateProduct({ id, data }: UpdateProductArgs): Promise<ProductModel> {
+    return await this.prisma.product.update({
+      where: { id },
+      data,
       include: {
         Category: true,
       },
