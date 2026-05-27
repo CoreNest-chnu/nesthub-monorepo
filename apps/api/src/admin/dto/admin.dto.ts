@@ -14,3 +14,11 @@ export class CreateProductDto {
   @IsUrl()
   imageUrl?: string
 }
+
+class CategoryDto {
+  name!: string
+}
+
+export class CreateCategoryDto extends CategoryDto {}
+
+export class UpdateCategoryDto extends CategoryDto {}
