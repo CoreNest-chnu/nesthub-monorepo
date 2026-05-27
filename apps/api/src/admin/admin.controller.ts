@@ -40,7 +40,7 @@ export class AdminController {
   async createCategory(
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<CategoryModel> {
-    return await this.adminService.createCategory({ ...createCategoryDto })
+    return await this.adminService.createCategory(createCategoryDto)
   }
 
   @Patch('categories/:id')

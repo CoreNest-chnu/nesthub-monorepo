@@ -45,11 +45,9 @@ export class AdminService {
     })
   }
 
-  async createCategory({ name }: CreateCategoryDto): Promise<CategoryModel> {
+  async createCategory(data: CreateCategoryDto): Promise<CategoryModel> {
     return await this.prisma.category.create({
-      data: {
-        name,
-      },
+      data,
     })
   }
 
