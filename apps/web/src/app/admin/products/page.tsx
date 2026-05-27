@@ -1,15 +1,28 @@
 'use client'
 
+import { type ProductModel, useProductControllerProducts } from '@repo/api-client'
 import {
-  type ProductModel,
-  useProductControllerProducts,
-} from '@repo/api-client'
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { PaginationControls } from '@/src/components/ui/pagination'
 
-const TAKE = 10
+const take = 10
+
+const columnHelper = createColumnHelper<ProductModel>()
+
+const columns = [
+  columnHelper.display({ id: 'image', header: '' }),
+  columnHelper.accessor('name', { header: 'Назва' }),
+  columnHelper.display({ id: 'category', header: 'Категорія' }),
+  columnHelper.accessor('price', { header: 'Ціна' }),
+  columnHelper.accessor('stock', { header: 'Склад' }),
+]
 
 const ProductRow: React.FC<{ product: ProductModel }> = ({ product }) => (
   <tr className={'border-t border-gray-100 hover:bg-gray-50 transition-colors'}>
@@ -41,18 +54,14 @@ const ProductRow: React.FC<{ product: ProductModel }> = ({ product }) => (
     >
       {product.name}
     </td>
-    <td className={'px-4 py-3 text-sm text-gray-700'}>
-      {product.Category.name}
-    </td>
+    <td className={'px-4 py-3 text-sm text-gray-700'}>{product.Category.name}</td>
     <td className={'px-4 py-3 text-sm text-gray-700'}>
       {`₴${Number(product.price).toFixed(2)}`}
     </td>
     <td className={'px-4 py-3'}>
       <span
         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-          product.stock > 0
-            ? 'bg-green-100 text-green-700'
-            : 'bg-red-100 text-red-600'
+          product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
         }`}
       >
         {product.stock}
@@ -64,75 +73,27 @@ const ProductRow: React.FC<{ product: ProductModel }> = ({ product }) => (
 export default function AdminProductsPage() {
   const [page, setPage] = useState(1)
 
-  const { data, isLoading } = useProductControllerProducts({ page, take: TAKE })
+  const { data, isLoading } = useProductControllerProducts({ page, take })
 
   const products = data?.data.products ?? []
   const totalPages = data?.data.totalPages ?? 1
 
-  const renderBody = () => {
-    if (isLoading) {
-      return (
-        <div className={'p-8 text-center text-sm text-gray-500'}>
-          {'Завантаження…'}
-        </div>
-      )
-    }
+  const table = useReactTable({
+    data: products,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
-    if (products.length === 0) {
-      return (
-        <div className={'p-8 text-center text-sm text-gray-500'}>
-          {'Товарів немає'}
-        </div>
-      )
-    }
-
+  if (isLoading) {
     return (
-      <table className={'w-full'}>
-        <thead>
-          <tr className={'bg-gray-50 text-left'}>
-            <th
-              className={
-                'px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide w-14'
-              }
-            >
-              {''}
-            </th>
-            <th
-              className={
-                'px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide'
-              }
-            >
-              {'Назва'}
-            </th>
-            <th
-              className={
-                'px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide'
-              }
-            >
-              {'Категорія'}
-            </th>
-            <th
-              className={
-                'px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide'
-              }
-            >
-              {'Ціна'}
-            </th>
-            <th
-              className={
-                'px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide'
-              }
-            >
-              {'Склад'}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <ProductRow key={product.id} product={product} />
-          ))}
-        </tbody>
-      </table>
+      <div className={'flex flex-col gap-4'}>
+        <div className={'flex items-center justify-between'}>
+          <h2 className={'text-lg font-semibold text-gray-900'}>{'Товари'}</h2>
+        </div>
+        <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
+          <div className={'p-8 text-center text-sm text-gray-500'}>{'Завантаження…'}</div>
+        </div>
+      </div>
     )
   }
 
@@ -150,12 +111,34 @@ export default function AdminProductsPage() {
         </Link>
       </div>
 
-      <div
-        className={
-          'bg-white rounded-2xl border border-gray-200 overflow-hidden'
-        }
-      >
-        {renderBody()}
+      <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
+        {products.length === 0 ? (
+          <div className={'p-8 text-center text-sm text-gray-500'}>{'Товарів немає'}</div>
+        ) : (
+          <table className={'w-full'}>
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id} className={'bg-gray-50 text-left'}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className={
+                        'px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide'
+                      }
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <ProductRow key={row.id} product={row.original} />
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {totalPages > 1 && (
