@@ -38,3 +38,22 @@ export class AdminOrderModel extends OrderModel {
   @ApiProperty({ type: AdminOrderUserModel })
   User: AdminOrderUserModel
 }
+
+class CategoryDto {
+  name!: string
+}
+
+export class CreateCategoryDto extends CategoryDto {}
+
+export class UpdateCategoryDto extends CategoryDto {}
+
+export class UpdateProductDto {
+  name?: string
+  description?: string
+  categoryId?: string
+  imageUrl?: string
+
+  price?: number
+  stock?: number
+  rating?: number
+}
