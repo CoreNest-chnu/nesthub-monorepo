@@ -1,17 +1,11 @@
 'use client'
 
 import { OrderModelStatus } from '@repo/api-client'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useSession } from 'next-auth/react'
 import { useCallback, useState } from 'react'
-import { toast } from 'sonner'
 
 import { PaginationControls } from '@/src/components/ui/pagination'
-import {
-  getOrderControllerAllOrdersQueryKey,
-  useGetAdminOrders,
-  type OrderModel,
-} from '@/src/hooks/useGetAdminOrders'
+import { useGetAdminOrders, type OrderModel } from '@/src/hooks/useGetAdminOrders'
+import { usePatchAdminOrdersMutation } from '@/src/hooks/usePatchAdminOrdersMutation'
 
 const take = 10
 
@@ -98,7 +92,7 @@ type OrderAdminRowProps = {
   order: OrderModel
   index: number
   updatingId: string | null
-  onStatusChange: (id: string, status: OrderModelStatus) => void
+  onStatusChange: (id: string, currentStatus: OrderModelStatus, newStatus: OrderModelStatus) => void
 }
 
 const OrderAdminRow = ({ order, index, updatingId, onStatusChange }: OrderAdminRowProps) => {
@@ -106,9 +100,9 @@ const OrderAdminRow = ({ order, index, updatingId, onStatusChange }: OrderAdminR
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const next = allStatuses.find((s) => s === e.target.value)
 
-      if (next) onStatusChange(order.id, next)
+      if (next) onStatusChange(order.id, order.status, next)
     },
-    [order.id, onStatusChange],
+    [order.id, order.status, onStatusChange],
   )
 
   return (
@@ -138,42 +132,24 @@ const OrderAdminRow = ({ order, index, updatingId, onStatusChange }: OrderAdminR
 }
 
 export default function AdminOrdersPage() {
-  const queryClient = useQueryClient()
-  const { data: session } = useSession()
-
   const [activeStatus, setActiveStatus] = useState<OrderModelStatus | undefined>(undefined)
   const [page, setPage] = useState(1)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   const { orders, allOrders, isLoading } = useGetAdminOrders({ status: activeStatus })
+  const { mutate: updateStatus } = usePatchAdminOrdersMutation()
 
   const totalPages = Math.max(1, Math.ceil(orders.length / take))
   const paginated = orders.slice((page - 1) * take, page * take)
 
-  const { mutate: updateStatus } = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: OrderModelStatus }) => {
-      const res = await fetch(`/api/admin/orders/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.accessToken ?? ''}`,
-        },
-        body: JSON.stringify({ status }),
-      })
-
-      if (!res.ok) throw new Error('update failed')
-    },
-    onMutate: ({ id }) => setUpdatingId(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getOrderControllerAllOrdersQueryKey() })
-      toast.success('Статус оновлено')
-    },
-    onError: () => toast.error('Не вдалося оновити статус'),
-    onSettled: () => setUpdatingId(null),
-  })
-
   const handleStatusChange = useCallback(
-    (id: string, status: OrderModelStatus) => updateStatus({ id, status }),
+    (id: string, currentStatus: OrderModelStatus, newStatus: OrderModelStatus) => {
+      setUpdatingId(id)
+      updateStatus(
+        { id, currentStatus, newStatus },
+        { onSettled: () => setUpdatingId(null) },
+      )
+    },
     [updateStatus],
   )
 
