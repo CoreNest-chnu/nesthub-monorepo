@@ -97,9 +97,9 @@ export class AdminService {
     }
 
     const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
-      pending: [OrderStatus.paid],
-      paid: [OrderStatus.shipped],
-      shipped: [OrderStatus.completed],
+      pending: ['paid'],
+      paid: ['shipped'],
+      shipped: ['completed'],
       completed: [],
       cancelled: [],
     }

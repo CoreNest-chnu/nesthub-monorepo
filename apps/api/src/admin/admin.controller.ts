@@ -51,11 +51,11 @@ export class AdminController {
   @ApiResponse({ status: 200, type: AdminOrderModel })
   updateOrderStatus(
     @Param('id') id: OrderId,
-    @Body() dto: UpdateOrderStatusDto,
+    @Body() { status }: UpdateOrderStatusDto,
   ): Promise<AdminOrderModel> {
     return this.adminService.updateOrderStatus({
       id,
-      status: dto.status,
+      status,
     })
   }
 }

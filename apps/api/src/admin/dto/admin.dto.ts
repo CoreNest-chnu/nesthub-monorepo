@@ -19,10 +19,12 @@ export class CreateProductDto {
 }
 
 export class FindOrdersQueryDto {
+  @ApiProperty({ type: String, required: false })
   status?: OrderStatus
 }
 
 export class UpdateOrderStatusDto {
+  @ApiProperty({ type: String, required: true })
   status: OrderStatus
 }
 
