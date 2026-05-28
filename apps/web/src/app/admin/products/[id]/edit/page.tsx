@@ -1,8 +1,11 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useProductControllerFindbyId, type CreateProductDto, useCategoriesControllerFindAll } from '@repo/api-client'
-import { useMutation } from '@tanstack/react-query'
+import {
+  useProductControllerFindbyId,
+  useAdminControllerUpdate,
+  useCategoriesControllerFindAll,
+} from '@repo/api-client'
 import { useSession } from 'next-auth/react'
 import { ArrowLeft, ImageIcon } from 'lucide-react'
 import Image from 'next/image'
@@ -32,41 +35,6 @@ const inputClass = (hasError: boolean) =>
   `w-full border rounded-lg px-3 h-[42px] text-sm outline-none font-[inherit] text-gray-900 bg-white ${hasError ? 'border-red-400 bg-red-50' : 'border-gray-300'
   }`
 
-type AdminUpdateOptions = {
-  authHeader?: string
-}
-
-// FIXME: replace with Orval-generated useAdminControllerUpdate once BE implements PATCH /admin/products/:id
-const useAdminControllerUpdate = (id: string, options?: AdminUpdateOptions) =>
-  useMutation({
-    mutationKey: ['adminControllerUpdate', id],
-    mutationFn: async (data: CreateProductDto): Promise<unknown> => {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      }
-
-      if (options?.authHeader) {
-        headers.Authorization = options.authHeader
-      }
-
-      const res = await fetch(`/api/admin/products/${id}`, {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify(data),
-      })
-
-      if (!res.ok) {
-        const errBody: unknown = await res.json().catch(() => ({ message: res.statusText }))
-        const message = errBody !== null && typeof errBody === 'object' && 'message' in errBody && typeof errBody.message === 'string'
-          ? errBody.message
-          : res.statusText
-        throw new Error(message)
-      }
-
-      return res.json()
-    },
-  })
-
 const EditProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -78,14 +46,11 @@ const EditProductPage: React.FC = () => {
   const { data: categoriesData } = useCategoriesControllerFindAll()
   const categories = categoriesData?.data ?? []
 
-  const { mutateAsync: updateProduct, isPending } = useAdminControllerUpdate(
-    id,
-    {
-      authHeader: session?.accessToken
-        ? `Bearer ${session.accessToken}`
-        : undefined,
-    },
-  )
+  const { mutateAsync: updateProduct, isPending } = useAdminControllerUpdate({
+    request: session?.accessToken
+      ? { headers: { Authorization: `Bearer ${session.accessToken}` } }
+      : {},
+  })
 
   const {
     register,
@@ -130,12 +95,15 @@ const EditProductPage: React.FC = () => {
     async (values: CreateProductFormData) => {
       try {
         await updateProduct({
-          name: values.name,
-          description: values.description ?? undefined,
-          price: values.price,
-          categoryId: values.categoryId,
-          stock: values.stock,
-          imageUrl: values.imageUrl !== '' ? values.imageUrl : undefined,
+          id,
+          data: {
+            name: values.name,
+            description: values.description ?? undefined,
+            price: values.price,
+            categoryId: values.categoryId,
+            stock: values.stock,
+            imageUrl: values.imageUrl !== '' ? values.imageUrl : undefined,
+          },
         })
         toast.success('Товар оновлено')
         router.push(`/products/${id}`)
