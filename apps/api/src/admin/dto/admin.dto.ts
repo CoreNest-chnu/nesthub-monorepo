@@ -14,3 +14,14 @@ export class CreateProductDto {
   @IsUrl()
   imageUrl?: string
 }
+
+export class UpdateProductDto {
+  name?: string
+  description?: string
+  categoryId?: string
+  imageUrl?: string
+
+  price?: number
+  stock?: number
+  rating?: number
+}
