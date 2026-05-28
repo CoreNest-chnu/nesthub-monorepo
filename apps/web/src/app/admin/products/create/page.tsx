@@ -74,7 +74,7 @@ const CreateProductPage: React.FC = () => {
   const onSubmit = useCallback(
     async (values: CreateProductFormData) => {
       try {
-        await createProduct({
+        const result = await createProduct({
           data: {
             name: values.name,
             description: values.description ?? undefined,
@@ -84,8 +84,8 @@ const CreateProductPage: React.FC = () => {
             imageUrl: values.imageUrl !== '' ? values.imageUrl : undefined,
           },
         })
-        toast.success('Товар успішно створено')
-        router.push('/admin/products')
+        toast.success('Товар створено')
+        router.push(`/products/${result.data.id}`)
       } catch (err) {
         toast.error(
           err instanceof Error ? err.message : 'Помилка створення товару',
