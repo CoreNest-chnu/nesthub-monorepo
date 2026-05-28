@@ -1,18 +1,16 @@
 'use client'
 
 import {
-  getOrderControllerAllOrdersQueryKey,
   type OrderModel,
   OrderModelStatus,
   useOrderControllerAllOrders,
 } from '@repo/api-client'
-import { useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import { useCallback, useMemo, useState } from 'react'
-import { toast } from 'sonner'
 
 import { PaginationControls } from '@/src/components/ui/pagination'
 import { type CustomColumn, Table } from '@/src/components/ui/Table/Table'
+import { usePatchAdminOrdersMutation } from '@/src/hooks/usePatchAdminOrdersMutation'
 
 const take = 10
 
@@ -75,7 +73,7 @@ const StatusTab = ({ label, count, active, onSelect }: StatusTabProps) => (
 type OrderStatusCellProps = {
   order: OrderModel
   updatingId: string | null
-  onStatusChange: (id: string, status: OrderModelStatus) => void
+  onStatusChange: (id: string, currentStatus: OrderModelStatus, newStatus: OrderModelStatus) => void
 }
 
 const OrderStatusCell = ({ order, updatingId, onStatusChange }: OrderStatusCellProps) => {
@@ -83,9 +81,9 @@ const OrderStatusCell = ({ order, updatingId, onStatusChange }: OrderStatusCellP
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const next = allStatuses.find((s) => s === e.target.value)
 
-      if (next) onStatusChange(order.id, next)
+      if (next) onStatusChange(order.id, order.status, next)
     },
-    [order.id, onStatusChange],
+    [order.id, order.status, onStatusChange],
   )
 
   return (
@@ -107,7 +105,6 @@ const OrderStatusCell = ({ order, updatingId, onStatusChange }: OrderStatusCellP
 }
 
 export default function AdminOrdersPage() {
-  const queryClient = useQueryClient()
   const { data: session, status: authStatus } = useSession()
 
   const [activeStatus, setActiveStatus] = useState<OrderModelStatus | undefined>(undefined)
@@ -133,32 +130,17 @@ export default function AdminOrdersPage() {
   const totalPages = Math.max(1, Math.ceil(orders.length / take))
   const paginated = orders.slice((page - 1) * take, page * take)
 
+  const { mutate: updateStatus } = usePatchAdminOrdersMutation()
+
   const handleStatusChange = useCallback(
-    async (id: string, status: OrderModelStatus) => {
+    (id: string, currentStatus: OrderModelStatus, newStatus: OrderModelStatus) => {
       setUpdatingId(id)
-
-      try {
-        // TODO: replace with Orval-generated hook once backend endpoint is added
-        const res = await fetch(`/api/admin/orders/${id}/status`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.accessToken ?? ''}`,
-          },
-          body: JSON.stringify({ status }),
-        })
-
-        if (!res.ok) throw new Error('Не вдалося оновити статус')
-
-        await queryClient.invalidateQueries({ queryKey: getOrderControllerAllOrdersQueryKey() })
-        toast.success('Статус оновлено')
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Не вдалося оновити статус')
-      } finally {
-        setUpdatingId(null)
-      }
+      updateStatus(
+        { id, currentStatus, newStatus },
+        { onSettled: () => setUpdatingId(null) },
+      )
     },
-    [session?.accessToken, queryClient],
+    [updateStatus],
   )
 
   const columns = useMemo<CustomColumn<OrderModel>[]>(
