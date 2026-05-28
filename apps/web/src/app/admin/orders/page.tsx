@@ -1,18 +1,21 @@
 'use client'
 
-import {
-  type OrderModel,
-  OrderModelStatus,
-  useOrderControllerAllOrders,
-} from '@repo/api-client'
+import { OrderModelStatus } from '@repo/api-client'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
-import { useMemo, useState } from 'react'
-import { type CustomColumn, Table } from '@/src/components/ui/Table/Table'
+import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
+
 import { PaginationControls } from '@/src/components/ui/pagination'
+import {
+  getOrderControllerAllOrdersQueryKey,
+  useGetAdminOrders,
+  type OrderModel,
+} from '@/src/hooks/useGetAdminOrders'
 
 const take = 10
 
-const statusLabel: Record<string, string> = {
+const statusLabel: Record<OrderModelStatus, string> = {
   [OrderModelStatus.pending]: 'Очікує',
   [OrderModelStatus.paid]: 'Оплачено',
   [OrderModelStatus.shipped]: 'Відправлено',
@@ -20,7 +23,7 @@ const statusLabel: Record<string, string> = {
   [OrderModelStatus.cancelled]: 'Скасовано',
 }
 
-const statusColor: Record<string, string> = {
+const statusColor: Record<OrderModelStatus, string> = {
   [OrderModelStatus.pending]: 'bg-yellow-100 text-yellow-700',
   [OrderModelStatus.paid]: 'bg-blue-100 text-blue-700',
   [OrderModelStatus.shipped]: 'bg-purple-100 text-purple-700',
@@ -28,99 +31,171 @@ const statusColor: Record<string, string> = {
   [OrderModelStatus.cancelled]: 'bg-red-100 text-red-600',
 }
 
-export default function AdminOrdersPage() {
-  const { data: session, status } = useSession()
-  const [page, setPage] = useState(1)
+const allStatuses = Object.values(OrderModelStatus)
 
-  const { data, isLoading } = useOrderControllerAllOrders({
-    query: { enabled: status === 'authenticated' },
-    request: {
-      headers: session?.accessToken
-        ? { Authorization: `Bearer ${session.accessToken}` }
-        : {},
+type StatusBadgeProps = {
+  status: OrderModelStatus
+}
+
+const StatusBadge = ({ status }: StatusBadgeProps) => (
+  <span
+    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor[status]}`}
+  >
+    {statusLabel[status]}
+  </span>
+)
+
+type StatusTabProps = {
+  label: string
+  count: number
+  active: boolean
+  onSelect: () => void
+}
+
+const StatusTab = ({ label, count, active, onSelect }: StatusTabProps) => (
+  <button
+    type={'button'}
+    onClick={onSelect}
+    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+      active ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100'
+    }`}
+  >
+    {label}
+    <span
+      className={`ml-1.5 text-xs rounded-full px-1.5 py-0.5 ${
+        active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
+      }`}
+    >
+      {count}
+    </span>
+  </button>
+)
+
+type StatusSelectProps = {
+  value: OrderModelStatus
+  disabled: boolean
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+}
+
+const StatusSelect = ({ value, disabled, onChange }: StatusSelectProps) => (
+  <select
+    value={value}
+    disabled={disabled}
+    onChange={onChange}
+    className={
+      'text-xs rounded-lg border border-gray-200 px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 disabled:opacity-50 bg-white'
+    }
+  >
+    {allStatuses.map((s) => (
+      <option key={s} value={s}>
+        {statusLabel[s]}
+      </option>
+    ))}
+  </select>
+)
+
+type OrderAdminRowProps = {
+  order: OrderModel
+  index: number
+  updatingId: string | null
+  onStatusChange: (id: string, status: OrderModelStatus) => void
+}
+
+const OrderAdminRow = ({ order, index, updatingId, onStatusChange }: OrderAdminRowProps) => {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const next = allStatuses.find((s) => s === e.target.value)
+
+      if (next) onStatusChange(order.id, next)
     },
+    [order.id, onStatusChange],
+  )
+
+  return (
+    <tr className={'border-t border-gray-100 hover:bg-gray-50 transition-colors'}>
+      <td className={'px-4 py-3 text-sm text-gray-400'}>{index}</td>
+      <td className={'px-4 py-3 font-mono text-xs text-gray-500'}>{`${order.id.slice(0, 8)}…`}</td>
+      <td className={'px-4 py-3 text-sm text-gray-700'}>
+        {new Date(order.createdAt).toLocaleDateString('uk-UA')}
+      </td>
+      <td className={'px-4 py-3 font-mono text-xs text-gray-500'}>{`${order.userId.slice(0, 8)}…`}</td>
+      <td className={'px-4 py-3 text-center text-sm text-gray-600'}>{order.Items.length}</td>
+      <td className={'px-4 py-3 text-sm font-medium text-gray-900'}>
+        {`₴${Number(order.totalAmount).toFixed(2)}`}
+      </td>
+      <td className={'px-4 py-3'}>
+        <StatusBadge status={order.status} />
+      </td>
+      <td className={'px-4 py-3'}>
+        <StatusSelect
+          value={order.status}
+          disabled={updatingId === order.id}
+          onChange={handleChange}
+        />
+      </td>
+    </tr>
+  )
+}
+
+export default function AdminOrdersPage() {
+  const queryClient = useQueryClient()
+  const { data: session } = useSession()
+
+  const [activeStatus, setActiveStatus] = useState<OrderModelStatus | undefined>(undefined)
+  const [page, setPage] = useState(1)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const { orders, allOrders, isLoading } = useGetAdminOrders({ status: activeStatus })
+
+  const totalPages = Math.max(1, Math.ceil(orders.length / take))
+  const paginated = orders.slice((page - 1) * take, page * take)
+
+  const { mutate: updateStatus } = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: OrderModelStatus }) => {
+      const res = await fetch(`/api/admin/orders/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.accessToken ?? ''}`,
+        },
+        body: JSON.stringify({ status }),
+      })
+
+      if (!res.ok) throw new Error('update failed')
+    },
+    onMutate: ({ id }) => setUpdatingId(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getOrderControllerAllOrdersQueryKey() })
+      toast.success('Статус оновлено')
+    },
+    onError: () => toast.error('Не вдалося оновити статус'),
+    onSettled: () => setUpdatingId(null),
   })
 
-  const allOrders = data?.data ?? []
-  // FIXME: client-side pagination — replace with server-side once BE supports it
-  const totalPages = Math.max(1, Math.ceil(allOrders.length / take))
-  const orders = allOrders.slice((page - 1) * take, page * take)
+  const handleStatusChange = useCallback(
+    (id: string, status: OrderModelStatus) => updateStatus({ id, status }),
+    [updateStatus],
+  )
 
-  const columns = useMemo<CustomColumn<OrderModel>[]>(
-    () => [
-      {
-        accessorKey: 'id',
-        header: 'ID замовлення',
-        contentPosition: 'left',
-        cell: ({ row: { original } }) => `${original.id.slice(0, 8)}…`,
-        cellClass: 'font-mono text-gray-500',
-      },
-      {
-        accessorKey: 'userId',
-        header: 'ID користувача',
-        contentPosition: 'left',
-        cell: ({ row: { original } }) => `${original.userId.slice(0, 8)}…`,
-        cellClass: 'font-mono text-gray-700',
-      },
-      {
-        accessorKey: 'status',
-        header: 'Статус',
-        contentPosition: 'left',
-        cell: ({ row: { original } }) => {
-          const color =
-            statusColor[original.status] ?? 'bg-gray-100 text-gray-600'
-          const label = statusLabel[original.status] ?? original.status
+  const handlePageChange = useCallback((p: number) => { setPage(p) }, [])
+  const handleSelectAll = useCallback(() => { setActiveStatus(undefined); setPage(1) }, [])
+  const handleSelectPending = useCallback(() => { setActiveStatus(OrderModelStatus.pending); setPage(1) }, [])
+  const handleSelectPaid = useCallback(() => { setActiveStatus(OrderModelStatus.paid); setPage(1) }, [])
+  const handleSelectShipped = useCallback(() => { setActiveStatus(OrderModelStatus.shipped); setPage(1) }, [])
+  const handleSelectCompleted = useCallback(() => { setActiveStatus(OrderModelStatus.completed); setPage(1) }, [])
+  const handleSelectCancelled = useCallback(() => { setActiveStatus(OrderModelStatus.cancelled); setPage(1) }, [])
 
-          return (
-            <span
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${color}`}
-            >
-              {label}
-            </span>
-          )
-        },
-      },
-      {
-        accessorKey: 'totalAmount',
-        header: 'Сума',
-        contentPosition: 'left',
-        cell: ({ row: { original } }) =>
-          `₴${Number(original.totalAmount).toFixed(2)}`,
-        cellClass: 'font-medium text-gray-900',
-      },
-      {
-        id: 'items',
-        header: 'Товарів',
-        contentPosition: 'center',
-        cell: ({ row: { original } }) => original.Items.length,
-        cellClass: 'text-gray-500',
-      },
-      {
-        accessorKey: 'createdAt',
-        header: 'Дата',
-        contentPosition: 'left',
-        cell: ({ row: { original } }) =>
-          new Date(original.createdAt).toLocaleDateString('uk-UA'),
-        cellClass: 'text-gray-500',
-      },
-    ],
-    [],
+  const countFor = useCallback(
+    (s: OrderModelStatus) => allOrders.filter((o) => o.status === s).length,
+    [allOrders],
   )
 
   if (isLoading) {
     return (
       <div className={'flex flex-col gap-4'}>
-        <h2 className={'text-lg font-semibold text-gray-900'}>
-          {'Замовлення'}
-        </h2>
-        <div
-          className={
-            'bg-white rounded-2xl border border-gray-200 overflow-hidden'
-          }
-        >
-          <div className={'p-8 text-center text-sm text-gray-500'}>
-            {'Завантаження…'}
-          </div>
+        <h2 className={'text-lg font-semibold text-gray-900'}>{'Замовлення'}</h2>
+        <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
+          <div className={'p-8 text-center text-sm text-gray-500'}>{'Завантаження…'}</div>
         </div>
       </div>
     )
@@ -129,31 +204,97 @@ export default function AdminOrdersPage() {
   return (
     <div className={'flex flex-col gap-4'}>
       <div className={'flex items-center justify-between'}>
-        <h2 className={'text-lg font-semibold text-gray-900'}>
-          {'Замовлення'}
-        </h2>
-        <span
-          className={'text-sm text-gray-500'}
-        >{`Всього: ${allOrders.length}`}</span>
+        <h2 className={'text-lg font-semibold text-gray-900'}>{'Замовлення'}</h2>
+        <span className={'text-sm text-gray-500'}>{`Всього: ${allOrders.length}`}</span>
       </div>
 
-      <div
-        className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}
-      >
-        {orders.length === 0 ? (
-          <div className={'p-8 text-center text-sm text-gray-500'}>
-            {'Замовлень немає'}
-          </div>
-        ) : (
-          <Table data={orders} columns={columns} borderless />
-        )}
+      <div className={'flex items-center gap-1 flex-wrap'}>
+        <StatusTab
+          label={'Всі'}
+          count={allOrders.length}
+          active={activeStatus === undefined}
+          onSelect={handleSelectAll}
+        />
+        <StatusTab
+          label={statusLabel[OrderModelStatus.pending]}
+          count={countFor(OrderModelStatus.pending)}
+          active={activeStatus === OrderModelStatus.pending}
+          onSelect={handleSelectPending}
+        />
+        <StatusTab
+          label={statusLabel[OrderModelStatus.paid]}
+          count={countFor(OrderModelStatus.paid)}
+          active={activeStatus === OrderModelStatus.paid}
+          onSelect={handleSelectPaid}
+        />
+        <StatusTab
+          label={statusLabel[OrderModelStatus.shipped]}
+          count={countFor(OrderModelStatus.shipped)}
+          active={activeStatus === OrderModelStatus.shipped}
+          onSelect={handleSelectShipped}
+        />
+        <StatusTab
+          label={statusLabel[OrderModelStatus.completed]}
+          count={countFor(OrderModelStatus.completed)}
+          active={activeStatus === OrderModelStatus.completed}
+          onSelect={handleSelectCompleted}
+        />
+        <StatusTab
+          label={statusLabel[OrderModelStatus.cancelled]}
+          count={countFor(OrderModelStatus.cancelled)}
+          active={activeStatus === OrderModelStatus.cancelled}
+          onSelect={handleSelectCancelled}
+        />
+      </div>
+
+      <div className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}>
+        <table className={'min-w-full'}>
+          <thead className={'bg-gray-50'}>
+            <tr>
+              {['#', 'ID', 'Дата', 'Користувач', 'Товарів', 'Сума', 'Статус', 'Змінити'].map(
+                (h) => (
+                  <th
+                    key={h}
+                    className={
+                      'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
+                    }
+                  >
+                    {h}
+                  </th>
+                ),
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {paginated.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={8}
+                  className={'px-4 py-8 text-center text-sm text-gray-500'}
+                >
+                  {'Замовлень немає'}
+                </td>
+              </tr>
+            ) : (
+              paginated.map((order, i) => (
+                <OrderAdminRow
+                  key={order.id}
+                  order={order}
+                  index={(page - 1) * take + i + 1}
+                  updatingId={updatingId}
+                  onStatusChange={handleStatusChange}
+                />
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
       {totalPages > 1 && (
         <PaginationControls
           page={page}
           totalPages={totalPages}
-          onPageChange={setPage}
+          onPageChange={handlePageChange}
           prevText={'Назад'}
           nextText={'Вперед'}
         />

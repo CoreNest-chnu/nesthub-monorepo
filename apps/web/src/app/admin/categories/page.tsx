@@ -65,6 +65,7 @@ const InlineEdit = ({ value, onSave }: InlineEditProps) => {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') handleSave()
+
       if (e.key === 'Escape') handleCancel()
     },
     [handleCancel, handleSave],
