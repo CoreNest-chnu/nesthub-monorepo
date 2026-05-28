@@ -138,7 +138,7 @@ export const Header: React.FC = () => {
         ? { href: '/login', label: 'Вхід', icon: <LogIn /> }
         : { href: '/profile/personal-data', label: 'Профіль', icon: <User /> },
       ...(isAdmin
-        ? [{ href: '/admin', label: 'Адмін', icon: <Settings /> }]
+        ? [{ href: '/admin/products', label: 'Адмін', icon: <Settings /> }]
         : []),
     ],
     [isAdmin, isUnauthenticated],

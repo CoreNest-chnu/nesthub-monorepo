@@ -9,13 +9,19 @@ import {
   CreateCategoryDto,
   CreateProductDto,
   UpdateCategoryDto,
+  UpdateProductDto,
 } from './dto/admin.dto'
 import { CategoryModel } from 'generated/prisma/models'
-import { CategoryId } from 'generated/prisma/types'
+import { CategoryId, ProductId } from 'generated/prisma/types'
 
 type UpdateCategoryArgs = {
   id: CategoryId
   data: UpdateCategoryDto
+}
+
+type UpdateProductArgs = {
+  id: ProductId
+  data: UpdateProductDto
 }
 
 @Injectable()
@@ -85,6 +91,16 @@ export class AdminService {
 
     await this.prisma.category.delete({
       where: { id },
+    })
+  }
+
+  async updateProduct({ id, data }: UpdateProductArgs): Promise<ProductModel> {
+    return await this.prisma.product.update({
+      where: { id },
+      data,
+      include: {
+        Category: true,
+      },
     })
   }
 }

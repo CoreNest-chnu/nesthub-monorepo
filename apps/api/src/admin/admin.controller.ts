@@ -15,11 +15,12 @@ import { ProductModel } from 'src/product/dto/product.model'
 import {
   CreateCategoryDto,
   CreateProductDto,
+  UpdateProductDto,
   UpdateCategoryDto,
 } from './dto/admin.dto'
-import { Category } from 'generated/prisma/browser'
-import { CategoryId } from 'generated/prisma/types'
+import { CategoryId, ProductId } from 'generated/prisma/types'
 import { ApiResponse } from '@nestjs/swagger'
+import { Category } from 'generated/prisma/browser'
 import { CategoryModel } from 'src/category/dto/category.model'
 
 @Controller('admin')
@@ -34,6 +35,17 @@ export class AdminController {
     @Body() createProductDto: CreateProductDto,
   ): Promise<ProductModel> {
     return await this.adminService.createProduct({ ...createProductDto })
+  }
+
+  @Patch('products/:id')
+  @ApiResponse({ status: 200, type: ProductModel })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  update(
+    @Body() updateProductDto: UpdateProductDto,
+    @Param('id') id: ProductId,
+  ): Promise<ProductModel> {
+    return this.adminService.updateProduct({ id, data: updateProductDto })
   }
 
   @Post('categories')
