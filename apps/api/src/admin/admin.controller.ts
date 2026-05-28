@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'src/auth/auth.guard'
 import { ProductModel } from 'src/product/dto/product.model'
 import { CreateProductDto, UpdateProductDto } from './dto/admin.dto'
 import { ProductId } from 'generated/prisma/types'
+import { ApiResponse } from '@nestjs/swagger'
 
 @Controller('admin')
 export class AdminController {
@@ -21,12 +22,13 @@ export class AdminController {
   }
 
   @Patch('products/:id')
+  @ApiResponse({ status: 200, type: ProductModel })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  async update(
+  update(
     @Body() updateProductDto: UpdateProductDto,
     @Param('id') id: ProductId,
   ): Promise<ProductModel> {
-    return await this.adminService.updateProduct({ id, data: updateProductDto })
+    return this.adminService.updateProduct({ id, data: updateProductDto })
   }
 }
