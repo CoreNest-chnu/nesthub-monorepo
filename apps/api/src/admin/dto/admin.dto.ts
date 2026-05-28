@@ -15,6 +15,14 @@ export class CreateProductDto {
   imageUrl?: string
 }
 
+class CategoryDto {
+  name!: string
+}
+
+export class CreateCategoryDto extends CategoryDto {}
+
+export class UpdateCategoryDto extends CategoryDto {}
+
 export class UpdateProductDto {
   name?: string
   description?: string
