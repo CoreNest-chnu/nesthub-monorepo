@@ -17,15 +17,17 @@ import {
   CreateProductDto,
   UpdateCategoryDto,
 } from './dto/admin.dto'
-import { CategoryModel } from 'generated/prisma/models'
 import { Category } from 'generated/prisma/browser'
 import { CategoryId } from 'generated/prisma/types'
+import { ApiResponse } from '@nestjs/swagger'
+import { CategoryModel } from 'src/category/dto/category.model'
 
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Post('products')
+  @ApiResponse({ status: 201, type: ProductModel })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   async create(
@@ -35,31 +37,37 @@ export class AdminController {
   }
 
   @Post('categories')
+  @ApiResponse({ status: 201, type: CategoryModel })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  async createCategory(
+  createCategory(
     @Body() createCategoryDto: CreateCategoryDto,
   ): Promise<CategoryModel> {
-    return await this.adminService.createCategory(createCategoryDto)
+    return this.adminService.createCategory(createCategoryDto)
   }
 
   @Patch('categories/:id')
+  @ApiResponse({ status: 200, type: ProductModel })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  async updateCategory(
+  updateCategory(
     @Body() updateCategoryDto: UpdateCategoryDto,
     @Param('id') id: CategoryId,
   ): Promise<Category> {
-    return await this.adminService.updateCategory({
+    return this.adminService.updateCategory({
       id,
       data: updateCategoryDto,
     })
   }
 
   @Delete('categories/:id')
+  @ApiResponse({
+    status: 204,
+    description: 'Successfully deleted category',
+  })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  async deleteCategory(@Param('id') id: CategoryId): Promise<void> {
-    return await this.adminService.deleteCategory(id)
+  deleteCategory(@Param('id') id: CategoryId): Promise<void> {
+    return this.adminService.deleteCategory(id)
   }
 }
