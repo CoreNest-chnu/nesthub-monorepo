@@ -1,26 +1,35 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common'
 import { AdminService } from './admin.service'
 import { RolesGuard } from 'src/common/guards/roles.guard'
 import { Roles } from 'src/common/decorators/role'
 import { JwtAuthGuard } from 'src/auth/auth.guard'
 import { ProductModel } from 'src/product/dto/product.model'
 import {
-  CreateCategoryDto,
+  AdminOrderModel,
+  UpdateOrderStatusDto,
   CreateProductDto,
+  FindOrdersQueryDto,
   UpdateProductDto,
+  CreateCategoryDto,
   UpdateCategoryDto,
 } from './dto/admin.dto'
-import { CategoryId, ProductId } from 'generated/prisma/types'
 import { ApiResponse } from '@nestjs/swagger'
-import { Category } from 'generated/prisma/browser'
+import {
+  Category,
+  CategoryId,
+  OrderId,
+  ProductId,
+} from 'generated/prisma/types'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common'
 import { CategoryModel } from 'src/category/dto/category.model'
 
 @Controller('admin')
@@ -37,6 +46,29 @@ export class AdminController {
     return await this.adminService.createProduct({ ...createProductDto })
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Get('orders')
+  @ApiResponse({ status: 200, type: AdminOrderModel, isArray: true })
+  findAllOrders(
+    @Query() query: FindOrdersQueryDto,
+  ): Promise<AdminOrderModel[]> {
+    return this.adminService.findAllForAdmin(query)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch('orders/:id')
+  @ApiResponse({ status: 200, type: AdminOrderModel })
+  updateOrderStatus(
+    @Param('id') id: OrderId,
+    @Body() { status }: UpdateOrderStatusDto,
+  ): Promise<AdminOrderModel> {
+    return this.adminService.updateOrderStatus({
+      id,
+      status,
+    })
+  }
   @Patch('products/:id')
   @ApiResponse({ status: 200, type: ProductModel })
   @UseGuards(JwtAuthGuard, RolesGuard)
