@@ -15,6 +15,7 @@ import {
   getCategoriesControllerFindAllQueryKey,
   useGetCategories,
 } from '@/src/hooks/useGetCategories'
+import { useSession } from 'next-auth/react'
 
 type InlineEditProps = {
   value: string
@@ -155,7 +156,9 @@ const ConfirmDelete = ({
 
   return (
     <div
-      className={'fixed inset-0 z-50 flex items-center justify-center bg-black/40'}
+      className={
+        'fixed inset-0 z-50 flex items-center justify-center bg-black/40'
+      }
       onClick={onCancel}
     >
       <div
@@ -282,7 +285,12 @@ type CategoryRowProps = {
   onUpdate: (id: string, name: string) => Promise<void>
 }
 
-const CategoryRow = ({ category, index, onDelete, onUpdate }: CategoryRowProps) => {
+const CategoryRow = ({
+  category,
+  index,
+  onDelete,
+  onUpdate,
+}: CategoryRowProps) => {
   const handleDelete = useCallback(() => {
     onDelete(category.id)
   }, [category.id, onDelete])
@@ -329,18 +337,50 @@ const CategoryRow = ({ category, index, onDelete, onUpdate }: CategoryRowProps) 
 }
 
 export default function AdminCategoriesPage() {
+  const { data: session } = useSession()
+
+  const accessToken =
+    typeof session?.accessToken === 'string' ? session.accessToken : undefined
+
   const queryClient = useQueryClient()
   const { categories, isLoading } = useGetCategories()
 
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showNewForm, setShowNewForm] = useState(false)
 
-  const { mutateAsync: createCategory } = useAdminControllerCreateCategory()
-  const { mutateAsync: updateCategory } = useAdminControllerUpdateCategory()
-  const { mutateAsync: deleteCategory } = useAdminControllerDeleteCategory()
+  const { mutateAsync: createCategory } = useAdminControllerCreateCategory({
+    request: {
+      headers: accessToken
+        ? {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        : {},
+    },
+  })
+  const { mutateAsync: updateCategory } = useAdminControllerUpdateCategory({
+    request: {
+      headers: accessToken
+        ? {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        : {},
+    },
+  })
+  const { mutateAsync: deleteCategory } = useAdminControllerDeleteCategory({
+    request: {
+      headers: accessToken
+        ? {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        : {},
+    },
+  })
 
   const invalidate = useCallback(
-    () => queryClient.invalidateQueries({ queryKey: getCategoriesControllerFindAllQueryKey() }),
+    () =>
+      queryClient.invalidateQueries({
+        queryKey: getCategoriesControllerFindAllQueryKey(),
+      }),
     [queryClient],
   )
 
@@ -405,7 +445,9 @@ export default function AdminCategoriesPage() {
     return (
       <div className={'flex flex-col gap-4'}>
         <div className={'flex items-center justify-between'}>
-          <h2 className={'text-lg font-semibold text-gray-900'}>{'Категорії'}</h2>
+          <h2 className={'text-lg font-semibold text-gray-900'}>
+            {'Категорії'}
+          </h2>
         </div>
         <div
           className={
@@ -424,7 +466,9 @@ export default function AdminCategoriesPage() {
     <>
       <div className={'flex flex-col gap-4'}>
         <div className={'flex items-center justify-between'}>
-          <h2 className={'text-lg font-semibold text-gray-900'}>{'Категорії'}</h2>
+          <h2 className={'text-lg font-semibold text-gray-900'}>
+            {'Категорії'}
+          </h2>
           <button
             type={'button'}
             onClick={handleShowNewForm}
