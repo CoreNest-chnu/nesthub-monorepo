@@ -11,6 +11,11 @@ export class CategoriesService {
       orderBy: {
         name: 'asc',
       },
+      include: {
+        _count: {
+          select: { Products: true },
+        },
+      },
     })
   }
 }
