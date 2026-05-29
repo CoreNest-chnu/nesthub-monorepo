@@ -19,24 +19,24 @@ export class CreateProductDto {
 }
 
 export class FindOrdersQueryDto {
-  @ApiProperty({ type: String, required: false })
+  @ApiProperty({ type: String, enum: OrderStatus })
   status?: OrderStatus
 }
 
 export class UpdateOrderStatusDto {
-  @ApiProperty({ type: String, required: true })
-  status: OrderStatus
+  @ApiProperty({ type: String, enum: OrderStatus })
+  status!: OrderStatus
 }
 
 export class AdminOrderUserModel {
-  firstName: string
-  lastName: string
-  email: string
+  firstName!: string
+  lastName!: string
+  email!: string
 }
 
 export class AdminOrderModel extends OrderModel {
   @ApiProperty({ type: AdminOrderUserModel })
-  User: AdminOrderUserModel
+  User!: AdminOrderUserModel
 }
 
 class CategoryDto {
