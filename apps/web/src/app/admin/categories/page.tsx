@@ -1,21 +1,18 @@
 'use client'
 
 import {
+  getCategoriesControllerFindAllQueryKey,
   useAdminControllerCreateCategory,
   useAdminControllerDeleteCategory,
   useAdminControllerUpdateCategory,
+  useCategoriesControllerFindAll,
   type CategoryModel,
 } from '@repo/api-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { Check, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { useCallback, useRef, useState } from 'react'
 import { toast } from 'sonner'
-
-import {
-  getCategoriesControllerFindAllQueryKey,
-  useGetCategories,
-} from '@/src/hooks/useGetCategories'
-import { useSession } from 'next-auth/react'
 
 type InlineEditProps = {
   value: string
@@ -278,8 +275,12 @@ const NewCategoryForm = ({ onClose, onCreate }: NewCategoryFormProps) => {
   )
 }
 
+type CategoryWithCount = CategoryModel & {
+  _count?: { Products: number }
+}
+
 type CategoryRowProps = {
-  category: CategoryModel
+  category: CategoryWithCount
   index: number
   onDelete: (id: string) => void
   onUpdate: (id: string, name: string) => Promise<void>
@@ -343,7 +344,8 @@ export default function AdminCategoriesPage() {
     typeof session?.accessToken === 'string' ? session.accessToken : undefined
 
   const queryClient = useQueryClient()
-  const { categories, isLoading } = useGetCategories()
+  const { data, isLoading } = useCategoriesControllerFindAll()
+  const categories: CategoryWithCount[] = data?.data ?? []
 
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showNewForm, setShowNewForm] = useState(false)

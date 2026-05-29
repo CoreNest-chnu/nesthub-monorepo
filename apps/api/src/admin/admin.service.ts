@@ -62,7 +62,7 @@ export class AdminService {
   }
 
   async findAllForAdmin({
-    status = 'pending',
+    status,
   }: FindOrdersQueryDto): Promise<AdminOrderModel[]> {
     const orders = await this.prisma.order.findMany({
       where: {

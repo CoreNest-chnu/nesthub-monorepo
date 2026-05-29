@@ -1,34 +1,72 @@
 'use client'
 
-import { OrderModelStatus } from '@repo/api-client'
-import { useCallback, useState } from 'react'
+import {
+  AdminOrderModelStatus,
+  getAdminControllerFindAllOrdersQueryKey,
+  useAdminControllerFindAllOrders,
+  useAdminControllerUpdateOrderStatus,
+  type AdminOrderModel,
+} from '@repo/api-client'
+import { useQueryClient } from '@tanstack/react-query'
+import { useSession } from 'next-auth/react'
+import { useCallback, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { PaginationControls } from '@/src/components/ui/pagination'
-import { useGetAdminOrders, type OrderModel } from '@/src/hooks/useGetAdminOrders'
-import { usePatchAdminOrdersMutation } from '@/src/hooks/usePatchAdminOrdersMutation'
 
 const take = 10
 
-const statusLabel: Record<OrderModelStatus, string> = {
-  [OrderModelStatus.pending]: 'Очікує',
-  [OrderModelStatus.paid]: 'Оплачено',
-  [OrderModelStatus.shipped]: 'Відправлено',
-  [OrderModelStatus.completed]: 'Виконано',
-  [OrderModelStatus.cancelled]: 'Скасовано',
+const statusLabel: Record<AdminOrderModelStatus, string> = {
+  [AdminOrderModelStatus.pending]: 'Очікує',
+  [AdminOrderModelStatus.paid]: 'Оплачено',
+  [AdminOrderModelStatus.shipped]: 'Відправлено',
+  [AdminOrderModelStatus.completed]: 'Виконано',
+  [AdminOrderModelStatus.cancelled]: 'Скасовано',
 }
 
-const statusColor: Record<OrderModelStatus, string> = {
-  [OrderModelStatus.pending]: 'bg-yellow-100 text-yellow-700',
-  [OrderModelStatus.paid]: 'bg-blue-100 text-blue-700',
-  [OrderModelStatus.shipped]: 'bg-purple-100 text-purple-700',
-  [OrderModelStatus.completed]: 'bg-green-100 text-green-700',
-  [OrderModelStatus.cancelled]: 'bg-red-100 text-red-600',
+const statusColor: Record<AdminOrderModelStatus, string> = {
+  [AdminOrderModelStatus.pending]: 'bg-yellow-100 text-yellow-700',
+  [AdminOrderModelStatus.paid]: 'bg-blue-100 text-blue-700',
+  [AdminOrderModelStatus.shipped]: 'bg-purple-100 text-purple-700',
+  [AdminOrderModelStatus.completed]: 'bg-green-100 text-green-700',
+  [AdminOrderModelStatus.cancelled]: 'bg-red-100 text-red-600',
 }
 
-const allStatuses = Object.values(OrderModelStatus)
+const validTransitions: Record<AdminOrderModelStatus, AdminOrderModelStatus[]> =
+  {
+    [AdminOrderModelStatus.pending]: [
+      AdminOrderModelStatus.paid,
+      AdminOrderModelStatus.cancelled,
+    ],
+    [AdminOrderModelStatus.paid]: [
+      AdminOrderModelStatus.shipped,
+      AdminOrderModelStatus.cancelled,
+    ],
+    [AdminOrderModelStatus.shipped]: [
+      AdminOrderModelStatus.completed,
+      AdminOrderModelStatus.cancelled,
+    ],
+    [AdminOrderModelStatus.completed]: [],
+    [AdminOrderModelStatus.cancelled]: [],
+  }
+
+const getTransitionError = (
+  from: AdminOrderModelStatus,
+  to: AdminOrderModelStatus,
+): string => {
+  const allowed = validTransitions[from]
+
+  if (allowed.length === 0) {
+    return `Статус «${statusLabel[from]}» є кінцевим і не може бути змінений`
+  }
+
+  return `Перехід із «${statusLabel[from]}» до «${statusLabel[to]}» неможливий. Дозволено: ${allowed.map((s) => statusLabel[s]).join(', ')}`
+}
+
+const allStatuses = Object.values(AdminOrderModelStatus)
 
 type StatusBadgeProps = {
-  status: OrderModelStatus
+  status: AdminOrderModelStatus
 }
 
 const StatusBadge = ({ status }: StatusBadgeProps) => (
@@ -66,7 +104,7 @@ const StatusTab = ({ label, count, active, onSelect }: StatusTabProps) => (
 )
 
 type StatusSelectProps = {
-  value: OrderModelStatus
+  value: AdminOrderModelStatus
   disabled: boolean
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 }
@@ -89,13 +127,22 @@ const StatusSelect = ({ value, disabled, onChange }: StatusSelectProps) => (
 )
 
 type OrderAdminRowProps = {
-  order: OrderModel
+  order: AdminOrderModel
   index: number
   updatingId: string | null
-  onStatusChange: (id: string, currentStatus: OrderModelStatus, newStatus: OrderModelStatus) => void
+  onStatusChange: (
+    id: string,
+    currentStatus: AdminOrderModelStatus,
+    newStatus: AdminOrderModelStatus,
+  ) => void
 }
 
-const OrderAdminRow = ({ order, index, updatingId, onStatusChange }: OrderAdminRowProps) => {
+const OrderAdminRow = ({
+  order,
+  index,
+  updatingId,
+  onStatusChange,
+}: OrderAdminRowProps) => {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const next = allStatuses.find((s) => s === e.target.value)
@@ -106,14 +153,22 @@ const OrderAdminRow = ({ order, index, updatingId, onStatusChange }: OrderAdminR
   )
 
   return (
-    <tr className={'border-t border-gray-100 hover:bg-gray-50 transition-colors'}>
+    <tr
+      className={'border-t border-gray-100 hover:bg-gray-50 transition-colors'}
+    >
       <td className={'px-4 py-3 text-sm text-gray-400'}>{index}</td>
-      <td className={'px-4 py-3 font-mono text-xs text-gray-500'}>{`${order.id.slice(0, 8)}…`}</td>
+      <td
+        className={'px-4 py-3 font-mono text-xs text-gray-500'}
+      >{`${order.id.slice(0, 8)}…`}</td>
       <td className={'px-4 py-3 text-sm text-gray-700'}>
         {new Date(order.createdAt).toLocaleDateString('uk-UA')}
       </td>
-      <td className={'px-4 py-3 font-mono text-xs text-gray-500'}>{`${order.userId.slice(0, 8)}…`}</td>
-      <td className={'px-4 py-3 text-center text-sm text-gray-600'}>{order.Items.length}</td>
+      <td
+        className={'px-4 py-3 font-mono text-xs text-gray-500'}
+      >{`${order.userId.slice(0, 8)}…`}</td>
+      <td className={'px-4 py-3 text-center text-sm text-gray-600'}>
+        {order.Items.length}
+      </td>
       <td className={'px-4 py-3 text-sm font-medium text-gray-900'}>
         {`₴${Number(order.totalAmount).toFixed(2)}`}
       </td>
@@ -132,46 +187,120 @@ const OrderAdminRow = ({ order, index, updatingId, onStatusChange }: OrderAdminR
 }
 
 export default function AdminOrdersPage() {
-  const [activeStatus, setActiveStatus] = useState<OrderModelStatus | undefined>(undefined)
+  const [activeStatus, setActiveStatus] = useState<
+    AdminOrderModelStatus | undefined
+  >(undefined)
   const [page, setPage] = useState(1)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
-  const { orders, allOrders, isLoading } = useGetAdminOrders({ status: activeStatus })
-  const { mutate: updateStatus } = usePatchAdminOrdersMutation()
+  const { data: session, status: authStatus } = useSession()
+  const accessToken = session?.accessToken
+  const queryClient = useQueryClient()
+
+  const { data, isLoading } = useAdminControllerFindAllOrders(undefined, {
+    query: { enabled: authStatus === 'authenticated' },
+    request: {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    },
+  })
+
+  const allOrders = data?.data ?? []
+
+  const orders = useMemo(
+    () =>
+      activeStatus
+        ? allOrders.filter((o) => o.status === activeStatus)
+        : allOrders,
+    [allOrders, activeStatus],
+  )
+
+  const { mutate: updateStatus } = useAdminControllerUpdateOrderStatus<Error>({
+    request: {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    },
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: getAdminControllerFindAllOrdersQueryKey(),
+        })
+        toast.success('Статус оновлено')
+      },
+      onError: (error) => toast.error(error.message),
+    },
+  })
 
   const totalPages = Math.max(1, Math.ceil(orders.length / take))
   const paginated = orders.slice((page - 1) * take, page * take)
 
   const handleStatusChange = useCallback(
-    (id: string, currentStatus: OrderModelStatus, newStatus: OrderModelStatus) => {
+    (
+      id: string,
+      currentStatus: AdminOrderModelStatus,
+      newStatus: AdminOrderModelStatus,
+    ) => {
+      if (!validTransitions[currentStatus].includes(newStatus)) {
+        toast.error(getTransitionError(currentStatus, newStatus))
+
+        return
+      }
+
       setUpdatingId(id)
       updateStatus(
-        { id, currentStatus, newStatus },
+        { id, data: { status: newStatus } },
         { onSettled: () => setUpdatingId(null) },
       )
     },
     [updateStatus],
   )
 
-  const handlePageChange = useCallback((p: number) => { setPage(p) }, [])
-  const handleSelectAll = useCallback(() => { setActiveStatus(undefined); setPage(1) }, [])
-  const handleSelectPending = useCallback(() => { setActiveStatus(OrderModelStatus.pending); setPage(1) }, [])
-  const handleSelectPaid = useCallback(() => { setActiveStatus(OrderModelStatus.paid); setPage(1) }, [])
-  const handleSelectShipped = useCallback(() => { setActiveStatus(OrderModelStatus.shipped); setPage(1) }, [])
-  const handleSelectCompleted = useCallback(() => { setActiveStatus(OrderModelStatus.completed); setPage(1) }, [])
-  const handleSelectCancelled = useCallback(() => { setActiveStatus(OrderModelStatus.cancelled); setPage(1) }, [])
+  const handlePageChange = useCallback((p: number) => {
+    setPage(p)
+  }, [])
+  const handleSelectAll = useCallback(() => {
+    setActiveStatus(undefined)
+    setPage(1)
+  }, [])
+  const handleSelectPending = useCallback(() => {
+    setActiveStatus(AdminOrderModelStatus.pending)
+    setPage(1)
+  }, [])
+  const handleSelectPaid = useCallback(() => {
+    setActiveStatus(AdminOrderModelStatus.paid)
+    setPage(1)
+  }, [])
+  const handleSelectShipped = useCallback(() => {
+    setActiveStatus(AdminOrderModelStatus.shipped)
+    setPage(1)
+  }, [])
+  const handleSelectCompleted = useCallback(() => {
+    setActiveStatus(AdminOrderModelStatus.completed)
+    setPage(1)
+  }, [])
+  const handleSelectCancelled = useCallback(() => {
+    setActiveStatus(AdminOrderModelStatus.cancelled)
+    setPage(1)
+  }, [])
 
   const countFor = useCallback(
-    (s: OrderModelStatus) => allOrders.filter((o) => o.status === s).length,
+    (s: AdminOrderModelStatus) =>
+      allOrders.filter((o) => o.status === s).length,
     [allOrders],
   )
 
   if (isLoading) {
     return (
       <div className={'flex flex-col gap-4'}>
-        <h2 className={'text-lg font-semibold text-gray-900'}>{'Замовлення'}</h2>
-        <div className={'bg-white rounded-2xl border border-gray-200 overflow-hidden'}>
-          <div className={'p-8 text-center text-sm text-gray-500'}>{'Завантаження…'}</div>
+        <h2 className={'text-lg font-semibold text-gray-900'}>
+          {'Замовлення'}
+        </h2>
+        <div
+          className={
+            'bg-white rounded-2xl border border-gray-200 overflow-hidden'
+          }
+        >
+          <div className={'p-8 text-center text-sm text-gray-500'}>
+            {'Завантаження…'}
+          </div>
         </div>
       </div>
     )
@@ -180,8 +309,12 @@ export default function AdminOrdersPage() {
   return (
     <div className={'flex flex-col gap-4'}>
       <div className={'flex items-center justify-between'}>
-        <h2 className={'text-lg font-semibold text-gray-900'}>{'Замовлення'}</h2>
-        <span className={'text-sm text-gray-500'}>{`Всього: ${allOrders.length}`}</span>
+        <h2 className={'text-lg font-semibold text-gray-900'}>
+          {'Замовлення'}
+        </h2>
+        <span
+          className={'text-sm text-gray-500'}
+        >{`Всього: ${allOrders.length}`}</span>
       </div>
 
       <div className={'flex items-center gap-1 flex-wrap'}>
@@ -192,53 +325,62 @@ export default function AdminOrdersPage() {
           onSelect={handleSelectAll}
         />
         <StatusTab
-          label={statusLabel[OrderModelStatus.pending]}
-          count={countFor(OrderModelStatus.pending)}
-          active={activeStatus === OrderModelStatus.pending}
+          label={statusLabel[AdminOrderModelStatus.pending]}
+          count={countFor(AdminOrderModelStatus.pending)}
+          active={activeStatus === AdminOrderModelStatus.pending}
           onSelect={handleSelectPending}
         />
         <StatusTab
-          label={statusLabel[OrderModelStatus.paid]}
-          count={countFor(OrderModelStatus.paid)}
-          active={activeStatus === OrderModelStatus.paid}
+          label={statusLabel[AdminOrderModelStatus.paid]}
+          count={countFor(AdminOrderModelStatus.paid)}
+          active={activeStatus === AdminOrderModelStatus.paid}
           onSelect={handleSelectPaid}
         />
         <StatusTab
-          label={statusLabel[OrderModelStatus.shipped]}
-          count={countFor(OrderModelStatus.shipped)}
-          active={activeStatus === OrderModelStatus.shipped}
+          label={statusLabel[AdminOrderModelStatus.shipped]}
+          count={countFor(AdminOrderModelStatus.shipped)}
+          active={activeStatus === AdminOrderModelStatus.shipped}
           onSelect={handleSelectShipped}
         />
         <StatusTab
-          label={statusLabel[OrderModelStatus.completed]}
-          count={countFor(OrderModelStatus.completed)}
-          active={activeStatus === OrderModelStatus.completed}
+          label={statusLabel[AdminOrderModelStatus.completed]}
+          count={countFor(AdminOrderModelStatus.completed)}
+          active={activeStatus === AdminOrderModelStatus.completed}
           onSelect={handleSelectCompleted}
         />
         <StatusTab
-          label={statusLabel[OrderModelStatus.cancelled]}
-          count={countFor(OrderModelStatus.cancelled)}
-          active={activeStatus === OrderModelStatus.cancelled}
+          label={statusLabel[AdminOrderModelStatus.cancelled]}
+          count={countFor(AdminOrderModelStatus.cancelled)}
+          active={activeStatus === AdminOrderModelStatus.cancelled}
           onSelect={handleSelectCancelled}
         />
       </div>
 
-      <div className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}>
+      <div
+        className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}
+      >
         <table className={'min-w-full'}>
           <thead className={'bg-gray-50'}>
             <tr>
-              {['#', 'ID', 'Дата', 'Користувач', 'Товарів', 'Сума', 'Статус', 'Змінити'].map(
-                (h) => (
-                  <th
-                    key={h}
-                    className={
-                      'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
-                    }
-                  >
-                    {h}
-                  </th>
-                ),
-              )}
+              {[
+                '#',
+                'ID',
+                'Дата',
+                'Користувач',
+                'Товарів',
+                'Сума',
+                'Статус',
+                'Змінити',
+              ].map((h) => (
+                <th
+                  key={h}
+                  className={
+                    'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
+                  }
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
