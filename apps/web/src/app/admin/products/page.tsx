@@ -4,6 +4,7 @@ import {
   type ProductModel,
   useProductControllerProducts,
 } from '@repo/api-client'
+import { Pencil } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
@@ -84,6 +85,22 @@ export default function AdminProductsPage() {
           >
             {original.stock}
           </span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: '',
+        contentPosition: 'right',
+        cellClass: 'w-12',
+        cell: ({ row: { original } }) => (
+          <Link
+            href={`/admin/products/${original.id}/edit`}
+            className={
+              'inline-flex items-center justify-center size-8 rounded-lg border border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-300 transition-colors'
+            }
+          >
+            <Pencil size={14} />
+          </Link>
         ),
       },
     ],
