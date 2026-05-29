@@ -3,9 +3,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   useProductControllerFindbyId,
+  getProductControllerFindbyIdQueryKey,
   useAdminControllerUpdate,
   useCategoriesControllerFindAll,
 } from '@repo/api-client'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import { ArrowLeft, ImageIcon } from 'lucide-react'
 import Image from 'next/image'
@@ -38,6 +40,7 @@ const inputClass = (hasError: boolean) =>
 const EditProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { data: session } = useSession()
 
   const { data: productData, isLoading } = useProductControllerFindbyId(id)
@@ -105,6 +108,7 @@ const EditProductPage: React.FC = () => {
             imageUrl: values.imageUrl !== '' ? values.imageUrl : undefined,
           },
         })
+        await queryClient.invalidateQueries({ queryKey: getProductControllerFindbyIdQueryKey(id) })
         toast.success('Товар оновлено')
         router.push(`/products/${id}`)
       } catch (err) {
@@ -113,7 +117,7 @@ const EditProductPage: React.FC = () => {
         )
       }
     },
-    [updateProduct, router, id],
+    [updateProduct, router, queryClient, id],
   )
 
   if (isLoading) {
