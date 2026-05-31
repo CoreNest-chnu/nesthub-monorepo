@@ -18,17 +18,7 @@ import {
   type CreateProductFormData,
   createProductSchema,
 } from '@/src/validation/validationSchema'
-
-const isValidImageUrl = (url: string | undefined): boolean => {
-  if (!url) return false
-  try {
-    new URL(url)
-
-    return true
-  } catch {
-    return false
-  }
-}
+import { isValidImageUrl } from '@/src/utils/url.util'
 
 const inputClass = (hasError: boolean) =>
   `w-full border rounded-lg px-3 h-[42px] text-sm outline-none font-[inherit] text-gray-900 bg-white ${

@@ -89,7 +89,6 @@ export default function AdminProductsPage() {
       },
       {
         id: 'actions',
-        header: '',
         contentPosition: 'right',
         cellClass: 'w-12',
         cell: ({ row: { original } }) => (
