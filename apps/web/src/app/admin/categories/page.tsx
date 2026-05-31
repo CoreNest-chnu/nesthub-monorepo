@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  getCategoriesControllerFindAllQueryKey,
   useAdminControllerCreateCategory,
   useAdminControllerDeleteCategory,
   useAdminControllerUpdateCategory,
@@ -11,10 +12,7 @@ import { Check, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { useCallback, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import {
-  getCategoriesControllerFindAllQueryKey,
-  useGetCategories,
-} from '@/src/hooks/useGetCategories'
+import { useGetCategories } from '@/src/hooks/useGetCategories'
 
 type InlineEditProps = {
   value: string

@@ -1,9 +1,6 @@
-import {
-  getCategoriesControllerFindAllQueryKey,
-  useCategoriesControllerFindAll,
-} from '@repo/api-client'
+'use client'
 
-export { getCategoriesControllerFindAllQueryKey }
+import { useCategoriesControllerFindAll } from '@repo/api-client'
 
 export const useGetCategories = () => {
   const { data, isLoading } = useCategoriesControllerFindAll()
@@ -11,6 +8,5 @@ export const useGetCategories = () => {
   return {
     categories: data?.data ?? [],
     isLoading,
-    queryKey: getCategoriesControllerFindAllQueryKey(),
   }
 }
