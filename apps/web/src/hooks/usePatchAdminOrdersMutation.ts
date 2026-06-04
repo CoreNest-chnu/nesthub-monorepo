@@ -1,11 +1,12 @@
 'use client'
 
-import { OrderModelStatus } from '@repo/api-client'
+import {
+  getOrderControllerAllOrdersQueryKey,
+  OrderModelStatus,
+} from '@repo/api-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
-
-import { getOrderControllerAllOrdersQueryKey } from './useGetAdminOrders'
 
 const statusLabel: Record<OrderModelStatus, string> = {
   [OrderModelStatus.pending]: 'Очікує',
@@ -44,6 +45,7 @@ export const usePatchAdminOrdersMutation = () => {
   const { data: session } = useSession()
 
   return useMutation({
+    // TODO: replace fetch with Orval-generated hook once backend endpoint is ready
     mutationFn: async ({ id, currentStatus, newStatus }: PatchOrderStatusVars) => {
       const allowed = validTransitions[currentStatus]
 
@@ -51,23 +53,24 @@ export const usePatchAdminOrdersMutation = () => {
         throw new Error(getTransitionError(currentStatus, newStatus))
       }
 
-      const res = await fetch(`/api/admin/orders/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.accessToken ?? ''}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      })
+      try {
+        const res = await fetch(`/api/admin/orders/${id}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.accessToken ?? ''}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        })
 
-      if (!res.ok) throw new Error('Не вдалося оновити статус')
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getOrderControllerAllOrdersQueryKey() })
-      toast.success('Статус оновлено')
-    },
-    onError: (error) => {
-      toast.error(error.message)
+        if (!res.ok) throw new Error('Не вдалося оновити статус')
+
+        await queryClient.invalidateQueries({ queryKey: getOrderControllerAllOrdersQueryKey() })
+        toast.success('Статус оновлено')
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Не вдалося оновити статус')
+        throw err
+      }
     },
   })
 }
