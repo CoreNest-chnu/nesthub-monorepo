@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback } from 'react'
 import { useAddToCart } from '@/src/hooks/useAddToCart'
+import { useFavoritesStore } from '@/src/store/useFavoritesStore'
 
 type ProductCardProps = {
   product: ProductModel
@@ -61,10 +62,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const href = `/products/${product.id}`
 
   const { addToCart, isPending } = useAddToCart()
+  const { toggle, has } = useFavoritesStore()
+  const isFavorite = has(product.id)
 
   const handleAddToCart = useCallback(
     () => addToCart(product.id),
     [addToCart, product.id],
+  )
+
+  const handleToggleFavorite = useCallback(
+    () => toggle(product),
+    [toggle, product],
   )
 
   return (
@@ -122,12 +130,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </button>
           <button
             type={'button'}
-            aria-label={'Додати в обране'}
-            className={
-              'p-2 rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 cursor-pointer bg-transparent transition-colors'
-            }
+            aria-label={isFavorite ? 'Видалити з обраного' : 'Додати в обране'}
+            onClick={handleToggleFavorite}
+            className={`p-2 rounded-lg border cursor-pointer bg-transparent transition-colors ${
+              isFavorite
+                ? 'border-red-200 text-red-500 hover:border-red-300'
+                : 'border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200'
+            }`}
           >
-            <Heart size={13} />
+            <Heart size={13} className={isFavorite ? 'fill-red-500' : ''} />
           </button>
         </div>
       </div>
