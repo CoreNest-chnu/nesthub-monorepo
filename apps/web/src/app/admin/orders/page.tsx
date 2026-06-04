@@ -1,17 +1,18 @@
 'use client'
 
-import { OrderModelStatus } from '@repo/api-client'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  getOrderControllerAllOrdersQueryKey,
+  type OrderModel,
+  OrderModelStatus,
+  useOrderControllerAllOrders,
+} from '@repo/api-client'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import { PaginationControls } from '@/src/components/ui/pagination'
-import {
-  getOrderControllerAllOrdersQueryKey,
-  useGetAdminOrders,
-  type OrderModel,
-} from '@/src/hooks/useGetAdminOrders'
+import { type CustomColumn, Table } from '@/src/components/ui/Table/Table'
 
 const take = 10
 
@@ -71,37 +72,13 @@ const StatusTab = ({ label, count, active, onSelect }: StatusTabProps) => (
   </button>
 )
 
-type StatusSelectProps = {
-  value: OrderModelStatus
-  disabled: boolean
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-}
-
-const StatusSelect = ({ value, disabled, onChange }: StatusSelectProps) => (
-  <select
-    value={value}
-    disabled={disabled}
-    onChange={onChange}
-    className={
-      'text-xs rounded-lg border border-gray-200 px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 disabled:opacity-50 bg-white'
-    }
-  >
-    {allStatuses.map((s) => (
-      <option key={s} value={s}>
-        {statusLabel[s]}
-      </option>
-    ))}
-  </select>
-)
-
-type OrderAdminRowProps = {
+type OrderStatusCellProps = {
   order: OrderModel
-  index: number
   updatingId: string | null
   onStatusChange: (id: string, status: OrderModelStatus) => void
 }
 
-const OrderAdminRow = ({ order, index, updatingId, onStatusChange }: OrderAdminRowProps) => {
+const OrderStatusCell = ({ order, updatingId, onStatusChange }: OrderStatusCellProps) => {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const next = allStatuses.find((s) => s === e.target.value)
@@ -112,69 +89,144 @@ const OrderAdminRow = ({ order, index, updatingId, onStatusChange }: OrderAdminR
   )
 
   return (
-    <tr className={'border-t border-gray-100 hover:bg-gray-50 transition-colors'}>
-      <td className={'px-4 py-3 text-sm text-gray-400'}>{index}</td>
-      <td className={'px-4 py-3 font-mono text-xs text-gray-500'}>{`${order.id.slice(0, 8)}…`}</td>
-      <td className={'px-4 py-3 text-sm text-gray-700'}>
-        {new Date(order.createdAt).toLocaleDateString('uk-UA')}
-      </td>
-      <td className={'px-4 py-3 font-mono text-xs text-gray-500'}>{`${order.userId.slice(0, 8)}…`}</td>
-      <td className={'px-4 py-3 text-center text-sm text-gray-600'}>{order.Items.length}</td>
-      <td className={'px-4 py-3 text-sm font-medium text-gray-900'}>
-        {`₴${Number(order.totalAmount).toFixed(2)}`}
-      </td>
-      <td className={'px-4 py-3'}>
-        <StatusBadge status={order.status} />
-      </td>
-      <td className={'px-4 py-3'}>
-        <StatusSelect
-          value={order.status}
-          disabled={updatingId === order.id}
-          onChange={handleChange}
-        />
-      </td>
-    </tr>
+    <select
+      value={order.status}
+      disabled={updatingId === order.id}
+      onChange={handleChange}
+      className={
+        'text-xs rounded-lg border border-gray-200 px-2 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 disabled:opacity-50 bg-white'
+      }
+    >
+      {allStatuses.map((s) => (
+        <option key={s} value={s}>
+          {statusLabel[s]}
+        </option>
+      ))}
+    </select>
   )
 }
 
 export default function AdminOrdersPage() {
   const queryClient = useQueryClient()
-  const { data: session } = useSession()
+  const { data: session, status: authStatus } = useSession()
 
   const [activeStatus, setActiveStatus] = useState<OrderModelStatus | undefined>(undefined)
   const [page, setPage] = useState(1)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
-  const { orders, allOrders, isLoading } = useGetAdminOrders({ status: activeStatus })
+  const { data, isLoading } = useOrderControllerAllOrders({
+    query: { enabled: authStatus === 'authenticated' },
+    request: {
+      headers: session?.accessToken
+        ? { Authorization: `Bearer ${session.accessToken}` }
+        : {},
+    },
+  })
+
+  const allOrders = data?.data ?? []
+
+  const orders = useMemo(
+    () => (activeStatus ? allOrders.filter((o) => o.status === activeStatus) : allOrders),
+    [allOrders, activeStatus],
+  )
 
   const totalPages = Math.max(1, Math.ceil(orders.length / take))
   const paginated = orders.slice((page - 1) * take, page * take)
 
-  const { mutate: updateStatus } = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: OrderModelStatus }) => {
-      const res = await fetch(`/api/admin/orders/${id}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.accessToken ?? ''}`,
-        },
-        body: JSON.stringify({ status }),
-      })
-
-      if (!res.ok) throw new Error('update failed')
-    },
-    onMutate: ({ id }) => setUpdatingId(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: getOrderControllerAllOrdersQueryKey() })
-      toast.success('Статус оновлено')
-    },
-    onError: () => toast.error('Не вдалося оновити статус'),
-    onSettled: () => setUpdatingId(null),
-  })
-
   const handleStatusChange = useCallback(
-    (id: string, status: OrderModelStatus) => updateStatus({ id, status }),
-    [updateStatus],
+    async (id: string, status: OrderModelStatus) => {
+      setUpdatingId(id)
+
+      try {
+        // TODO: replace with Orval-generated hook once backend endpoint is added
+        const res = await fetch(`/api/admin/orders/${id}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.accessToken ?? ''}`,
+          },
+          body: JSON.stringify({ status }),
+        })
+
+        if (!res.ok) throw new Error('Не вдалося оновити статус')
+
+        await queryClient.invalidateQueries({ queryKey: getOrderControllerAllOrdersQueryKey() })
+        toast.success('Статус оновлено')
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Не вдалося оновити статус')
+      } finally {
+        setUpdatingId(null)
+      }
+    },
+    [session?.accessToken, queryClient],
+  )
+
+  const columns = useMemo<CustomColumn<OrderModel>[]>(
+    () => [
+      {
+        id: 'index',
+        header: '#',
+        contentPosition: 'left',
+        cellClass: 'w-12 text-gray-400',
+        cell: ({ row }) => row.index + 1,
+      },
+      {
+        id: 'id',
+        header: 'ID',
+        contentPosition: 'left',
+        cellClass: 'font-mono text-xs text-gray-500',
+        cell: ({ row: { original } }) => `${original.id.slice(0, 8)}…`,
+      },
+      {
+        accessorKey: 'createdAt',
+        header: 'Дата',
+        contentPosition: 'left',
+        cellClass: 'text-sm text-gray-700',
+        cell: ({ row: { original } }) =>
+          new Date(original.createdAt).toLocaleDateString('uk-UA'),
+      },
+      {
+        id: 'user',
+        header: 'Користувач',
+        contentPosition: 'left',
+        cellClass: 'font-mono text-xs text-gray-500',
+        cell: ({ row: { original } }) => `${original.userId.slice(0, 8)}…`,
+      },
+      {
+        id: 'items',
+        header: 'Товарів',
+        contentPosition: 'center',
+        cellClass: 'text-sm text-gray-600',
+        cell: ({ row: { original } }) => original.Items.length,
+      },
+      {
+        accessorKey: 'totalAmount',
+        header: 'Сума',
+        contentPosition: 'left',
+        cellClass: 'text-sm font-medium text-gray-900',
+        cell: ({ row: { original } }) =>
+          `₴${Number(original.totalAmount).toFixed(2)}`,
+      },
+      {
+        accessorKey: 'status',
+        header: 'Статус',
+        contentPosition: 'left',
+        cell: ({ row: { original } }) => <StatusBadge status={original.status} />,
+      },
+      {
+        id: 'statusChange',
+        header: 'Змінити',
+        contentPosition: 'left',
+        cell: ({ row: { original } }) => (
+          <OrderStatusCell
+            order={original}
+            updatingId={updatingId}
+            onStatusChange={handleStatusChange}
+          />
+        ),
+      },
+    ],
+    [updatingId, handleStatusChange],
   )
 
   const handlePageChange = useCallback((p: number) => { setPage(p) }, [])
@@ -248,46 +300,11 @@ export default function AdminOrdersPage() {
       </div>
 
       <div className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}>
-        <table className={'min-w-full'}>
-          <thead className={'bg-gray-50'}>
-            <tr>
-              {['#', 'ID', 'Дата', 'Користувач', 'Товарів', 'Сума', 'Статус', 'Змінити'].map(
-                (h) => (
-                  <th
-                    key={h}
-                    className={
-                      'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
-                    }
-                  >
-                    {h}
-                  </th>
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={8}
-                  className={'px-4 py-8 text-center text-sm text-gray-500'}
-                >
-                  {'Замовлень немає'}
-                </td>
-              </tr>
-            ) : (
-              paginated.map((order, i) => (
-                <OrderAdminRow
-                  key={order.id}
-                  order={order}
-                  index={(page - 1) * take + i + 1}
-                  updatingId={updatingId}
-                  onStatusChange={handleStatusChange}
-                />
-              ))
-            )}
-          </tbody>
-        </table>
+        {paginated.length === 0 ? (
+          <div className={'p-8 text-center text-sm text-gray-500'}>{'Замовлень немає'}</div>
+        ) : (
+          <Table data={paginated} columns={columns} borderless />
+        )}
       </div>
 
       {totalPages > 1 && (
