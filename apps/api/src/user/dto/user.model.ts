@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Gender, Role } from 'generated/prisma/enums'
-import { UserId } from 'generated/prisma/types'
+import type { UserId } from 'generated/prisma/types'
 
 export class UserModel {
   id!: UserId

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ProductId } from 'generated/prisma/types'
+import type { ProductId } from 'generated/prisma/types'
 
 export class CartItemDto {
   @ApiProperty({ type: String })

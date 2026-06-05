@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import type { Prisma } from 'generated/prisma/client'
-import { ProductId } from 'generated/prisma/types'
+import type { ProductId } from 'generated/prisma/types'
 import { CategoryModel } from 'src/category/dto/category.model'
 
 export class ProductModel {

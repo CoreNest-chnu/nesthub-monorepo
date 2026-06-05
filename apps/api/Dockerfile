@@ -16,6 +16,7 @@ COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/eslint-config/package.json ./packages/eslint-config/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/prisma-generator-ids/package.json ./packages/prisma-generator-ids/
 
 RUN bun install --frozen-lockfile
 
@@ -25,9 +26,12 @@ FROM base AS dev
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Генеруємо Prisma client
+# Генеруємо Prisma client.
+# Кастомний генератор `ids` пише той самий generated/prisma/types.ts, що й
+# prisma-client, і за порядком/часом може програти гонку. Тому форсуємо
+# повторний прогін лише генератора `ids`, щоб його types.ts завжди переміг.
 WORKDIR /app/apps/api
-RUN bunx prisma generate
+RUN bunx prisma generate && bunx prisma generate --generator ids
 
 EXPOSE 8000
 

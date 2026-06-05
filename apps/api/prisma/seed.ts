@@ -236,12 +236,27 @@ async function main() {
   for (const [categoryName, products] of Object.entries(productsByCategory)) {
     console.log(`Creating category: ${categoryName}`)
 
-    const category = await prisma.category.create({
-      data: { name: categoryName },
+    // Idempotent: reuse the category if it already exists.
+    const category = await prisma.category.upsert({
+      where: { name: categoryName },
+      update: {},
+      create: { name: categoryName },
     })
+
+    // Skip product seeding for categories that already have products,
+    // so the seed can be safely re-run on a populated database.
+    const existingProducts = await prisma.product.count({
+      where: { categoryId: category.id },
+    })
+
+    if (existingProducts > 0) {
+      console.log(`↩︎ "${categoryName}" already has products, skipping`)
+      continue
+    }
 
     const data = products.map(({ name, keyword, basePrice }) => {
       const variance = (Math.random() - 0.5) * 0.2
+
       return {
         name,
         description: `${name} — гарантія якості, офіційний імпорт. Безкоштовна доставка по Україні.`,

@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
-import { UserId } from 'generated/prisma/types'
+import type { UserId } from 'generated/prisma/types'
 import { CardBrand, OrderStatus } from 'generated/prisma/enums'
 import { CreatePaymentDto } from './dto/payment.dto'
 import { PaymentModel, SavedCardModel } from './dto/payment.model'

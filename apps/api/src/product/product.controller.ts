@@ -3,7 +3,7 @@ import { ProductService } from './product.service'
 import { PaginationQueryDto } from './dto/product.dto'
 import { PaginatedResponseDto, ProductModel } from './dto/product.model'
 import { ApiResponse } from '@nestjs/swagger'
-import { ProductId } from 'generated/prisma/types'
+import type { ProductId } from 'generated/prisma/types'
 
 @Controller('products')
 export class ProductController {

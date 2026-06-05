@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { CardBrand, PaymentStatus } from 'generated/prisma/enums'
-import { PaymentId, SavedCardId } from 'generated/prisma/types'
+import type { PaymentId, SavedCardId } from 'generated/prisma/types'
 
 export class SavedCardModel {
   @ApiProperty({ type: String })

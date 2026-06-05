@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { OrderId } from 'generated/prisma/types'
+import type { OrderId } from 'generated/prisma/types'
 
 export class CreatePaymentDto {
   @ApiProperty({ type: String })

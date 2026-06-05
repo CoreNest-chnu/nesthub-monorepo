@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { CategoryId } from 'generated/prisma/types'
+import type { CategoryId } from 'generated/prisma/types'
 
 class CategoryCount {
   @ApiProperty({ type: Number })
