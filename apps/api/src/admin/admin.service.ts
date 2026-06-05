@@ -16,7 +16,7 @@ import {
 } from './dto/admin.dto'
 import { toShippingAddressDto } from 'src/order/util/order.util'
 import { OrderStatus } from 'generated/prisma/enums'
-import { CategoryId, OrderId, ProductId } from 'generated/prisma/types'
+import type { CategoryId, OrderId, ProductId } from 'generated/prisma/types'
 import { CategoryModel } from 'src/category/dto/category.model'
 
 type UpdateOrderArgs = {

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
 import { CartItemModel, CartWithStockModel } from './dto/cart.model'
-import { UserId } from 'generated/prisma/types'
+import type { UserId } from 'generated/prisma/types'
 import { CartItemDto, UpdateCartItemDto } from './dto/cart.dto'
 import { ProductModel } from '../product/dto/product.model'
 

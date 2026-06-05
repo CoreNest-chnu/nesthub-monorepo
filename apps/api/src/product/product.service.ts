@@ -4,7 +4,7 @@ import { PaginationQueryDto } from './dto/product.dto'
 import { Decimal } from '@prisma/client/runtime/index-browser'
 import { PaginatedResponseDto, ProductModel } from './dto/product.model'
 import { Prisma } from 'generated/prisma/browser'
-import { ProductId } from 'generated/prisma/types'
+import type { ProductId } from 'generated/prisma/types'
 import { castArray } from 'lodash'
 
 @Injectable()

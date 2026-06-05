@@ -1,3 +1,7 @@
+// Where the Next server proxies /api/* requests. In Docker the API is reachable
+// via the compose service name (http://api:8000); locally it's localhost:8000.
+const API_PROXY_TARGET = process.env.API_PROXY_TARGET ?? 'http://localhost:8000'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -19,11 +23,11 @@ const nextConfig = {
       beforeFiles: [
         {
           source: '/api/auth/register',
-          destination: 'http://localhost:8000/auth/register',
+          destination: `${API_PROXY_TARGET}/auth/register`,
         },
         {
           source: '/api/auth/login',
-          destination: 'http://localhost:8000/auth/login',
+          destination: `${API_PROXY_TARGET}/auth/login`,
         },
       ],
       afterFiles: [],
@@ -32,7 +36,7 @@ const nextConfig = {
       fallback: [
         {
           source: '/api/:path*',
-          destination: 'http://localhost:8000/:path*',
+          destination: `${API_PROXY_TARGET}/:path*`,
         },
       ],
     }

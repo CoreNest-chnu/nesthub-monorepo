@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { OrderStatus } from 'generated/prisma/browser'
 import { ShippingAddressDto } from './order.dto'
-import { OrderId, OrderItemId } from 'generated/prisma/types'
+import type { OrderId, OrderItemId } from 'generated/prisma/types'
 import { Prisma } from 'generated/prisma/client'
 
 export class OrderItemModel {

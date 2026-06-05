@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
 import type { Request } from 'express'
 import { Role } from 'generated/prisma/enums'
-import { UserId } from 'generated/prisma/types'
+import type { UserId } from 'generated/prisma/types'
 
 export type User = {
   id: UserId

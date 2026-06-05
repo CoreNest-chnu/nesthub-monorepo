@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
 import { Prisma } from 'generated/prisma/client'
-import { UserId } from 'generated/prisma/types'
+import type { UserId } from 'generated/prisma/types'
 import { PromoCodeModel } from 'generated/prisma/models/PromoCode'
 import { PromoResultModel } from './dto/promo.model'
 

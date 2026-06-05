@@ -14,6 +14,7 @@ COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/eslint-config/package.json ./packages/eslint-config/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
+COPY packages/prisma-generator-ids/package.json ./packages/prisma-generator-ids/
 
 RUN bun install --frozen-lockfile
 

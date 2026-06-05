@@ -13,7 +13,7 @@ import {
   UpdateCategoryDto,
 } from './dto/admin.dto'
 import { ApiResponse } from '@nestjs/swagger'
-import {
+import type {
   Category,
   CategoryId,
   OrderId,

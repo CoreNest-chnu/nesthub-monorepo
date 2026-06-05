@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from 'prisma/lib/prisma'
 import { OrderModel } from './dto/order.model'
-import { UserId } from 'generated/prisma/types'
+import type { UserId } from 'generated/prisma/types'
 import { ShippingAddressDto } from './dto/order.dto'
 import { toShippingAddressDto } from './util/order.util'
 import { Prisma } from 'generated/prisma/client'

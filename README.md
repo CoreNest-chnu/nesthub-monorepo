@@ -232,7 +232,7 @@ DB_NAME=postgres
 DB_PORT=5433
 
 # ---- pgAdmin ----
-PGADMIN_EMAIL=admin@nesthub.local
+PGADMIN_EMAIL=admin@nesthub.com
 PGADMIN_PASSWORD=admin
 PGADMIN_PORT=5050
 

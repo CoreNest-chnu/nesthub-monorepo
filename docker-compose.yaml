@@ -47,6 +47,10 @@ services:
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASS}@db:5432/${DB_NAME}?schema=public
       PORT: ${API_PORT:-8000}
       NODE_ENV: development
+      # Auth secrets — real .env is git/docker-ignored, so pass them here.
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-86400}
+      STATIC_SALT: ${STATIC_SALT:-dev-static-salt-change-me}
     ports:
       - "${API_PORT:-8000}:8000"
     depends_on:
@@ -67,7 +71,13 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: development
+      # Browser-side calls (run on the host) use localhost.
       NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}
+      # Server-side proxy (runs inside the container) must reach the API via the
+      # compose service name, not localhost.
+      API_PROXY_TARGET: http://api:8000
+      # NextAuth requires a secret to be defined.
+      AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me}
     ports:
       - "${WEB_PORT:-3000}:3000"
     depends_on:
