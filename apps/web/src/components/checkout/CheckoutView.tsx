@@ -1,22 +1,23 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   type PromoResultModel,
   useCartControllerGetCart,
   useOrderControllerCreateOrder,
 } from '@repo/api-client'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { clearAppliedPromo, readAppliedPromo } from '../../lib/promoStorage'
+import { type Address, useAddressStore } from '../../store/useAddressStore'
 import { CartItemsList } from '../cart/CartItemsList'
 import { EmptyCart } from '../cart/EmptyCart'
 import { StepIndicator } from '../cart/StepIndicator'
-import { clearAppliedPromo, readAppliedPromo } from '../../lib/promoStorage'
 import { CheckoutOrderSummary } from './CheckoutOrderSummary'
 
 const addressSchema = z.object({
@@ -31,6 +32,33 @@ type AddressFormData = z.infer<typeof addressSchema>
 const inputClass =
   'w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-gray-400 placeholder:text-gray-400'
 const errorClass = 'mt-1 text-xs text-red-500'
+
+type SavedAddressChipProps = {
+  address: Address
+  onApply: (address: Address) => void
+}
+
+const SavedAddressChip: React.FC<SavedAddressChipProps> = ({
+  address,
+  onApply,
+}) => {
+  const handleApply = useCallback(() => onApply(address), [onApply, address])
+
+  return (
+    <button
+      type={'button'}
+      onClick={handleApply}
+      className={
+        'inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-700 transition-colors hover:border-gray-400 hover:bg-gray-100'
+      }
+    >
+      <span className={'font-medium'}>{address.label}</span>
+      <span className={'text-gray-400'}>
+        {`${address.city}, ${address.street}`}
+      </span>
+    </button>
+  )
+}
 
 export const CheckoutView: React.FC = () => {
   const { data: session, status } = useSession()
@@ -55,18 +83,48 @@ export const CheckoutView: React.FC = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
   })
 
+  const savedAddresses = useAddressStore((s) => s.items)
+
   const [promoResult, setPromoResult] = useState<PromoResultModel | null>(null)
   const [mode, setMode] = useState<'edit' | 'review'>('edit')
   const [reviewData, setReviewData] = useState<AddressFormData | null>(null)
+  const [prefilled, setPrefilled] = useState(false)
 
   useEffect(() => {
     setPromoResult(readAppliedPromo())
   }, [])
+
+  const applyAddress = useCallback(
+    (address: Address) => {
+      reset({
+        city: address.city,
+        zip: address.zip,
+        street: address.street,
+        building: address.building,
+      })
+    },
+    [reset],
+  )
+
+  // Prefill once with the default saved address (or the first one).
+  useEffect(() => {
+    if (prefilled || savedAddresses.length === 0) {
+      return
+    }
+    const preferred =
+      savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0]
+
+    if (preferred) {
+      applyAddress(preferred)
+      setPrefilled(true)
+    }
+  }, [prefilled, savedAddresses, applyAddress])
 
   const onSubmit = async (formData: AddressFormData) => {
     if (mode === 'edit') {
@@ -177,6 +235,23 @@ export const CheckoutView: React.FC = () => {
                     </button>
                   )}
                 </div>
+
+                {mode === 'edit' && savedAddresses.length > 0 && (
+                  <div className={'mb-5 flex flex-col gap-2'}>
+                    <span className={'text-xs font-medium text-gray-500'}>
+                      {'Збережені адреси'}
+                    </span>
+                    <div className={'flex flex-wrap gap-2'}>
+                      {savedAddresses.map((address) => (
+                        <SavedAddressChip
+                          key={address.id}
+                          address={address}
+                          onApply={applyAddress}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div
                   className={
