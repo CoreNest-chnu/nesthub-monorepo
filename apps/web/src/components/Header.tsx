@@ -19,6 +19,7 @@ import debounce from 'lodash/debounce'
 import { useSession } from 'next-auth/react'
 import { useCategoriesControllerFindAll } from '@repo/api-client'
 import { useCatalogFilters } from '@/src/hooks/useCatalogFilters'
+import { useFavoritesStore } from '@/src/store/useFavoritesStore'
 
 type NavAction = {
   href: string
@@ -129,10 +130,17 @@ export const Header: React.FC = () => {
   const isUnauthenticated = status === 'unauthenticated'
   const isCatalog = pathname === catalogPath
 
+  const favoritesCount = useFavoritesStore((s) => s.items.length)
+
   const actions: NavAction[] = useMemo(
     () => [
       { href: '/catalog', label: 'Каталог', icon: <LayoutGrid /> },
-      { href: '/profile/favorites', label: 'Обране', icon: <Heart />, badge: 0 },
+      {
+        href: '/profile/favorites',
+        label: 'Обране',
+        icon: <Heart />,
+        badge: favoritesCount,
+      },
       { href: '/cart', label: 'Кошик', icon: <CartBadge /> },
       isUnauthenticated
         ? { href: '/login', label: 'Вхід', icon: <LogIn /> }
@@ -141,7 +149,7 @@ export const Header: React.FC = () => {
         ? [{ href: '/admin/products', label: 'Адмін', icon: <Settings /> }]
         : []),
     ],
-    [isAdmin, isUnauthenticated],
+    [isAdmin, isUnauthenticated, favoritesCount],
   )
 
   return (
