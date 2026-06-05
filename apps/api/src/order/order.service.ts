@@ -9,7 +9,7 @@ import { OrderModel } from './dto/order.model'
 import { UserId } from 'generated/prisma/types'
 import { ShippingAddressDto } from './dto/order.dto'
 import { toShippingAddressDto } from './util/order.util'
-import { Prisma, Role } from 'generated/prisma/client'
+import { Prisma } from 'generated/prisma/client'
 import { PromoService } from '../promo/promo.service'
 
 export type CreateOrder = {
@@ -23,7 +23,6 @@ export type GetOrder = {
 
 type FindAllByUserArgs = {
   userId: UserId
-  role: Role
 }
 
 @Injectable()
@@ -156,25 +155,15 @@ export class OrderService {
     }
   }
 
-  async findAllByUser({
-    userId,
-    role,
-  }: FindAllByUserArgs): Promise<OrderModel[]> {
-    const orders =
-      role === Role.admin
-        ? await this.prisma.order.findMany({
-            include: {
-              Items: true,
-            },
-          })
-        : await this.prisma.order.findMany({
-            where: {
-              userId,
-            },
-            include: {
-              Items: true,
-            },
-          })
+  async findAllByUser({ userId }: FindAllByUserArgs): Promise<OrderModel[]> {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        Items: true,
+      },
+    })
 
     return orders.map((order) => ({
       ...order,
