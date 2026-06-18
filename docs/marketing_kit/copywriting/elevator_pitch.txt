@@ -1,11 +1,11 @@
-Знаєш це відчуття - забрав замовлення, а вже вдома зрозумів, що забув кабель чи батарейки?
-Але чому так? Чого не вистачає? Де шукати підказку?
+English version
+[HOOK]  "Up to 70% of online shopping carts get abandoned — and the number-one reason is a checkout that's slow, cluttered, or full of distractions."
+[PROBLEM]  For small sellers, today's options are a trap: marketplaces like Rozetka take high commissions and bury your brand in ads, while store builders like Shopify cost money and take days to set up.
+[SOLUTION + USP]  NestHub is a minimalist e-commerce platform that lets small sellers launch a clean, fast online store in minutes — no ad noise, no setup headache. Our Smart Cart shows shoppers personalized savings and bundle suggestions right in the cart, at zero extra clicks, lifting the average order value. It's built on a modern, type-safe stack with a transaction-safe checkout, so no order is ever lost.
+[CTA]  We're opening early access for the first sellers. Let me send you the demo link — I'd love your feedback.
 
-NestHub вирішує це. Ми створили розумний кошик із динамічною мапою сумісності, якої немає В інших магазинах. 
-Вона показує, що купують разом із твоїм товаром.
-
-Додаєш товар прямо в кошику бачиш, які аксесуари чи доповнення обирають інші найчастіше.
-Плюс - оцінки сумісності спільноти та готові паки в один клік.
-
-NestHub допомагає легко знаходити найкращі комбінації товapiв.
-Обирай. Додавай. Комплектуй. Спробуй зараз!
+Українська версія
+[ГАЧОК]  "До 70% онлайн-кошиків так і не доходять до оплати — і головна причина це повільний, перевантажений checkout."
+[ПРОБЛЕМА]  Малі продавці у пастці: маркетплейси беруть високу комісію та розчиняють бренд у рекламі, а конструктори на кшталт Shopify коштують грошей і потребують днів на налаштування.
+[РІШЕННЯ + USP]  NestHub — це мінімалістична e-commerce платформа, яка дозволяє малому продавцю запустити чисту й швидку вітрину за лічені хвилини, без рекламного шуму. Наш Smart Cart показує покупцю персональні підказки та економію прямо в кошику за 0 кліків, підвищуючи середній чек. Усе на сучасному type-safe стеку з транзакційно безпечним checkout — жодне замовлення не губиться.
+[ЗАКЛИК]  Ми відкриваємо ранній доступ для перших продавців. Дозвольте надіслати вам посилання на демо — буду вдячний за фідбек.
