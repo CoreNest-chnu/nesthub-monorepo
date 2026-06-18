@@ -2,6 +2,8 @@
 
 # 🛒 NestHub
 
+## NestHub - швидкі покупки без зайвого шуму
+
 ### Simplified E-commerce Platform
 
 A full-stack e-commerce web application inspired by platforms like Rozetka — with reduced complexity and a focus on core functionality. Built as a Turborepo monorepo with **NestJS**, **Next.js**, **Prisma** and **Bun**.
@@ -63,13 +65,19 @@ The system follows a **Swagger-first** workflow: the NestJS API exposes an OpenA
 
 ## ✨ Features
 
-| Domain | Capabilities |
-| ------ | ------------ |
-| 🔐 **Authentication & Profile** | Email/password registration, JWT login, view & edit profile, role-based access (user / admin) |
-| 🗂️ **Product Catalog** | Paginated catalog, category filtering, keyword search, product detail pages, stock indicator |
-| 🛒 **Shopping Cart** | Add / update / remove items, quantity & stock validation, live total recalculation |
-| 📦 **Checkout & Orders** | Order creation from cart (transactional), stock deduction, order history & details |
-| 🛠️ **Admin Panel** | Create / edit products & categories, manage orders and statuses (admin only) |
+Not just *what* we built — *why* it matters to you.
+
+- 🔐 **Secure by default** — your account and orders stay protected with modern JWT authentication and bcrypt-hashed passwords. Admins and shoppers each see only what they should.
+
+- ⚡ **Find it in seconds** — a clean, paginated catalog with instant keyword search and category filters. No clutter, no ads — just the products you came for.
+
+- 🛒 **A cart that keeps up** — add, update or remove items with live total recalculation and real-time stock validation, so you never order what's already sold out.
+
+- 📦 **Checkout you can trust** — orders are placed in a single atomic transaction: stock is reserved, totals are locked in, and nothing is ever half-saved. Full order history at your fingertips.
+
+- 🛠️ **Effortless store management** — admins create and edit products, organize categories and move orders through their lifecycle from one focused panel — no technical skills required.
+
+- 📱 **Fast on every screen** — built mobile-first with Next.js, the storefront loads quickly and stays smooth on phones, tablets and desktop alike.
 
 ---
 
@@ -130,7 +138,7 @@ The API client is regenerated from the live Swagger schema on every dev start, s
 | -------- | ---- |
 | 📦 Repository | [github.com/CoreNest-chnu/nesthub-monorepo](https://github.com/CoreNest-chnu/nesthub-monorepo) |
 | 🗒️ Task Board (GitHub Projects) | _[https://github.com/orgs/CoreNest-chnu/projects/1]_ |
-| 🧠 Project Hub (Notion) | _[https://app.notion.com/p/NestHub-33e321913bcb80cd8591f24cf5d75c18]_ |
+| 🧠 Project Hub (Google Sheets) | _[https://docs.google.com/spreadsheets/d/1xUPwYCB6tE__XCiah64SztjmMk4ZOaaWS0KeNPz7UIk/edit?gid=0#gid=0]_ |
 | 🎨 UI Prototypes (Figma) | _[https://www.figma.com/design/2ELKLGyUynEiB1fLZRPmVQ/CoreNest-%E2%80%94-Low-Fi-Wireframes?node-id=0-1&p=f&t=o8wdZVdseNPCCmIM-0]_ |
 | 🧩 User Flow (FigJam) | _[https://www.figma.com/board/RS55t5oy2aixwTqsJAovk5/CoreNest-%E2%80%94-User-Flow-Map?node-id=0-1&p=f&t=i5vUBF6P5iCpVaco-0]_ |
 | 📚 API Docs (Swagger UI) | `http://localhost:8000/docs` _(local, after start)_ |
