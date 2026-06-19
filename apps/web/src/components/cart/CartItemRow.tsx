@@ -99,10 +99,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
         isRemoving ? 'opacity-0' : 'opacity-100'
       }`}
     >
-      <div className={'flex items-center gap-4'}>
+      <div className={'flex items-center gap-3 sm:gap-4 flex-wrap'}>
         <div
           className={
-            'w-16 h-16 bg-gray-100 rounded-lg shrink-0 relative overflow-hidden'
+            'w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-lg shrink-0 relative overflow-hidden'
           }
         >
           {product.imageUrl ? (
@@ -124,7 +124,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
           )}
         </div>
 
-        <div className={'flex-1 min-w-0'}>
+        <div className={'flex-1 min-w-[140px]'}>
           <Link
             href={`/products/${item.productId}`}
             className={'text-sm text-blue-600 hover:underline line-clamp-2'}

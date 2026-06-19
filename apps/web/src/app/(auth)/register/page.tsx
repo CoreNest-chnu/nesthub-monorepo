@@ -74,10 +74,10 @@ export const RegisterPage: React.FC = () => {
   }, [toggleShowConfirm])
 
   return (
-    <div className={'flex-1 bg-gray-100 flex items-center justify-center p-6'}>
+    <div className={'flex-1 bg-gray-100 flex items-center justify-center px-4 py-8 sm:p-6'}>
       <div
         className={
-          'w-full max-w-[480px] bg-white rounded-2xl border border-gray-200 p-10 shadow-md'
+          'w-full max-w-[480px] bg-white rounded-2xl border border-gray-200 p-5 sm:p-10 shadow-md'
         }
       >
         <div className={'text-center mb-7'}>

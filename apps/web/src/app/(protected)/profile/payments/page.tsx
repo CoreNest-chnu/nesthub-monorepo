@@ -121,7 +121,7 @@ export default function PaymentsPage() {
 
   return (
     <main className={'mx-auto flex max-w-3xl flex-col gap-4'}>
-      <h1 className={'mb-2 text-3xl font-bold text-black'}>
+      <h1 className={'mb-2 text-2xl font-bold text-black sm:text-3xl'}>
         {'Способи оплати'}
       </h1>
 

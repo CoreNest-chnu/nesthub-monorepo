@@ -117,7 +117,7 @@ export default function AdminProductsPage() {
             'bg-white rounded-2xl border border-gray-200 overflow-hidden'
           }
         >
-          <div className={'p-8 text-center text-sm text-gray-500'}>
+          <div className={'p-5 sm:p-8 text-center text-sm text-gray-500'}>
             {'Завантаження…'}
           </div>
         </div>
@@ -127,12 +127,16 @@ export default function AdminProductsPage() {
 
   return (
     <div className={'flex flex-col gap-4'}>
-      <div className={'flex items-center justify-between'}>
+      <div
+        className={
+          'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
+        }
+      >
         <h2 className={'text-lg font-semibold text-gray-900'}>{'Товари'}</h2>
         <Link
           href={'/admin/products/create'}
           className={
-            'px-4 h-9 inline-flex items-center rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors'
+            'px-4 h-9 inline-flex items-center justify-center rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors'
           }
         >
           {'+ Додати товар'}
@@ -143,11 +147,13 @@ export default function AdminProductsPage() {
         className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}
       >
         {products.length === 0 ? (
-          <div className={'p-8 text-center text-sm text-gray-500'}>
+          <div className={'p-5 sm:p-8 text-center text-sm text-gray-500'}>
             {'Товарів немає'}
           </div>
         ) : (
-          <Table data={products} columns={columns} borderless />
+          <div className={'overflow-x-auto'}>
+            <Table data={products} columns={columns} borderless />
+          </div>
         )}
       </div>
 

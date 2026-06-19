@@ -24,7 +24,8 @@ import {
 import { isValidImageUrl } from '@/src/utils/url.util'
 
 const inputClass = (hasError: boolean) =>
-  `w-full border rounded-lg px-3 h-[42px] text-sm outline-none font-[inherit] text-gray-900 bg-white ${hasError ? 'border-red-400 bg-red-50' : 'border-gray-300'
+  `w-full border rounded-lg px-3 h-[42px] text-sm outline-none font-[inherit] text-gray-900 bg-white ${
+    hasError ? 'border-red-400 bg-red-50' : 'border-gray-300'
   }`
 
 const EditProductPage: React.FC = () => {
@@ -98,7 +99,9 @@ const EditProductPage: React.FC = () => {
             imageUrl: values.imageUrl !== '' ? values.imageUrl : undefined,
           },
         })
-        await queryClient.invalidateQueries({ queryKey: getProductControllerFindbyIdQueryKey(id) })
+        await queryClient.invalidateQueries({
+          queryKey: getProductControllerFindbyIdQueryKey(id),
+        })
         toast.success('Товар оновлено')
         router.push(`/products/${id}`)
       } catch (err) {
@@ -112,7 +115,11 @@ const EditProductPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className={'min-h-screen bg-gray-50 p-6 flex items-center justify-center'}>
+      <div
+        className={
+          'min-h-screen bg-gray-50 p-6 flex items-center justify-center'
+        }
+      >
         <p className={'text-sm text-gray-500'}>{'Завантаження…'}</p>
       </div>
     )
@@ -120,11 +127,17 @@ const EditProductPage: React.FC = () => {
 
   if (!product) {
     return (
-      <div className={'min-h-screen bg-gray-50 p-6 flex flex-col items-center justify-center gap-4'}>
+      <div
+        className={
+          'min-h-screen bg-gray-50 p-6 flex flex-col items-center justify-center gap-4'
+        }
+      >
         <p className={'text-sm text-gray-700'}>{'Товар не знайдено'}</p>
         <Link
           href={'/admin/products'}
-          className={'px-5 h-10 inline-flex items-center rounded-lg bg-gray-900 text-white text-sm font-medium'}
+          className={
+            'px-5 h-10 inline-flex items-center rounded-lg bg-gray-900 text-white text-sm font-medium'
+          }
         >
           {'До списку товарів'}
         </Link>
@@ -133,7 +146,7 @@ const EditProductPage: React.FC = () => {
   }
 
   return (
-    <div className={'min-h-screen bg-gray-50 p-6'}>
+    <div className={'min-h-screen bg-gray-50 p-5 sm:p-6'}>
       <div className={'max-w-[800px] mx-auto'}>
         <div className={'flex items-center gap-3 mb-6'}>
           <Link
@@ -159,10 +172,14 @@ const EditProductPage: React.FC = () => {
         >
           <div
             className={
-              'bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4'
+              'bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 flex flex-col gap-4'
             }
           >
-            <h2 className={'text-sm font-semibold text-gray-700 uppercase tracking-wide'}>
+            <h2
+              className={
+                'text-sm font-semibold text-gray-700 uppercase tracking-wide'
+              }
+            >
               {'Основна інформація'}
             </h2>
 
@@ -190,14 +207,15 @@ const EditProductPage: React.FC = () => {
                 {...register('description')}
                 rows={3}
                 placeholder={"Опис товару (необов'язково)"}
-                className={`w-full border rounded-lg px-3 py-2 text-sm outline-none font-[inherit] text-gray-900 bg-white resize-none ${errors.description
+                className={`w-full border rounded-lg px-3 py-2 text-sm outline-none font-[inherit] text-gray-900 bg-white resize-none ${
+                  errors.description
                     ? 'border-red-400 bg-red-50'
                     : 'border-gray-300'
-                  }`}
+                }`}
               />
             </Field>
 
-            <div className={'grid grid-cols-2 gap-4'}>
+            <div className={'grid grid-cols-1 sm:grid-cols-2 gap-4'}>
               <Field
                 htmlFor={'price'}
                 label={'Ціна (₴)'}
@@ -253,10 +271,14 @@ const EditProductPage: React.FC = () => {
 
           <div
             className={
-              'bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4'
+              'bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 flex flex-col gap-4'
             }
           >
-            <h2 className={'text-sm font-semibold text-gray-700 uppercase tracking-wide'}>
+            <h2
+              className={
+                'text-sm font-semibold text-gray-700 uppercase tracking-wide'
+              }
+            >
               {'Зображення'}
             </h2>
 
@@ -289,23 +311,27 @@ const EditProductPage: React.FC = () => {
                 />
               ) : (
                 <div
-                  className={
-                    'flex flex-col items-center gap-2 text-gray-400'
-                  }
+                  className={'flex flex-col items-center gap-2 text-gray-400'}
                 >
                   <ImageIcon size={32} strokeWidth={1.5} />
-                  <span className={'text-xs'}>{'Попередній перегляд зображення'}</span>
+                  <span className={'text-xs'}>
+                    {'Попередній перегляд зображення'}
+                  </span>
                 </div>
               )}
             </div>
           </div>
 
-          <div className={'flex items-center justify-end gap-3'}>
+          <div
+            className={
+              'flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end'
+            }
+          >
             <button
               type={'button'}
               onClick={handleCancel}
               className={
-                'px-5 h-10 inline-flex items-center rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors font-[inherit] bg-white cursor-pointer'
+                'px-5 h-10 inline-flex items-center justify-center rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors font-[inherit] bg-white cursor-pointer'
               }
             >
               {'Скасувати'}
@@ -313,10 +339,11 @@ const EditProductPage: React.FC = () => {
             <button
               type={'submit'}
               disabled={isPending}
-              className={`px-5 h-10 rounded-lg text-sm font-medium border-none font-[inherit] transition-colors ${isPending
+              className={`px-5 h-10 rounded-lg text-sm font-medium border-none font-[inherit] transition-colors ${
+                isPending
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-gray-900 text-white hover:bg-gray-800 cursor-pointer'
-                }`}
+              }`}
             >
               {isPending ? 'Збереження…' : 'Зберегти'}
             </button>

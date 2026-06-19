@@ -244,7 +244,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
           <p className={'text-sm text-gray-600'}>
             {'Дякуємо за покупку — деталі надішлемо на пошту.'}
           </p>
-          <div className={'flex gap-3 mt-2'}>
+          <div className={'flex flex-wrap justify-center gap-3 mt-2'}>
             <Link
               href={`/profile/orders/${id}`}
               className={
@@ -276,7 +276,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
         {'← Назад до замовлення'}
       </Link>
 
-      <h1 className={'text-3xl font-bold text-black'}>{'Оплата'}</h1>
+      <h1 className={'text-2xl font-bold text-black sm:text-3xl'}>{'Оплата'}</h1>
 
       {order && (
         <p className={'text-sm text-gray-600'}>
@@ -290,7 +290,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={
-          'bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-5'
+          'bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 flex flex-col gap-5'
         }
       >
         {cards.length > 0 && (

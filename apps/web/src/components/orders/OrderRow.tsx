@@ -19,11 +19,11 @@ export const OrderRow = ({ order }: OrderRowProps) => {
   return (
     <div
       className={
-        'flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-5'
+        'flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5'
       }
     >
       <div className={'flex flex-col gap-2'}>
-        <div className={'flex items-center gap-3'}>
+        <div className={'flex flex-wrap items-center gap-2 sm:gap-3'}>
           <h3 className={'font-semibold text-black'}>
             {`Замовлення #${order.id.slice(0, 8)}`}
           </h3>

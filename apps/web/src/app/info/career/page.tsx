@@ -50,10 +50,10 @@ export default function CareerPage() {
   ]
 
   return (
-    <div className={'max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-10'}>
+    <div className={'max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-6 sm:gap-10'}>
       {/* Hero */}
       <div className={'text-center'}>
-        <h1 className={'text-3xl font-bold text-gray-900'}>{'Кар\'єра в CoreNest'}</h1>
+        <h1 className={'text-2xl sm:text-3xl font-bold text-gray-900'}>{'Кар\'єра в CoreNest'}</h1>
         <p className={'mt-3 text-gray-500 max-w-2xl mx-auto'}>
           {'Приєднуйтесь до нашої команди і розвивайтесь разом з компанією, яка змінює ринок товарів для дому.'}
         </p>
@@ -71,7 +71,7 @@ export default function CareerPage() {
       </div>
 
       {/* Переваги */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Що ми пропонуємо'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-2 gap-3'}>
           {perks.map((perk) => (
@@ -84,7 +84,7 @@ export default function CareerPage() {
       </div>
 
       {/* Вакансії */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Відкриті вакансії'}</h2>
         <div className={'flex flex-col gap-4'}>
           {vacancies.map(({ title, department, type, requirements }) => (
@@ -113,7 +113,7 @@ export default function CareerPage() {
       </div>
 
       {/* Процес відбору */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Процес відбору'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'}>
           {steps.map(({ num, title, desc }) => (
@@ -129,7 +129,7 @@ export default function CareerPage() {
       </div>
 
       {/* HR контакти */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-4'}>{'Контакти HR-відділу'}</h2>
         <p className={'text-sm text-gray-600'}>{'Email: '}<span className={'text-blue-600'}>{'hr@nesthub.ua'}</span></p>
         <p className={'text-sm text-gray-600 mt-1'}>{'Телефон: +38 (096) 743-82-37'}</p>

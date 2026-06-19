@@ -197,12 +197,12 @@ export const CheckoutView: React.FC = () => {
   )
 
   return (
-    <div className={'min-h-screen bg-gray-50 p-6'}>
+    <div className={'min-h-screen bg-gray-50 p-4 sm:p-6'}>
       <div className={'max-w-[1200px] mx-auto'}>
         <StepIndicator current={mode === 'review' ? 2 : 1} />
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className={'flex gap-6 items-start'}>
+          <div className={'flex flex-col gap-6 lg:flex-row lg:items-start'}>
             <div className={'flex-1 flex flex-col gap-6'}>
               {hasOverStock && (
                 <div
@@ -217,7 +217,9 @@ export const CheckoutView: React.FC = () => {
               <CartItemsList items={cartItems} />
 
               <section
-                className={'bg-white rounded-2xl border border-gray-200 p-6'}
+                className={
+                  'bg-white rounded-2xl border border-gray-200 p-4 sm:p-6'
+                }
               >
                 <div className={'flex items-center justify-between mb-5'}>
                   <h2 className={'text-base font-semibold text-gray-900'}>
@@ -255,7 +257,9 @@ export const CheckoutView: React.FC = () => {
 
                 <div
                   className={
-                    mode === 'review' ? 'hidden' : 'grid grid-cols-2 gap-4'
+                    mode === 'review'
+                      ? 'hidden'
+                      : 'grid grid-cols-1 sm:grid-cols-2 gap-4'
                   }
                 >
                   <label className={'block'}>
@@ -288,7 +292,7 @@ export const CheckoutView: React.FC = () => {
                     )}
                   </label>
 
-                  <label className={'block col-span-2'}>
+                  <label className={'block sm:col-span-2'}>
                     <span className={'block text-sm text-gray-700 mb-1'}>
                       {'Вулиця'}
                       <span className={'text-red-500'}>{'*'}</span>
@@ -330,7 +334,11 @@ export const CheckoutView: React.FC = () => {
                 </div>
 
                 {mode === 'review' && reviewData && (
-                  <dl className={'grid grid-cols-2 gap-x-4 gap-y-3 text-sm'}>
+                  <dl
+                    className={
+                      'grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm'
+                    }
+                  >
                     <div>
                       <dt className={'text-gray-500'}>{'Місто'}</dt>
                       <dd className={'text-gray-900 font-medium'}>
@@ -343,7 +351,7 @@ export const CheckoutView: React.FC = () => {
                         {reviewData.zip}
                       </dd>
                     </div>
-                    <div className={'col-span-2'}>
+                    <div className={'sm:col-span-2'}>
                       <dt className={'text-gray-500'}>{'Вулиця'}</dt>
                       <dd className={'text-gray-900 font-medium'}>
                         {reviewData.street}

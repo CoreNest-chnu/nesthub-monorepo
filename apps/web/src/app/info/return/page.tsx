@@ -32,15 +32,15 @@ export default function ReturnPage() {
   ]
 
   return (
-    <div className={'max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-10'}>
+    <div className={'max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-6 sm:gap-10'}>
       {/* Hero */}
       <div className={'text-center'}>
-        <h1 className={'text-3xl font-bold text-gray-900'}>{'Повернення товару'}</h1>
+        <h1 className={'text-2xl sm:text-3xl font-bold text-gray-900'}>{'Повернення товару'}</h1>
         <p className={'mt-3 text-gray-500'}>{'Ми хочемо, щоб ви були задоволені покупкою. Якщо щось пішло не так — ми допоможемо.'}</p>
       </div>
 
       {/* Умови повернення */}
-      <div className={'bg-blue-50 border border-blue-100 rounded-2xl p-8'}>
+      <div className={'bg-blue-50 border border-blue-100 rounded-2xl p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-3'}>{'14 днів на повернення'}</h2>
         <p className={'text-sm text-gray-600 leading-relaxed'}>
           {'Відповідно до законодавства України, ви маєте право повернути товар належної якості протягом 14 днів з моменту отримання, якщо він не підійшов за розміром, формою, габаритами, фасоном, кольором або комплектацією. Товар має бути у первісному стані зі збереженням усіх ярликів, пломб та оригінальної упаковки.'}
@@ -48,7 +48,7 @@ export default function ReturnPage() {
       </div>
 
       {/* Товари що не підлягають поверненню */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Товари, що не підлягають поверненню'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-2 gap-2'}>
           {excluded.map((item) => (
@@ -61,7 +61,7 @@ export default function ReturnPage() {
       </div>
 
       {/* Процес повернення */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Як повернути товар'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'}>
           {steps.map(({ num, title, desc }) => (
@@ -77,7 +77,7 @@ export default function ReturnPage() {
       </div>
 
       {/* Вартість повернення */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-4'}>{'Вартість повернення'}</h2>
         <div className={'flex flex-col gap-4'}>
           <div className={'flex items-start gap-3 p-4 rounded-xl bg-green-50 border border-green-100'}>
@@ -98,7 +98,7 @@ export default function ReturnPage() {
       </div>
 
       {/* Контакти */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-4'}>{'Маєте запитання?'}</h2>
         <p className={'text-sm text-gray-600'}>{'Email: '}<span className={'text-blue-600'}>{'returns@nesthub.ua'}</span></p>
         <p className={'text-sm text-gray-600 mt-1'}>{'Телефон: +38 (096) 743-82-35'}</p>

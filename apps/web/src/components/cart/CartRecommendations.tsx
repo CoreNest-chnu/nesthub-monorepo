@@ -123,12 +123,12 @@ export const CartRecommendations: React.FC = () => {
 
   return (
     <section
-      className={'flex-1 bg-white rounded-2xl border border-gray-200 p-6'}
+      className={'flex-1 bg-white rounded-2xl border border-gray-200 p-4 sm:p-6'}
     >
       <h2 className={'text-base font-semibold text-gray-900 mb-4'}>
         {'Часто купують разом'}
       </h2>
-      <div className={'grid grid-cols-3 gap-3'}>
+      <div className={'grid grid-cols-2 sm:grid-cols-3 gap-3'}>
         {products.map((product) => (
           <RecommendationCard
             key={product.id}

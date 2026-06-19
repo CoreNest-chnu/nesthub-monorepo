@@ -6,7 +6,7 @@ import Link from 'next/link'
 export const EmptyCart: React.FC = () => (
   <div
     className={
-      'flex flex-col items-center justify-center gap-4 py-20 text-center'
+      'flex flex-col items-center justify-center gap-4 py-12 sm:py-20 px-4 text-center'
     }
   >
     <ShoppingCart size={48} className={'text-gray-300'} />

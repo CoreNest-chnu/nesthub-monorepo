@@ -68,9 +68,9 @@ export const CartView: React.FC = () => {
   )
 
   return (
-    <div className={'min-h-screen bg-gray-50 p-6'}>
+    <div className={'min-h-screen bg-gray-50 p-4 sm:p-6'}>
       <div className={'max-w-[1200px] mx-auto'}>
-        <h1 className={'text-2xl font-semibold text-gray-900 mb-1'}>
+        <h1 className={'text-xl sm:text-2xl font-semibold text-gray-900 mb-1'}>
           {'Кошик'}
         </h1>
         <p
@@ -79,7 +79,7 @@ export const CartView: React.FC = () => {
 
         <StepIndicator />
 
-        <div className={'flex gap-6 items-start'}>
+        <div className={'flex flex-col gap-6 lg:flex-row lg:items-start'}>
           <div className={'flex-1 flex flex-col gap-6'}>
             <CartItemsList items={cartItems} />
             <CartRecommendations />

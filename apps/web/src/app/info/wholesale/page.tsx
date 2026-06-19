@@ -31,23 +31,23 @@ export default function WholesalePage() {
   ]
 
   return (
-    <div className={'max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-10'}>
+    <div className={'max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-6 sm:gap-10'}>
       {/* Hero */}
       <div className={'text-center'}>
-        <h1 className={'text-3xl font-bold text-gray-900'}>{'Оптові закупівлі'}</h1>
+        <h1 className={'text-2xl sm:text-3xl font-bold text-gray-900'}>{'Оптові закупівлі'}</h1>
         <p className={'mt-3 text-gray-500 max-w-2xl mx-auto'}>
           {'Понад 500 оптових клієнтів вже обирають NestHub для свого бізнесу. Станьте частиною нашої ділової спільноти.'}
         </p>
       </div>
 
       {/* Спеціальна пропозиція */}
-      <div className={'bg-gradient-to-r from-gray-900 to-gray-700 rounded-2xl p-8 text-white'}>
+      <div className={'bg-gradient-to-r from-gray-900 to-gray-700 rounded-2xl p-5 sm:p-8 text-white'}>
         <h2 className={'text-xl font-bold mb-2'}>{'Спеціальна пропозиція для нових оптових партнерів'}</h2>
         <p className={'text-gray-300 text-sm'}>{'Додаткова знижка 7% на перше замовлення від 50 000 грн. Пропозиція діє протягом перших 30 днів після реєстрації.'}</p>
       </div>
 
       {/* Переваги */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Переваги оптових закупівель'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'}>
           {benefits.map(({ icon, title, desc }) => (
@@ -63,7 +63,7 @@ export default function WholesalePage() {
       </div>
 
       {/* Рівні знижок */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Система знижок'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'}>
           {tiers.map(({ name, min, discount, color, badge }) => (
@@ -83,7 +83,7 @@ export default function WholesalePage() {
       </div>
 
       {/* Процес */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Як стати оптовим клієнтом'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'}>
           {steps.map(({ num, title, desc }) => (
@@ -99,7 +99,7 @@ export default function WholesalePage() {
       </div>
 
       {/* Документи */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Необхідні документи'}</h2>
         <ul className={'flex flex-col gap-2'}>
           {documents.map((doc) => (
@@ -112,7 +112,7 @@ export default function WholesalePage() {
       </div>
 
       {/* Контакти */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-4'}>{'Відділ оптових продажів'}</h2>
         <p className={'text-sm text-gray-600'}>{'Email: '}<span className={'text-blue-600'}>{'wholesale@nesthub.ua'}</span></p>
         <p className={'text-sm text-gray-600 mt-1'}>{'Телефон: +38 (096) 743-82-36'}</p>

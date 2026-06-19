@@ -21,7 +21,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
   }, [])
 
   return (
-    <div className={'flex items-center mb-8'}>
+    <div className={'flex items-center mb-6 sm:mb-8'}>
       {steps.map((step, i) => {
         const isPast = i < current
         const isActive = i === current
@@ -33,13 +33,13 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
         return (
           <div key={step} className={'flex items-center flex-1 last:flex-none'}>
             <div
-              className={`flex items-center gap-2 ${
+              className={`flex items-center gap-1.5 sm:gap-2 ${
                 isActive || isPast ? 'text-gray-900' : 'text-gray-400'
               }`}
             >
               <span
                 className={
-                  'flex items-center justify-center w-7 h-7 rounded-full text-sm font-semibold'
+                  'flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full text-xs sm:text-sm font-semibold shrink-0'
                 }
                 style={{
                   backgroundColor: isActive || isPast ? '#111827' : '#e5e7eb',
@@ -56,13 +56,15 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
               >
                 {i + 1}
               </span>
-              <span className={'text-sm'}>{step}</span>
+              <span className={'text-xs sm:text-sm whitespace-nowrap'}>
+                {step}
+              </span>
             </div>
 
             {i < steps.length - 1 && (
               <div
                 className={
-                  'flex-1 h-px bg-gray-200 mx-3 relative overflow-hidden'
+                  'flex-1 h-px bg-gray-200 mx-1.5 sm:mx-3 relative overflow-hidden'
                 }
               >
                 {isPast && (

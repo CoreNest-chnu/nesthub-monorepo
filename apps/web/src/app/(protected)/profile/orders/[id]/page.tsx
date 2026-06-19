@@ -64,7 +64,7 @@ export default function OrderPage({ params }: OrderPageProps) {
       </Link>
 
       <div className={'flex items-center gap-3 flex-wrap'}>
-        <h1 className={'text-3xl font-bold text-black'}>
+        <h1 className={'text-2xl font-bold text-black sm:text-3xl'}>
           {`Замовлення #${order.id.slice(0, 8)}`}
         </h1>
         <StatusBadge status={order.status} />
@@ -85,7 +85,7 @@ export default function OrderPage({ params }: OrderPageProps) {
         </Link>
       )}
 
-      <section className={'bg-white rounded-2xl border border-gray-200 p-6'}>
+      <section className={'bg-white rounded-2xl border border-gray-200 p-4 sm:p-6'}>
         <h2 className={'text-base font-semibold text-gray-900 mb-4'}>
           {`Товари (${itemsCount})`}
         </h2>
@@ -138,11 +138,11 @@ export default function OrderPage({ params }: OrderPageProps) {
         </div>
       </section>
 
-      <section className={'bg-white rounded-2xl border border-gray-200 p-6'}>
+      <section className={'bg-white rounded-2xl border border-gray-200 p-4 sm:p-6'}>
         <h2 className={'text-base font-semibold text-gray-900 mb-4'}>
           {'Адреса доставки'}
         </h2>
-        <dl className={'grid grid-cols-2 gap-x-4 gap-y-3 text-sm'}>
+        <dl className={'grid grid-cols-1 gap-x-4 gap-y-3 text-sm sm:grid-cols-2'}>
           <div>
             <dt className={'text-gray-500'}>{'Місто'}</dt>
             <dd className={'text-gray-900 font-medium'}>

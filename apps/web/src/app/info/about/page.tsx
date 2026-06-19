@@ -29,17 +29,17 @@ export default function AboutPage() {
   ]
 
   return (
-    <div className={'max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-10'}>
+    <div className={'max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-6 sm:gap-10'}>
       {/* Hero */}
       <div className={'text-center'}>
-        <h1 className={'text-3xl font-bold text-gray-900'}>{'Про компанію CoreNest'}</h1>
+        <h1 className={'text-2xl sm:text-3xl font-bold text-gray-900'}>{'Про компанію CoreNest'}</h1>
         <p className={'mt-3 text-gray-500 max-w-2xl mx-auto'}>
           {'Ми — українська компанія, що спеціалізується на продажу товарів для дому та офісу. Наша місія — зробити ваш простір комфортним та затишним.'}
         </p>
       </div>
 
       {/* Хто ми */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-4'}>{'Хто ми'}</h2>
         <p className={'text-gray-600 leading-relaxed'}>
           {'CoreNest — це команда однодумців, яка вірить, що кожен заслуговує на красивий та зручний дім. Ми ретельно відбираємо кожен товар, співпрацюємо лише з перевіреними виробниками та постачальниками, щоб ви отримували лише найкраще. З 2020 року ми допомогли понад 50 000 клієнтам знайти товари, які роблять їхнє життя кращим.'}
@@ -47,12 +47,12 @@ export default function AboutPage() {
       </div>
 
       {/* Наші досягнення */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Наші досягнення'}</h2>
-        <div className={'grid grid-cols-3 gap-6'}>
+        <div className={'grid grid-cols-1 sm:grid-cols-3 gap-6'}>
           {stats.map(({ value, label, color }) => (
             <div key={label} className={'text-center'}>
-              <p className={`text-4xl font-bold ${color}`}>{value}</p>
+              <p className={`text-3xl sm:text-4xl font-bold ${color}`}>{value}</p>
               <p className={'mt-1 text-sm text-gray-500'}>{label}</p>
             </div>
           ))}
@@ -60,7 +60,7 @@ export default function AboutPage() {
       </div>
 
       {/* Наші цінності */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Наші цінності'}</h2>
         <div className={'grid grid-cols-2 gap-4 sm:grid-cols-4'}>
           {values.map(({ icon, title, desc }) => (
@@ -74,7 +74,7 @@ export default function AboutPage() {
       </div>
 
       {/* Наша історія */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Наша історія'}</h2>
         <div className={'flex flex-col gap-0'}>
           {timeline.map(({ year, title, desc, active }, i) => (
@@ -94,7 +94,7 @@ export default function AboutPage() {
       </div>
 
       {/* Чому обирають CoreNest */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Чому обирають CoreNest'}</h2>
         <div className={'grid grid-cols-2 gap-3 sm:grid-cols-3'}>
           {reasons.map(({ title, desc }) => (

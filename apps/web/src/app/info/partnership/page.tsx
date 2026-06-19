@@ -41,10 +41,10 @@ export default function PartnershipPage() {
   ]
 
   return (
-    <div className={'max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-10'}>
+    <div className={'max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-6 sm:gap-10'}>
       {/* Hero */}
       <div className={'text-center'}>
-        <h1 className={'text-3xl font-bold text-gray-900'}>{'Партнерство з CoreNest'}</h1>
+        <h1 className={'text-2xl sm:text-3xl font-bold text-gray-900'}>{'Партнерство з CoreNest'}</h1>
         <p className={'mt-3 text-gray-500 max-w-2xl mx-auto'}>
           {'Розвивайте свій бізнес разом з нами. Оберіть формат партнерства, що підходить саме вам.'}
         </p>
@@ -70,12 +70,12 @@ export default function PartnershipPage() {
       </div>
 
       {/* Статистика */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Чому обирають нас'}</h2>
-        <div className={'grid grid-cols-3 gap-6'}>
+        <div className={'grid grid-cols-1 sm:grid-cols-3 gap-6'}>
           {stats.map(({ value, label, color }) => (
             <div key={label} className={'text-center'}>
-              <p className={`text-4xl font-bold ${color}`}>{value}</p>
+              <p className={`text-3xl sm:text-4xl font-bold ${color}`}>{value}</p>
               <p className={'mt-1 text-sm text-gray-500'}>{label}</p>
             </div>
           ))}
@@ -83,7 +83,7 @@ export default function PartnershipPage() {
       </div>
 
       {/* Процес */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Як стати партнером'}</h2>
         <div className={'flex flex-col gap-0'}>
           {processSteps.map(({ num, title, desc }, i) => (
@@ -104,10 +104,10 @@ export default function PartnershipPage() {
       </div>
 
       {/* Форма заявки */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Заявка на партнерство'}</h2>
         <form className={'flex flex-col gap-4 max-w-xl'}>
-          <div className={'grid grid-cols-2 gap-4'}>
+          <div className={'grid grid-cols-1 sm:grid-cols-2 gap-4'}>
             <div className={'flex flex-col gap-1.5'}>
               <label className={'text-sm font-medium text-gray-700'}>{'Ім\'я'}</label>
               <input type={'text'} placeholder={'Ваше ім\'я'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
@@ -142,7 +142,7 @@ export default function PartnershipPage() {
       </div>
 
       {/* Контакти */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-4'}>{'Контакти партнерського відділу'}</h2>
         <p className={'text-sm text-gray-600'}>{'Email: '}<span className={'text-blue-600'}>{'partners@nesthub.ua'}</span></p>
         <p className={'text-sm text-gray-600 mt-1'}>{'Телефон: +38 (096) 743-82-39'}</p>

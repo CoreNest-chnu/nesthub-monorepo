@@ -298,7 +298,7 @@ export default function AdminOrdersPage() {
             'bg-white rounded-2xl border border-gray-200 overflow-hidden'
           }
         >
-          <div className={'p-8 text-center text-sm text-gray-500'}>
+          <div className={'p-5 sm:p-8 text-center text-sm text-gray-500'}>
             {'Завантаження…'}
           </div>
         </div>
@@ -308,7 +308,11 @@ export default function AdminOrdersPage() {
 
   return (
     <div className={'flex flex-col gap-4'}>
-      <div className={'flex items-center justify-between'}>
+      <div
+        className={
+          'flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'
+        }
+      >
         <h2 className={'text-lg font-semibold text-gray-900'}>
           {'Замовлення'}
         </h2>
@@ -359,53 +363,55 @@ export default function AdminOrdersPage() {
       <div
         className={'bg-white rounded-sm border border-gray-200 overflow-hidden'}
       >
-        <table className={'min-w-full'}>
-          <thead className={'bg-gray-50'}>
-            <tr>
-              {[
-                '#',
-                'ID',
-                'Дата',
-                'Користувач',
-                'Товарів',
-                'Сума',
-                'Статус',
-                'Змінити',
-              ].map((h) => (
-                <th
-                  key={h}
-                  className={
-                    'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
-                  }
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.length === 0 ? (
+        <div className={'overflow-x-auto'}>
+          <table className={'min-w-full'}>
+            <thead className={'bg-gray-50'}>
               <tr>
-                <td
-                  colSpan={8}
-                  className={'px-4 py-8 text-center text-sm text-gray-500'}
-                >
-                  {'Замовлень немає'}
-                </td>
+                {[
+                  '#',
+                  'ID',
+                  'Дата',
+                  'Користувач',
+                  'Товарів',
+                  'Сума',
+                  'Статус',
+                  'Змінити',
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className={
+                      'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
+                    }
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
-            ) : (
-              paginated.map((order, i) => (
-                <OrderAdminRow
-                  key={order.id}
-                  order={order}
-                  index={(page - 1) * take + i + 1}
-                  updatingId={updatingId}
-                  onStatusChange={handleStatusChange}
-                />
-              ))
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginated.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className={'px-4 py-8 text-center text-sm text-gray-500'}
+                  >
+                    {'Замовлень немає'}
+                  </td>
+                </tr>
+              ) : (
+                paginated.map((order, i) => (
+                  <OrderAdminRow
+                    key={order.id}
+                    order={order}
+                    index={(page - 1) * take + i + 1}
+                    updatingId={updatingId}
+                    onStatusChange={handleStatusChange}
+                  />
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {totalPages > 1 && (

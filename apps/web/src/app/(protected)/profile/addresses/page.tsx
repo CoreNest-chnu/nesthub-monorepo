@@ -325,7 +325,7 @@ export default function AddressesPage() {
             </div>
           </div>
 
-          <div className={'mt-5 flex gap-3'}>
+          <div className={'mt-5 flex flex-wrap gap-3'}>
             <button
               type={'submit'}
               className={

@@ -4,9 +4,9 @@ import { Filters } from '@/src/components/products/Filters'
 
 export default function ProductsPage() {
   return (
-    <div className={'min-h-screen bg-gray-50 py-8'}>
+    <div className={'min-h-screen bg-gray-50 py-6 sm:py-8'}>
       <Container>
-        <div className={'flex gap-6'}>
+        <div className={'flex flex-col gap-6 lg:flex-row'}>
           <Filters />
           <Catalog />
         </div>

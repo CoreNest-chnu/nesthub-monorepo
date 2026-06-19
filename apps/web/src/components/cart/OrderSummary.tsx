@@ -69,8 +69,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({
   const finalTotal = promoResult ? Number(promoResult.finalTotal) : totalAmount
 
   return (
-    <div className={'w-[320px] shrink-0'}>
-      <div className={'bg-white rounded-2xl border border-gray-200 p-6'}>
+    <div className={'w-full lg:w-[320px] lg:shrink-0'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-6'}>
         <h2 className={'text-base font-semibold text-gray-900 mb-5'}>
           {'Ваше замовлення'}
         </h2>

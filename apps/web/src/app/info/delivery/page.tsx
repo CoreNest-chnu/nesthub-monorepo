@@ -52,10 +52,10 @@ export default function DeliveryPage() {
   ]
 
   return (
-    <div className={'max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-10'}>
+    <div className={'max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-6 sm:gap-10'}>
       {/* Hero */}
       <div className={'text-center'}>
-        <h1 className={'text-3xl font-bold text-gray-900'}>{'Доставка та оплата'}</h1>
+        <h1 className={'text-2xl sm:text-3xl font-bold text-gray-900'}>{'Доставка та оплата'}</h1>
         <p className={'mt-3 text-gray-500'}>{'Доставляємо по всій Україні. Оберіть зручний спосіб отримання та оплати.'}</p>
       </div>
 
@@ -72,7 +72,7 @@ export default function DeliveryPage() {
       </div>
 
       {/* Вартість доставки */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Вартість доставки'}</h2>
         <div className={'overflow-x-auto'}>
           <table className={'w-full text-sm'}>
@@ -97,7 +97,7 @@ export default function DeliveryPage() {
       </div>
 
       {/* Способи оплати */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Способи оплати'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-2 gap-4'}>
           {paymentMethods.map(({ icon, title, desc }) => (
@@ -113,7 +113,7 @@ export default function DeliveryPage() {
       </div>
 
       {/* FAQ */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Часті запитання'}</h2>
         <div className={'flex flex-col gap-5'}>
           {faq.map(({ q, a }) => (

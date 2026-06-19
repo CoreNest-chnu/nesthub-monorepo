@@ -57,7 +57,7 @@ export default function OrdersPage() {
   return (
     <main className={''}>
       <div className={'mx-auto flex max-w-5xl flex-col gap-4'}>
-        <h1 className={'mb-2 text-3xl font-bold text-black'}>
+        <h1 className={'mb-2 text-2xl font-bold text-black sm:text-3xl'}>
           {'Мої замовлення'}
         </h1>
 

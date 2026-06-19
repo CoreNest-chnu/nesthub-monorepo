@@ -28,8 +28,8 @@ const columns = [
 
 export const Footer: React.FC = () => (
   <footer className={'bg-gray-100 border-t border-gray-200'}>
-    <div className={'max-w-[1200px] mx-auto px-6 py-10'}>
-      <div className={'grid grid-cols-4 gap-8'}>
+    <div className={'max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-10'}>
+      <div className={'grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4'}>
         {columns.map(({ title, links }) => (
           <div key={title}>
             <h4 className={'text-sm font-semibold text-gray-900 mb-3'}>

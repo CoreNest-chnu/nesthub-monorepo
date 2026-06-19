@@ -44,17 +44,17 @@ export default function WarrantyPage() {
   ]
 
   return (
-    <div className={'max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-10'}>
+    <div className={'max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-6 sm:gap-10'}>
       {/* Hero */}
       <div className={'text-center'}>
-        <h1 className={'text-3xl font-bold text-gray-900'}>{'Гарантія та сервіс'}</h1>
+        <h1 className={'text-2xl sm:text-3xl font-bold text-gray-900'}>{'Гарантія та сервіс'}</h1>
         <p className={'mt-3 text-gray-500 max-w-2xl mx-auto'}>
           {'Ми надаємо офіційну гарантію на всі товари та забезпечуємо якісний сервіс протягом усього гарантійного терміну.'}
         </p>
       </div>
 
       {/* Таблиця гарантій */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Гарантійні терміни за категоріями'}</h2>
         <div className={'overflow-x-auto'}>
           <table className={'w-full text-sm'}>
@@ -111,7 +111,7 @@ export default function WarrantyPage() {
       </div>
 
       {/* Процес */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Як скористатися гарантією'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-3 gap-6'}>
           {steps.map(({ num, title, desc }) => (
@@ -127,7 +127,7 @@ export default function WarrantyPage() {
       </div>
 
       {/* Контакти */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-4'}>{'Гарантійний відділ'}</h2>
         <p className={'text-sm text-gray-600'}>{'Email: '}<span className={'text-blue-600'}>{'warranty@nesthub.ua'}</span></p>
         <p className={'text-sm text-gray-600 mt-1'}>{'Телефон: +38 (096) 743-82-38'}</p>

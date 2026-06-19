@@ -1,8 +1,8 @@
 'use client'
 
 import { useCategoriesControllerFindAll } from '@repo/api-client'
-import { Star } from 'lucide-react'
-import { useCallback } from 'react'
+import { SlidersHorizontal, Star } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { Button } from '@/src/components/ui/button'
 import { Checkbox } from '@/src/components/ui/checkbox'
 import { Input } from '@/src/components/ui/input'
@@ -233,6 +233,9 @@ export const Filters: React.FC = () => {
   const { data, isLoading } = useCategoriesControllerFindAll()
   const categories = data?.data ?? []
 
+  const [open, setOpen] = useState(false)
+  const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
+
   const hasActiveFilters =
     categoryId !== null ||
     priceFrom !== null ||
@@ -254,13 +257,26 @@ export const Filters: React.FC = () => {
   return (
     <aside
       className={
-        'w-64 shrink-0 self-start sticky top-32 max-h-[calc(100vh-9rem)] overflow-y-auto flex flex-col gap-6 p-4 border-r border-gray-200'
+        'w-full rounded-2xl border border-gray-200 bg-white p-4 lg:w-64 lg:shrink-0 lg:self-start lg:sticky lg:top-32 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:rounded-none lg:border-0 lg:border-r lg:bg-transparent lg:p-4'
       }
     >
       <div className={'flex items-center justify-between gap-2'}>
         <h2 className={'text-base font-semibold text-gray-900'}>{'Фільтри'}</h2>
+        <button
+          type={'button'}
+          onClick={toggleOpen}
+          className={
+            'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-gray-600 hover:bg-gray-100 lg:hidden'
+          }
+        >
+          <SlidersHorizontal size={16} />
+          {open ? 'Сховати' : 'Показати'}
+        </button>
       </div>
 
+      <div
+        className={`${open ? 'flex' : 'hidden'} mt-4 flex-col gap-6 lg:mt-6 lg:flex`}
+      >
       <FilterSection title={'Ціна (грн)'}>
         <div className={'flex items-center gap-2'}>
           <PriceInput
@@ -325,6 +341,7 @@ export const Filters: React.FC = () => {
           </Button>
         )}
       </FilterSection>
+      </div>
     </aside>
   )
 }

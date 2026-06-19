@@ -13,9 +13,11 @@ type Props = {
 }
 
 const ProductSkeleton: React.FC = () => (
-  <div className={'animate-pulse flex gap-10'}>
+  <div className={'animate-pulse flex flex-col gap-6 md:flex-row md:gap-10'}>
     <div
-      className={'w-[420px] shrink-0 aspect-square bg-gray-200 rounded-2xl'}
+      className={
+        'w-full md:w-[420px] md:shrink-0 aspect-square bg-gray-200 rounded-2xl'
+      }
     />
     <div className={'flex-1 flex flex-col gap-4 pt-2'}>
       <div className={'h-4 w-24 bg-gray-200 rounded'} />
@@ -90,10 +92,10 @@ export default function ProductPage({ params }: Props) {
         )}
 
         {product && (
-          <div className={'flex gap-10 items-start'}>
+          <div className={'flex flex-col gap-6 md:flex-row md:gap-10 md:items-start'}>
             <div
               className={
-                'w-[420px] shrink-0 aspect-square bg-white rounded-2xl border border-gray-200 overflow-hidden relative'
+                'w-full md:w-[420px] md:shrink-0 aspect-square bg-white rounded-2xl border border-gray-200 overflow-hidden relative'
               }
             >
               {product.imageUrl ? (
@@ -101,7 +103,7 @@ export default function ProductPage({ params }: Props) {
                   src={product.imageUrl}
                   alt={product.name}
                   fill
-                  sizes={'420px'}
+                  sizes={'(max-width: 768px) 100vw, 420px'}
                   className={'object-cover'}
                   priority
                   unoptimized

@@ -15,7 +15,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback } from 'react'
 
-const baseLinkClass = 'flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-colors'
+const baseLinkClass = 'flex shrink-0 items-center gap-2 rounded-lg px-3 py-2.5 text-sm whitespace-nowrap transition-colors'
 const activeLinkClass = 'bg-gray-900 font-medium text-white'
 const inactiveLinkClass = 'text-gray-700 hover:bg-gray-100'
 
@@ -42,10 +42,10 @@ export const ProfileSidebar = () => {
   return (
     <aside
       className={
-        'h-fit w-[260px] shrink-0 rounded-2xl border border-gray-200 bg-white p-3'
+        'h-fit w-full rounded-2xl border border-gray-200 bg-white p-3 lg:w-[260px] lg:shrink-0'
       }
     >
-      <nav className={'flex flex-col gap-1'}>
+      <nav className={'flex gap-1 overflow-x-auto lg:flex-col'}>
         {navItems.map(({ href, label, icon: Icon, exact }) => (
           <Link
             key={href}
@@ -65,7 +65,7 @@ export const ProfileSidebar = () => {
           type={'button'}
           onClick={handleSignOut}
           className={
-            'flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors'
+            'flex shrink-0 items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-red-500 whitespace-nowrap hover:bg-red-50 transition-colors'
           }
         >
           <LogOut size={16} />

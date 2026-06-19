@@ -456,7 +456,7 @@ export default function AdminCategoriesPage() {
             'bg-white rounded-2xl border border-gray-200 overflow-hidden'
           }
         >
-          <div className={'p-8 text-center text-sm text-gray-500'}>
+          <div className={'p-5 sm:p-8 text-center text-sm text-gray-500'}>
             {'Завантаження…'}
           </div>
         </div>
@@ -467,7 +467,11 @@ export default function AdminCategoriesPage() {
   return (
     <>
       <div className={'flex flex-col gap-4'}>
-        <div className={'flex items-center justify-between'}>
+        <div
+          className={
+            'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
+          }
+        >
           <h2 className={'text-lg font-semibold text-gray-900'}>
             {'Категорії'}
           </h2>
@@ -475,7 +479,7 @@ export default function AdminCategoriesPage() {
             type={'button'}
             onClick={handleShowNewForm}
             className={
-              'px-4 h-9 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors'
+              'px-4 h-9 inline-flex items-center justify-center gap-1.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors'
             }
           >
             <Plus size={15} />
@@ -488,66 +492,68 @@ export default function AdminCategoriesPage() {
             'bg-white rounded-sm border border-gray-200 overflow-hidden'
           }
         >
-          <table className={'min-w-full'}>
-            <thead className={'bg-gray-50'}>
-              <tr>
-                <th
-                  className={
-                    'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide w-12'
-                  }
-                >
-                  {'#'}
-                </th>
-                <th
-                  className={
-                    'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
-                  }
-                >
-                  {'Назва'}
-                </th>
-                <th
-                  className={
-                    'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
-                  }
-                >
-                  {'Товарів'}
-                </th>
-                <th
-                  className={
-                    'px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide w-20'
-                  }
-                />
-              </tr>
-            </thead>
-            <tbody>
-              {showNewForm && (
-                <NewCategoryForm
-                  onClose={handleCloseNewForm}
-                  onCreate={handleCreate}
-                />
-              )}
-              {categories.length === 0 && !showNewForm ? (
+          <div className={'overflow-x-auto'}>
+            <table className={'min-w-full'}>
+              <thead className={'bg-gray-50'}>
                 <tr>
-                  <td
-                    colSpan={4}
-                    className={'px-4 py-8 text-center text-sm text-gray-500'}
+                  <th
+                    className={
+                      'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide w-12'
+                    }
                   >
-                    {'Категорій немає'}
-                  </td>
-                </tr>
-              ) : (
-                categories.map((category, index) => (
-                  <CategoryRow
-                    key={category.id}
-                    category={category}
-                    index={index}
-                    onDelete={handleStartDelete}
-                    onUpdate={handleUpdate}
+                    {'#'}
+                  </th>
+                  <th
+                    className={
+                      'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
+                    }
+                  >
+                    {'Назва'}
+                  </th>
+                  <th
+                    className={
+                      'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide'
+                    }
+                  >
+                    {'Товарів'}
+                  </th>
+                  <th
+                    className={
+                      'px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide w-20'
+                    }
                   />
-                ))
-              )}
-            </tbody>
-          </table>
+                </tr>
+              </thead>
+              <tbody>
+                {showNewForm && (
+                  <NewCategoryForm
+                    onClose={handleCloseNewForm}
+                    onCreate={handleCreate}
+                  />
+                )}
+                {categories.length === 0 && !showNewForm ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className={'px-4 py-8 text-center text-sm text-gray-500'}
+                    >
+                      {'Категорій немає'}
+                    </td>
+                  </tr>
+                ) : (
+                  categories.map((category, index) => (
+                    <CategoryRow
+                      key={category.id}
+                      category={category}
+                      index={index}
+                      onDelete={handleStartDelete}
+                      onUpdate={handleUpdate}
+                    />
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

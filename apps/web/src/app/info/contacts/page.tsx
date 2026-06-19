@@ -13,15 +13,15 @@ export default function ContactsPage() {
   ]
 
   return (
-    <div className={'max-w-[1200px] mx-auto px-6 py-12 flex flex-col gap-10'}>
+    <div className={'max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-6 sm:gap-10'}>
       {/* Hero */}
       <div className={'text-center'}>
-        <h1 className={'text-3xl font-bold text-gray-900'}>{'Контакти'}</h1>
+        <h1 className={'text-2xl sm:text-3xl font-bold text-gray-900'}>{'Контакти'}</h1>
         <p className={'mt-3 text-gray-500'}>{'Ми завжди на зв\'язку. Оберіть зручний спосіб звернення.'}</p>
       </div>
 
       {/* Головний офіс */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Головний офіс'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-3 gap-6'}>
           <div className={'flex flex-col gap-1'}>
@@ -47,7 +47,7 @@ export default function ContactsPage() {
       </div>
 
       {/* Відділи */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Контакти відділів'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-2 gap-4'}>
           {departments.map(({ name, phone, email, hours }) => (
@@ -62,7 +62,7 @@ export default function ContactsPage() {
       </div>
 
       {/* Офіси */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Наші офіси'}</h2>
         <div className={'grid grid-cols-1 sm:grid-cols-3 gap-4'}>
           {offices.map(({ city, address, phone }) => (
@@ -76,10 +76,10 @@ export default function ContactsPage() {
       </div>
 
       {/* Форма зворотнього зв'язку */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-6'}>{'Зворотній зв\'язок'}</h2>
         <form className={'flex flex-col gap-4 max-w-xl'}>
-          <div className={'grid grid-cols-2 gap-4'}>
+          <div className={'grid grid-cols-1 sm:grid-cols-2 gap-4'}>
             <div className={'flex flex-col gap-1.5'}>
               <label className={'text-sm font-medium text-gray-700'}>{'Ім\'я'}</label>
               <input type={'text'} placeholder={'Ваше ім\'я'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
@@ -104,7 +104,7 @@ export default function ContactsPage() {
       </div>
 
       {/* Соціальні мережі */}
-      <div className={'bg-white rounded-2xl border border-gray-200 p-8'}>
+      <div className={'bg-white rounded-2xl border border-gray-200 p-5 sm:p-8'}>
         <h2 className={'text-xl font-bold text-gray-900 mb-4'}>{'Ми в соціальних мережах'}</h2>
         <div className={'flex gap-4 flex-wrap'}>
           {['Instagram', 'Facebook', 'Telegram', 'YouTube'].map((s) => (

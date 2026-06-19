@@ -111,7 +111,7 @@ const CreateProductPage: React.FC = () => {
       >
         <div
           className={
-            'bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4'
+            'bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 flex flex-col gap-4'
           }
         >
           <h2
@@ -154,7 +154,7 @@ const CreateProductPage: React.FC = () => {
             />
           </Field>
 
-          <div className={'grid grid-cols-2 gap-4'}>
+          <div className={'grid grid-cols-1 sm:grid-cols-2 gap-4'}>
             <Field
               htmlFor={'price'}
               label={'Ціна (₴)'}
@@ -210,7 +210,7 @@ const CreateProductPage: React.FC = () => {
 
         <div
           className={
-            'bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4'
+            'bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 flex flex-col gap-4'
           }
         >
           <h2
@@ -259,11 +259,15 @@ const CreateProductPage: React.FC = () => {
           </div>
         </div>
 
-        <div className={'flex items-center justify-end gap-3'}>
+        <div
+          className={
+            'flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end'
+          }
+        >
           <Link
             href={'/admin/products'}
             className={
-              'px-5 h-10 inline-flex items-center rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors'
+              'px-5 h-10 inline-flex items-center justify-center rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors'
             }
           >
             {'Скасувати'}

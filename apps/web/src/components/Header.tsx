@@ -159,25 +159,37 @@ export const Header: React.FC = () => {
       }
     >
       <Container>
-        <div className={'flex items-center gap-6 py-4'}>
+        <div
+          className={
+            'flex flex-wrap items-center gap-x-2 gap-y-3 py-3 sm:gap-x-6 sm:py-4'
+          }
+        >
           <Link
             href={'/'}
             className={
-              'flex h-12 items-center justify-center rounded-xl bg-black px-5 text-lg font-bold '
+              'flex h-10 items-center justify-center rounded-xl bg-black px-4 text-base font-bold sm:h-12 sm:px-5 sm:text-lg'
             }
           >
             <p className={'text-white'}>{'NestHub'}</p>
           </Link>
 
-          {isCatalog ? <CatalogSearch /> : <div className={'flex-1'} />}
+          {isCatalog ? (
+            <div
+              className={
+                'order-last w-full md:order-none md:w-auto md:flex-1'
+              }
+            >
+              <CatalogSearch />
+            </div>
+          ) : null}
 
-          <nav className={'flex items-center gap-2'}>
+          <nav className={'ml-auto flex items-center gap-1 sm:gap-2'}>
             {actions.map(({ href, icon, badge, label }) => (
               <Link
                 key={href}
                 href={href}
                 className={
-                  'flex min-w-14 flex-col items-center gap-1 rounded-md px-2 py-1 text-xs text-foreground hover:bg-muted'
+                  'flex min-w-12 flex-col items-center gap-1 rounded-md px-1.5 py-1 text-xs text-foreground hover:bg-muted sm:min-w-14 sm:px-2'
                 }
               >
                 <span className={'relative'}>

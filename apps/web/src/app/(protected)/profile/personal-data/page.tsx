@@ -181,7 +181,7 @@ export default function PersonalDataPage() {
               </div>
             </div>
 
-            <div className={'grid grid-cols-2 gap-x-5 gap-y-5'}>
+            <div className={'grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2'}>
               <Field
                 htmlFor={'firstName'}
                 label={"Ім'я"}
@@ -267,7 +267,7 @@ export default function PersonalDataPage() {
               </Field>
             </div>
 
-            <div className={'flex items-center gap-3 pt-2'}>
+            <div className={'flex flex-wrap items-center gap-3 pt-2'}>
               <button
                 type={'submit'}
                 disabled={mutation.isPending || !isDirty}

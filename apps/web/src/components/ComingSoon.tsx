@@ -15,7 +15,7 @@ export const ComingSoon: React.FC<ComingSoonProps> = ({
     <Container>
       <div
         className={
-          'flex flex-col items-center justify-center text-center gap-4 py-24'
+          'flex flex-col items-center justify-center text-center gap-4 px-4 py-12 sm:py-24'
         }
       >
         <div
