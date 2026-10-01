@@ -118,7 +118,7 @@ function Carousel({
         canScrollNext,
       }}
     >
-      {/** biome-ignore lint/a11y/useSemanticElements: <explanation> */}
+      {/** biome-ignore lint/a11y/useSemanticElements: WAI-ARIA carousel pattern uses role="region" on a div; <section> adds unwanted landmark semantics */}
       <div
         onKeyDownCapture={handleKeyDown}
         className={cn('relative', className)}
@@ -158,7 +158,7 @@ function CarouselItem({ className, ...props }: React.ComponentProps<'div'>) {
   const { orientation } = useCarousel()
 
   return (
-    // biome-ignore lint/a11y/useSemanticElements: <explanation>
+    // biome-ignore lint/a11y/useSemanticElements: WAI-ARIA carousel slides use role="group" on a div; <fieldset> is for form controls
     <div
       role={'group'}
       aria-roledescription={'slide'}

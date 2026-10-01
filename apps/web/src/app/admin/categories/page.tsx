@@ -239,6 +239,7 @@ const NewCategoryForm = ({ onClose, onCreate }: NewCategoryFormProps) => {
       <td className={'px-4 py-3'}>
         <form onSubmit={handleSubmit} className={'flex items-center gap-1.5'}>
           <input
+            // biome-ignore lint/a11y/noAutofocus: inline "add category" row opens on click, so focusing its input is expected
             autoFocus
             value={name}
             onChange={handleChange}

@@ -29,10 +29,10 @@ export type LoginFormData = z.infer<typeof loginSchema>
 export const createProductSchema = z.object({
   name: z.string().min(1, "Назва товару обов'язкова"),
   description: z.string().optional(),
-  price: z.number({ invalid_type_error: 'Введіть ціну' }).positive('Ціна повинна бути більше 0'),
+  price: z.number({ error: 'Введіть ціну' }).positive('Ціна повинна бути більше 0'),
   categoryId: z.string().min(1, 'Виберіть категорію'),
   stock: z
-    .number({ invalid_type_error: 'Введіть кількість' })
+    .number({ error: 'Введіть кількість' })
     .int('Кількість має бути цілим числом')
     .min(0, "Кількість не може бути від'ємною"),
   imageUrl: z.url('Невалідний URL зображення').or(z.literal('')).optional(),

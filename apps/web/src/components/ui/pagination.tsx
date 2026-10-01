@@ -197,7 +197,7 @@ function PaginationControls({
           item === 'ellipsis' ? (
             <PaginationItem
               key={`ellipsis-${
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                // biome-ignore lint/suspicious/noArrayIndexKey: ellipsis items have no identity; index + neighbouring page keeps keys unique
                 idx
               }-${page}`}
             >

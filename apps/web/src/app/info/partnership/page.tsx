@@ -109,21 +109,21 @@ export default function PartnershipPage() {
         <form className={'flex flex-col gap-4 max-w-xl'}>
           <div className={'grid grid-cols-2 gap-4'}>
             <div className={'flex flex-col gap-1.5'}>
-              <label className={'text-sm font-medium text-gray-700'}>{'Ім\'я'}</label>
-              <input type={'text'} placeholder={'Ваше ім\'я'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
+              <label htmlFor={'partnership-name'} className={'text-sm font-medium text-gray-700'}>{'Ім\'я'}</label>
+              <input id={'partnership-name'} type={'text'} placeholder={'Ваше ім\'я'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
             </div>
             <div className={'flex flex-col gap-1.5'}>
-              <label className={'text-sm font-medium text-gray-700'}>{'Компанія'}</label>
-              <input type={'text'} placeholder={'Назва компанії'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
+              <label htmlFor={'partnership-company'} className={'text-sm font-medium text-gray-700'}>{'Компанія'}</label>
+              <input id={'partnership-company'} type={'text'} placeholder={'Назва компанії'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
             </div>
           </div>
           <div className={'flex flex-col gap-1.5'}>
-            <label className={'text-sm font-medium text-gray-700'}>{'Email'}</label>
-            <input type={'email'} placeholder={'email@example.com'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
+            <label htmlFor={'partnership-email'} className={'text-sm font-medium text-gray-700'}>{'Email'}</label>
+            <input id={'partnership-email'} type={'email'} placeholder={'email@example.com'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
           </div>
           <div className={'flex flex-col gap-1.5'}>
-            <label className={'text-sm font-medium text-gray-700'}>{'Тип партнерства'}</label>
-            <select className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400 bg-white'}>
+            <label htmlFor={'partnership-type'} className={'text-sm font-medium text-gray-700'}>{'Тип партнерства'}</label>
+            <select id={'partnership-type'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400 bg-white'}>
               <option value={''}>{'Оберіть тип'}</option>
               <option value={'supplier'}>{'Постачальник'}</option>
               <option value={'dropshipping'}>{'Дропшипінг'}</option>
@@ -132,8 +132,8 @@ export default function PartnershipPage() {
             </select>
           </div>
           <div className={'flex flex-col gap-1.5'}>
-            <label className={'text-sm font-medium text-gray-700'}>{'Повідомлення'}</label>
-            <textarea rows={3} placeholder={'Розкажіть про свій бізнес...'} className={'rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400 resize-none'} />
+            <label htmlFor={'partnership-message'} className={'text-sm font-medium text-gray-700'}>{'Повідомлення'}</label>
+            <textarea id={'partnership-message'} rows={3} placeholder={'Розкажіть про свій бізнес...'} className={'rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400 resize-none'} />
           </div>
           <button type={'button'} className={'self-start px-6 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 cursor-pointer font-[inherit]'}>
             {'Надіслати заявку'}

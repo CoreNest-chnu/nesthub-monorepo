@@ -1,9 +1,15 @@
+import { fileURLToPath } from 'node:url'
+
 // Where the Next server proxies /api/* requests. In Docker the API is reachable
 // via the compose service name (http://api:8000); locally it's localhost:8000.
 const API_PROXY_TARGET = process.env.API_PROXY_TARGET ?? 'http://localhost:8000'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Self-contained server build for the production Docker image. Tracing root is
+  // the monorepo root so workspace packages and hoisted node_modules are included.
+  output: 'standalone',
+  outputFileTracingRoot: fileURLToPath(new URL('../../', import.meta.url)),
   images: {
     remotePatterns: [
       {
