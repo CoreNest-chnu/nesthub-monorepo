@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  push:
+    # lab/** branches publish images on push too, without waiting for a merge.
+    branches: [main, develop, 'lab/**']
+  pull_request:
+    branches: [main, develop]
+
+# A newer push to the same branch / PR cancels the run that is still going.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  BUN_VERSION: 1.3.7
+  REGISTRY: ghcr.io
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lint → Build → Test, one job per service. Jobs run in parallel and
+  # fail-fast is off, so a failure in one service does not cancel the other.
+  # ---------------------------------------------------------------------------
+  build-test:
+    name: Build & test (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api, web]
+    defaults:
+      run:
+        working-directory: apps/${{ matrix.service }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Cache Next.js build
+        if: matrix.service == 'web'
+        uses: actions/cache@v6
+        with:
+          path: apps/web/.next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('bun.lock') }}-${{ hashFiles('apps/web/src/**', 'packages/**/src/**') }}
+          restore-keys: next-${{ runner.os }}-${{ hashFiles('bun.lock') }}-
+
+      - name: Install dependencies
+        working-directory: .
+        run: bun install --frozen-lockfile
+
+      # Blocking: any Biome error fails the job. The github reporter turns
+      # findings into inline annotations on the PR diff.
+      - name: Lint (Biome)
+        working-directory: .
+        run: bunx biome lint --reporter=github apps/${{ matrix.service }}
+
+      - name: Generate Prisma client
+        if: matrix.service == 'api'
+        # `generated/prisma` is git-ignored. Same double run as in the Dockerfile:
+        # the custom `ids` generator must win the race for types.ts.
+        run: bunx prisma generate && bunx prisma generate --generator ids
+
+      - name: Build
+        run: bun run build
+
+      - name: Test
+        run: bun run test
+
+  # ---------------------------------------------------------------------------
+  # Docker images. Starts only after every build-test job has passed.
+  # PR: build + scan only. Push to main/develop/lab/**: build + scan + publish.
+  # ---------------------------------------------------------------------------
+  docker:
+    name: Docker image (${{ matrix.service }})
+    needs: build-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api, web]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      # Image name must be lowercase: ghcr.io/<owner>/nesthub-<service>.
+      - name: Image name
+        id: image
+        run: echo "name=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/nesthub-${{ matrix.service }}" >> "$GITHUB_OUTPUT"
+
+      # Tags: sha-<short sha> for every build, branch name, and `latest` only on develop (the main branch).
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=sha,prefix=sha-
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/develop' }}
+
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/${{ matrix.service }}/Dockerfile
+          target: prod
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      # Blocking: a fixable CRITICAL vulnerability fails the job before publishing.
+      - name: Scan image (Trivy)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ steps.image.outputs.name }}:${{ steps.meta.outputs.version }}
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+          format: table
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image
+        if: github.event_name == 'push'
+        run: docker push --all-tags "${{ steps.image.outputs.name }}"

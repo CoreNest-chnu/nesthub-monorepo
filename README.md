@@ -48,6 +48,7 @@ A full-stack e-commerce web application inspired by platforms like Rozetka — w
 - [API Client (Orval)](#-api-client-orval)
 - [Testing](#-testing)
 - [Linting & Formatting](#-linting--formatting)
+- [CI/CD](#-cicd)
 - [Scripts Reference](#-scripts-reference)
 - [Project Structure](#-project-structure)
 - [Team](#-team)
@@ -369,6 +370,8 @@ Created by the seed script (`bun run --filter=api seed`). Use these to explore t
 
 Hooks are auto-generated from the NestJS Swagger spec into `packages/api-client/src/generated/` on every dev start using Orval.
 
+The generated client is **committed to git**. A clean checkout (CI, `docker build`) has no running API to generate it from, so commit the regenerated files whenever you change an endpoint.
+
 ### Adding a new endpoint
 
 1. Add the controller method in `apps/api` with the proper `@ApiTags` decorator.
@@ -413,8 +416,11 @@ createUser({ name: "John", email: "john@example.com" });
 # Run unit tests
 bun turbo test
 
-# Run API tests only
+# Run API tests only (Jest)
 bun turbo test --filter=api
+
+# Run Web tests only (bun test)
+bun turbo test --filter=web
 
 # End-to-end / coverage (if configured)
 bun turbo test:e2e
@@ -440,6 +446,33 @@ bun biome format . --write
 ```
 
 Biome config lives at `biome.json` in the root.
+
+---
+
+## 🔄 CI/CD
+
+The pipeline lives in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) (GitHub Actions). It runs on every pull request into `main` / `develop` and on every push to `main`, `develop` and `lab/**` branches.
+
+| Job | What it does |
+| --- | ------------ |
+| `Build & test (api)`, `Build & test (web)` | One job per service via a matrix. The jobs run in parallel and `fail-fast` is off. Steps: install (Bun cache) → **Biome lint** (blocking, inline PR annotations) → **build** (`nest build` / `next build`) → **test** (Jest / `bun test`). |
+| `Docker image (api)`, `Docker image (web)` | Starts only after both build-test jobs pass. Builds the `prod` stage of each Dockerfile (Buildx with GitHub Actions cache), then scans it with **Trivy**: a fixable `CRITICAL` vulnerability fails the job. |
+| Publish | Push events only, never pull requests. Pushes to **GHCR** with the built-in `GITHUB_TOKEN`, so no credentials are stored in the repository. |
+
+Image tags:
+
+- `sha-<short-sha>` on every build;
+- the branch name (`develop`, `main`, `lab-dev-ops-2`; `/` becomes `-`);
+- `latest`, only for `develop` (the repository's main branch).
+
+Pull and run a published image:
+
+```bash
+docker pull ghcr.io/corenest-chnu/nesthub-web:latest
+docker run --rm -p 3000:3000 -e AUTH_SECRET=change-me -e AUTH_TRUST_HOST=true ghcr.io/corenest-chnu/nesthub-web:latest
+```
+
+The API image also needs a database (`DATABASE_URL`, `JWT_SECRET`, `STATIC_SALT`). The easiest way to run both images together is `docker-compose.prod.yaml`.
 
 ---
 

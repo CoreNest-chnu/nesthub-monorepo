@@ -35,6 +35,10 @@ FROM dev AS build
 ARG API_PROXY_TARGET=http://api:8000
 ENV API_PROXY_TARGET=$API_PROXY_TARGET \
     NEXT_TELEMETRY_DISABLED=1
+# Без Node.js `bun run` виконує `next build` самим Bun, а воркери Next 16.3
+# на ньому падають (segfault / "Expected CommonJS module to have a function
+# wrapper"). З nodejs у PATH bun запускає next через справжній node.
+RUN apk add --no-cache nodejs
 RUN bun run build
 
 # ---- Production image ----
