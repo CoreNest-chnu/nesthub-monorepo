@@ -81,21 +81,21 @@ export default function ContactsPage() {
         <form className={'flex flex-col gap-4 max-w-xl'}>
           <div className={'grid grid-cols-2 gap-4'}>
             <div className={'flex flex-col gap-1.5'}>
-              <label className={'text-sm font-medium text-gray-700'}>{'Ім\'я'}</label>
-              <input type={'text'} placeholder={'Ваше ім\'я'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
+              <label htmlFor={'contact-name'} className={'text-sm font-medium text-gray-700'}>{'Ім\'я'}</label>
+              <input id={'contact-name'} type={'text'} placeholder={'Ваше ім\'я'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
             </div>
             <div className={'flex flex-col gap-1.5'}>
-              <label className={'text-sm font-medium text-gray-700'}>{'Email'}</label>
-              <input type={'email'} placeholder={'email@example.com'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
+              <label htmlFor={'contact-email'} className={'text-sm font-medium text-gray-700'}>{'Email'}</label>
+              <input id={'contact-email'} type={'email'} placeholder={'email@example.com'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
             </div>
           </div>
           <div className={'flex flex-col gap-1.5'}>
-            <label className={'text-sm font-medium text-gray-700'}>{'Тема'}</label>
-            <input type={'text'} placeholder={'Тема звернення'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
+            <label htmlFor={'contact-subject'} className={'text-sm font-medium text-gray-700'}>{'Тема'}</label>
+            <input id={'contact-subject'} type={'text'} placeholder={'Тема звернення'} className={'h-10 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-gray-400'} />
           </div>
           <div className={'flex flex-col gap-1.5'}>
-            <label className={'text-sm font-medium text-gray-700'}>{'Повідомлення'}</label>
-            <textarea rows={4} placeholder={'Ваше повідомлення...'} className={'rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400 resize-none'} />
+            <label htmlFor={'contact-message'} className={'text-sm font-medium text-gray-700'}>{'Повідомлення'}</label>
+            <textarea id={'contact-message'} rows={4} placeholder={'Ваше повідомлення...'} className={'rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400 resize-none'} />
           </div>
           <button type={'button'} className={'self-start px-6 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 cursor-pointer font-[inherit]'}>
             {'Надіслати'}

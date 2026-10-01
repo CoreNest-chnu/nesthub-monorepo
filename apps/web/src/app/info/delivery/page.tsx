@@ -66,7 +66,7 @@ export default function DeliveryPage() {
             <span className={'text-3xl'}>{icon}</span>
             <p className={'font-semibold text-gray-900'}>{title}</p>
             <p className={'text-sm text-gray-500 flex-1'}>{desc}</p>
-            <p className={'text-xs font-semibold text-blue-600 mt-2'}>{'⏱ ' + time}</p>
+            <p className={'text-xs font-semibold text-blue-600 mt-2'}>{`⏱ ${time}`}</p>
           </div>
         ))}
       </div>

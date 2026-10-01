@@ -20,6 +20,12 @@ COPY packages/prisma-generator-ids/package.json ./packages/prisma-generator-ids/
 
 RUN bun install --frozen-lockfile
 
+# ---- Production dependencies ----
+# Лише runtime-залежності воркспейсу api (без devDependencies і без пакетів
+# web/api-client), щоб у prod-образ не потрапляли next, orval тощо.
+FROM deps AS prod-deps
+RUN rm -rf node_modules && bun install --frozen-lockfile --production --filter api
+
 # ---- Dev image ----
 FROM base AS dev
 
@@ -37,3 +43,25 @@ EXPOSE 8000
 
 # На старті контейнера: міграції + dev сервер
 CMD ["sh", "-c", "bunx prisma migrate deploy && bun run start:dev"]
+
+# ---- Build ----
+FROM dev AS build
+RUN bun run build
+
+# ---- Production image ----
+FROM base AS prod
+ENV NODE_ENV=production
+
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY package.json ./
+COPY --from=build /app/apps/api/package.json /app/apps/api/prisma.config.ts ./apps/api/
+COPY --from=build /app/apps/api/prisma ./apps/api/prisma
+COPY --from=build /app/apps/api/dist ./apps/api/dist
+
+WORKDIR /app/apps/api
+
+RUN echo '{ "compilerOptions": { "baseUrl": "." } }' > dist/tsconfig.json
+
+EXPOSE 8000
+
+CMD ["sh", "-c", "bunx prisma migrate deploy && bun run start:prod"]
