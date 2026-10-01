@@ -1,0 +1,72 @@
+# Production-like stack: images are built with `target: prod`, so api and web
+# run compiled code (`nest build` / `next build`) instead of dev servers.
+# Usage: docker compose -f docker-compose.prod.yaml up -d --build
+name: nesthub-prod
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: nest-hub-prod-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nest-hub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+      target: prod
+    container_name: nest-hub-prod-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASS}@db:5432/${DB_NAME}?schema=public
+      PORT: 8000
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-86400}
+      STATIC_SALT: ${STATIC_SALT:-dev-static-salt-change-me}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nest-hub-network
+
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+      target: prod
+      args:
+        # Baked into the Next.js rewrites at build time.
+        API_PROXY_TARGET: http://api:8000
+    container_name: nest-hub-prod-web
+    restart: unless-stopped
+    environment:
+      AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me}
+      # Outside Vercel, NextAuth rejects requests unless the host is trusted.
+      AUTH_TRUST_HOST: "true"
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      - api
+    networks:
+      - nest-hub-network
+
+networks:
+  nest-hub-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

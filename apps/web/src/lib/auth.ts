@@ -1,6 +1,8 @@
 // We need this eslint disable comment to declare the module augmentation
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 import type { DefaultSession, NextAuthConfig } from 'next-auth'
+// Pull the module into the program so the JWT augmentation below can resolve it.
+import type {} from 'next-auth/jwt'
 import Credentials from 'next-auth/providers/credentials'
 
 declare module 'next-auth' {
@@ -15,7 +17,7 @@ declare module 'next-auth' {
   }
 }
 
-declare module '@auth/core/jwt' {
+declare module 'next-auth/jwt' {
   interface JWT {
     id: string
     jwt: string

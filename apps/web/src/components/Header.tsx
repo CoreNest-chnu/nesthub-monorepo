@@ -14,7 +14,7 @@ import { CartBadge } from './cart/CartBadge'
 import { Container } from './Container'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import debounce from 'lodash/debounce'
 import { useSession } from 'next-auth/react'
 import { useCategoriesControllerFindAll } from '@repo/api-client'
@@ -169,7 +169,13 @@ export const Header: React.FC = () => {
             <p className={'text-white'}>{'NestHub'}</p>
           </Link>
 
-          {isCatalog ? <CatalogSearch /> : <div className={'flex-1'} />}
+          {isCatalog ? (
+            <Suspense>
+              <CatalogSearch />
+            </Suspense>
+          ) : (
+            <div className={'flex-1'} />
+          )}
 
           <nav className={'flex items-center gap-2'}>
             {actions.map(({ href, icon, badge, label }) => (
@@ -198,7 +204,11 @@ export const Header: React.FC = () => {
           </nav>
         </div>
 
-        {isCatalog && <CategoryNav />}
+        {isCatalog && (
+          <Suspense>
+            <CategoryNav />
+          </Suspense>
+        )}
       </Container>
     </header>
   )

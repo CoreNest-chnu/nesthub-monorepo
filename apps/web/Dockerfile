@@ -29,3 +29,27 @@ WORKDIR /app/apps/web
 EXPOSE 3000
 
 CMD ["bun", "run", "dev"]
+
+# ---- Build ----
+FROM dev AS build
+ARG API_PROXY_TARGET=http://api:8000
+ENV API_PROXY_TARGET=$API_PROXY_TARGET \
+    NEXT_TELEMETRY_DISABLED=1
+RUN bun run build
+
+# ---- Production image ----
+FROM node:22-alpine AS prod
+WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
+
+COPY --from=build --chown=node:node /app/apps/web/.next/standalone ./
+COPY --from=build --chown=node:node /app/apps/web/.next/static ./apps/web/.next/static
+
+USER node
+
+EXPOSE 3000
+
+CMD ["node", "apps/web/server.js"]

@@ -187,6 +187,26 @@ docker compose exec api bun run seed
 | Swagger docs  | http://localhost:8000/docs   |
 | pgAdmin       | http://localhost:5050        |
 
+#### Build (Docker)
+
+```
+docker build -f apps/api/Dockerfile --target prod -t nesthub-api .
+```
+
+```
+docker build -f apps/web/Dockerfile --target prod -t nesthub-web .
+```
+
+```
+docker compose up -d --build
+docker compose exec api bun run seed
+```
+
+```
+docker compose -f docker-compose.prod.yaml up -d --build
+```
+
+
 > Prefer running the apps natively (hot reload outside Docker)? Follow the manual steps below.
 
 ---
@@ -429,6 +449,7 @@ Biome config lives at `biome.json` in the root.
 | ------- | ----------- |
 | `docker compose up --build` | Build & run the full stack (DB, pgAdmin, API, Web) |
 | `docker compose exec api bun run seed` | Seed demo data inside the running API container |
+| `docker compose -f docker-compose.prod.yaml up -d --build` | Build & run the production stack (compiled API and Web) |
 | `bun install` | Install all monorepo dependencies |
 | `bun run db:start:docker` | Start PostgreSQL + pgAdmin via Docker |
 | `bun run --filter=api generate` | Generate the Prisma client |
