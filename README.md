@@ -470,8 +470,8 @@ Image tags:
 Publish a versioned release:
 
 ```bash
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.2.0
+git push origin v1.2.0
 ```
 
 Pull and run a published image:
@@ -533,12 +533,12 @@ The values in `secret.yaml` are demo values for a local cluster. Change them for
    minikube addons enable metrics-server
    minikube addons enable ingress
    ```
-2. Make the images available. Either make the GHCR packages public and push the tags `v1.0.0` and `v1.1.0` (see [CI/CD](#-cicd)), or build them locally and load them into minikube:
+2. Make the images available. Either make the GHCR packages public and push the tags `v1.1.0` and `v1.2.0` (see [CI/CD](#-cicd)), or build them locally and load them into minikube:
    ```bash
-   docker build --target prod --build-arg APP_VERSION=1.0.0 -f apps/api/Dockerfile -t ghcr.io/corenest-chnu/nesthub-api:1.0.0 .
-   docker build --target prod -f apps/web/Dockerfile -t ghcr.io/corenest-chnu/nesthub-web:1.0.0 .
-   minikube image load ghcr.io/corenest-chnu/nesthub-api:1.0.0
-   minikube image load ghcr.io/corenest-chnu/nesthub-web:1.0.0
+   docker build --target prod --build-arg APP_VERSION=1.1.0 -f apps/api/Dockerfile -t ghcr.io/corenest-chnu/nesthub-api:1.1.0 .
+   docker build --target prod -f apps/web/Dockerfile -t ghcr.io/corenest-chnu/nesthub-web:1.1.0 .
+   minikube image load ghcr.io/corenest-chnu/nesthub-api:1.1.0
+   minikube image load ghcr.io/corenest-chnu/nesthub-web:1.1.0
    ```
 3. Deploy everything with one command:
    ```bash
@@ -569,7 +569,7 @@ kubectl -n nesthub run curl --rm -it --restart=Never --image=curlimages/curl -- 
   sh -c 'for i in $(seq 10); do curl -s api:8000/health; echo; done'
 
 # Rolling update, history and rollback
-kubectl -n nesthub set image deploy/api api=ghcr.io/corenest-chnu/nesthub-api:1.1.0
+kubectl -n nesthub set image deploy/api api=ghcr.io/corenest-chnu/nesthub-api:1.2.0
 kubectl -n nesthub rollout status deploy/api
 kubectl -n nesthub rollout history deploy/api
 kubectl -n nesthub rollout undo deploy/api
