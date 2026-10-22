@@ -1,0 +1,15 @@
+# Диск для даних PostgreSQL: дані переживають перезапуск і видалення пода.
+# У minikube том створює standard StorageClass (storage-provisioner).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: nesthub
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: nesthub
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi

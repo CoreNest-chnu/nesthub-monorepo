@@ -49,6 +49,7 @@ A full-stack e-commerce web application inspired by platforms like Rozetka — w
 - [Testing](#-testing)
 - [Linting & Formatting](#-linting--formatting)
 - [CI/CD](#-cicd)
+- [Kubernetes (minikube)](#️-kubernetes-minikube)
 - [Scripts Reference](#-scripts-reference)
 - [Project Structure](#-project-structure)
 - [Team](#-team)
@@ -463,7 +464,15 @@ Image tags:
 
 - `sha-<short-sha>` on every build;
 - the branch name (`develop`, `main`, `lab-dev-ops-2`; `/` becomes `-`);
+- the version for a git tag `v1.2.3` (image tag `1.2.3`). The version is also baked into the API image and returned by `GET /health`;
 - `latest`, only for `develop` (the repository's main branch).
+
+Publish a versioned release:
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
 
 Pull and run a published image:
 
@@ -473,6 +482,101 @@ docker run --rm -p 3000:3000 -e AUTH_SECRET=change-me -e AUTH_TRUST_HOST=true gh
 ```
 
 The API image also needs a database (`DATABASE_URL`, `JWT_SECRET`, `STATIC_SALT`). The easiest way to run both images together is `docker-compose.prod.yaml`.
+
+---
+
+## ☸️ Kubernetes (minikube)
+
+The [`k8s/`](k8s) directory describes the whole stack, one object per file, in the `nesthub` namespace.
+
+| File | Object | Purpose |
+| ---- | ------ | ------- |
+| `00-namespace.yaml` | Namespace `nesthub` | Holds every other object. The `00-` prefix makes `kubectl apply -f k8s/` create it first. |
+| `configmap.yaml` | ConfigMap `nesthub-config` | Non-secret settings (see below). |
+| `secret.yaml` | Secret `nesthub-secret` | Passwords and keys (see below). |
+| `postgres-pvc.yaml` | PersistentVolumeClaim `postgres-data` | 1 Gi volume for the database. |
+| `postgres-deployment.yaml` | Deployment `postgres` | PostgreSQL 17, 1 replica, `Recreate` strategy, `pg_isready` probes. |
+| `postgres-service.yaml` | Service `db` (ClusterIP) | `db:5432` inside the cluster. |
+| `api-deployment.yaml` | Deployment `api` | 2 replicas, rolling update with `maxUnavailable: 0`, an init container that waits for the database, startup / liveness (`/health`) / readiness (`/health/ready`) probes, and a `preStop` pause for zero-downtime updates. |
+| `api-service.yaml` | Service `api` (ClusterIP) | `api:8000`. The web image proxies `/api/*` to this address. |
+| `web-deployment.yaml` | Deployment `web` | 2 replicas, probes on `/api/auth/session`. |
+| `web-service.yaml` | Service `web` (NodePort `30080`) | Access from the host. |
+| `ingress.yaml` | Ingress `nesthub` | `http://nesthub.local` through the nginx ingress addon. |
+
+### ConfigMap parameters
+
+| Key | Used by | Value |
+| --- | ------- | ----- |
+| `POSTGRES_DB` | postgres, api | `nesthub` |
+| `POSTGRES_USER` | postgres, api | `nesthub` |
+| `NODE_ENV` | api | `production` |
+| `PORT` | api | `8000` |
+| `JWT_EXPIRES_IN` | api | `86400` (seconds) |
+| `AUTH_TRUST_HOST` | web | `true` |
+
+### Secret parameters
+
+| Key | Used by | Purpose |
+| --- | ------- | ------- |
+| `POSTGRES_PASSWORD` | postgres, api | Database password. The API builds `DATABASE_URL` from it with `$(VAR)` substitution, so the password is stored only once. |
+| `JWT_SECRET` | api | Signs JWT tokens. |
+| `STATIC_SALT` | api | Password hashing salt. |
+| `AUTH_SECRET` | web | NextAuth session secret. |
+
+The values in `secret.yaml` are demo values for a local cluster. Change them for any real environment.
+
+### Deploy
+
+1. Start the cluster and enable the addons:
+   ```bash
+   minikube start --driver=docker --cpus=4 --memory=4096
+   minikube addons enable metrics-server
+   minikube addons enable ingress
+   ```
+2. Make the images available. Either make the GHCR packages public and push the tags `v1.0.0` and `v1.1.0` (see [CI/CD](#-cicd)), or build them locally and load them into minikube:
+   ```bash
+   docker build --target prod --build-arg APP_VERSION=1.0.0 -f apps/api/Dockerfile -t ghcr.io/corenest-chnu/nesthub-api:1.0.0 .
+   docker build --target prod -f apps/web/Dockerfile -t ghcr.io/corenest-chnu/nesthub-web:1.0.0 .
+   minikube image load ghcr.io/corenest-chnu/nesthub-api:1.0.0
+   minikube image load ghcr.io/corenest-chnu/nesthub-web:1.0.0
+   ```
+3. Deploy everything with one command:
+   ```bash
+   kubectl apply -f k8s/
+   kubectl -n nesthub get pods,deploy,rs,svc,ingress,pvc
+   ```
+4. Open the app. Either use the NodePort service (keep the command running):
+   ```bash
+   minikube service web -n nesthub
+   ```
+   Or use the Ingress: add `127.0.0.1 nesthub.local` to `/etc/hosts`, run `minikube tunnel` in a separate terminal, and open http://nesthub.local.
+
+The database starts empty. To load demo data, forward the database port and run the seed script from `apps/api`:
+
+```bash
+kubectl -n nesthub port-forward svc/db 5433:5432
+DATABASE_URL="postgresql://nesthub:lab3-demo-db-password@localhost:5433/nesthub?schema=public" bun run --filter=api seed
+```
+
+### Useful commands
+
+```bash
+# Config and secret values inside the container
+kubectl -n nesthub exec deploy/api -c api -- env
+
+# Which replica answers: each request can hit a different pod
+kubectl -n nesthub run curl --rm -it --restart=Never --image=curlimages/curl -- \
+  sh -c 'for i in $(seq 10); do curl -s api:8000/health; echo; done'
+
+# Rolling update, history and rollback
+kubectl -n nesthub set image deploy/api api=ghcr.io/corenest-chnu/nesthub-api:1.1.0
+kubectl -n nesthub rollout status deploy/api
+kubectl -n nesthub rollout history deploy/api
+kubectl -n nesthub rollout undo deploy/api
+
+# Remove everything
+kubectl delete namespace nesthub
+```
 
 ---
 

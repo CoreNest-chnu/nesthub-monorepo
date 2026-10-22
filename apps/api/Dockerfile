@@ -50,7 +50,10 @@ RUN bun run build
 
 # ---- Production image ----
 FROM base AS prod
-ENV NODE_ENV=production
+# Версія образу (CI передає тег, напр. 1.1.0). Її повертає GET /health.
+ARG APP_VERSION=dev
+ENV NODE_ENV=production \
+    APP_VERSION=$APP_VERSION
 
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY package.json ./

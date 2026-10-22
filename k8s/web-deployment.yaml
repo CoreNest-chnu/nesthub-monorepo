@@ -1,0 +1,65 @@
+# Next.js web (standalone-сервер). Запити /api/* проксує на Service api:8000.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: nesthub
+  labels:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: nesthub
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: web
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/part-of: nesthub
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/corenest-chnu/nesthub-web:1.0.0
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: AUTH_TRUST_HOST
+              valueFrom:
+                configMapKeyRef: { name: nesthub-config, key: AUTH_TRUST_HOST }
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef: { name: nesthub-secret, key: AUTH_SECRET }
+          # Перед SIGTERM под ще 10 с обслуговує запити: за цей час Kubernetes
+          # прибирає його з endpoints Service, і нові запити йдуть на інші поди.
+          # Без цього під час rolling update частина запитів падає (000/500).
+          lifecycle:
+            preStop:
+              exec:
+                command: [sleep, "10"]
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 512Mi }
+          # /api/auth/session обробляє сам Next (NextAuth), без звернення до API,
+          # тож проба перевіряє лише web-под.
+          startupProbe:
+            httpGet: { path: /api/auth/session, port: http }
+            periodSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            httpGet: { path: /api/auth/session, port: http }
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: { path: /api/auth/session, port: http }
+            periodSeconds: 5
+            failureThreshold: 2

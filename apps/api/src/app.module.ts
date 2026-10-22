@@ -8,6 +8,7 @@ import { OrderModule } from './order/order.module'
 import { PromoModule } from './promo/promo.module'
 import { PaymentModule } from './payment/payment.module'
 import { AdminModule } from './admin/admin.module'
+import { HealthModule } from './health/health.module'
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AdminModule } from './admin/admin.module'
     OrderModule,
     PromoModule,
     PaymentModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [],
