@@ -1,0 +1,103 @@
+# NestJS API, образ з GHCR (prod-етап apps/api/Dockerfile).
+# На старті контейнер виконує `prisma migrate deploy`; паралельні міграції
+# кількох реплік безпечні, бо Prisma бере advisory lock у PostgreSQL.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: nesthub
+  labels:
+    app.kubernetes.io/name: api
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: nesthub
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  # Під час оновлення спершу піднімається новий под, і лише коли він готовий,
+  # зупиняється старий: застосунок не втрачає доступності.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: api
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: nesthub
+    spec:
+      # Чекаємо, поки PostgreSQL прийматиме з'єднання. Без цього при розгортанні
+      # з нуля `prisma migrate deploy` падає з P1001 і под перезапускається.
+      initContainers:
+        - name: wait-for-db
+          image: postgres:17-alpine
+          command: [sh, -c, 'until pg_isready -h db -p 5432; do echo "waiting for db"; sleep 2; done']
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { cpu: 100m, memory: 64Mi }
+      containers:
+        - name: api
+          image: ghcr.io/corenest-chnu/nesthub-api:1.1.0
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef: { name: nesthub-config, key: NODE_ENV }
+            - name: PORT
+              valueFrom:
+                configMapKeyRef: { name: nesthub-config, key: PORT }
+            - name: JWT_EXPIRES_IN
+              valueFrom:
+                configMapKeyRef: { name: nesthub-config, key: JWT_EXPIRES_IN }
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef: { name: nesthub-config, key: POSTGRES_DB }
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef: { name: nesthub-config, key: POSTGRES_USER }
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: nesthub-secret, key: POSTGRES_PASSWORD }
+            # $(VAR) підставляє змінні, оголошені вище: пароль зберігається
+            # лише в Secret, а рядок підключення збирається з частин.
+            - name: DATABASE_URL
+              value: postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)?schema=public
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef: { name: nesthub-secret, key: JWT_SECRET }
+            - name: STATIC_SALT
+              valueFrom:
+                secretKeyRef: { name: nesthub-secret, key: STATIC_SALT }
+          # Перед SIGTERM под ще 10 с обслуговує запити: за цей час Kubernetes
+          # прибирає його з endpoints Service, і нові запити йдуть на інші поди.
+          # Без цього під час rolling update частина запитів падає (000/500).
+          lifecycle:
+            preStop:
+              exec:
+                command: [sleep, "10"]
+          resources:
+            requests: { cpu: 100m, memory: 192Mi }
+            limits: { cpu: 500m, memory: 512Mi }
+          # Старт (міграції + запуск Nest) займає кілька секунд; до успіху
+          # startupProbe liveness і readiness не перевіряються.
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 2
+            failureThreshold: 60
+          # Жива, якщо процес відповідає. БД не перевіряється, щоб її збій
+          # не перезапускав усі поди API.
+          livenessProbe:
+            httpGet: { path: /health, port: http }
+            periodSeconds: 10
+            failureThreshold: 3
+          # Готова приймати трафік, лише коли БД доступна.
+          readinessProbe:
+            httpGet: { path: /health/ready, port: http }
+            periodSeconds: 5
+            failureThreshold: 2

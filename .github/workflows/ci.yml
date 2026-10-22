@@ -4,6 +4,8 @@ on:
   push:
     # lab/** branches publish images on push too, without waiting for a merge.
     branches: [main, develop, 'lab/**']
+    # Version tags (git tag v1.1.0) publish images tagged 1.1.0.
+    tags: ['v*']
   pull_request:
     branches: [main, develop]
 
@@ -107,7 +109,8 @@ jobs:
         id: image
         run: echo "name=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/nesthub-${{ matrix.service }}" >> "$GITHUB_OUTPUT"
 
-      # Tags: sha-<short sha> for every build, branch name, and `latest` only on develop (the main branch).
+      # Tags: sha-<short sha> for every build, branch name, the version for a
+      # git tag v1.2.3 (-> 1.2.3), and `latest` only on develop (the main branch).
       - name: Image metadata
         id: meta
         uses: docker/metadata-action@v6
@@ -117,6 +120,7 @@ jobs:
             type=sha,prefix=sha-
             type=ref,event=branch
             type=ref,event=pr
+            type=semver,pattern={{version}}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/develop' }}
 
       - name: Build image
@@ -126,6 +130,8 @@ jobs:
           file: apps/${{ matrix.service }}/Dockerfile
           target: prod
           load: true
+          # Baked into the image; the API reports it from GET /health.
+          build-args: APP_VERSION=${{ steps.meta.outputs.version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.service }}
