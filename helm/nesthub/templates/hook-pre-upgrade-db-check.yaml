@@ -1,0 +1,41 @@
+{{- if .Values.hooks.preUpgradeDbCheck.enabled }}
+# pre-upgrade hook: Helm runs this Job before changing any object of the release
+# and aborts the upgrade if it fails. It makes sure the database is reachable,
+# because new API pods run migrations against it on start.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "nesthub.componentName" (list . "pre-upgrade-db-check") }}
+  labels:
+    {{- include "nesthub.componentLabels" (list . "hook") | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        {{- include "nesthub.componentLabels" (list . "hook") | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: db-check
+          image: {{ include "nesthub.image" (list . .Values.postgres.image) }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "pre-upgrade to revision {{ .Release.Revision }}: checking {{ include "nesthub.dbHost" . }}:5432"
+              for i in $(seq 1 30); do
+                pg_isready -h {{ include "nesthub.dbHost" . }} -p 5432 && exit 0
+                sleep 2
+              done
+              echo "database is not reachable, aborting upgrade"
+              exit 1
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { cpu: 100m, memory: 64Mi }
+{{- end }}

@@ -1,0 +1,6 @@
+# Files that `helm package` should skip.
+.DS_Store
+*.tgz
+.git/
+.idea/
+.vscode/

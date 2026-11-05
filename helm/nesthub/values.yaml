@@ -1,0 +1,80 @@
+# Default values = development environment.
+# Override per environment with -f values-dev.yaml / -f values-prod.yaml.
+
+nameOverride: ""
+fullnameOverride: ""
+
+api:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/corenest-chnu/nesthub-api
+    # Empty = Chart.appVersion.
+    tag: "1.3.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    requests: { cpu: 100m, memory: 192Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+
+web:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/corenest-chnu/nesthub-web
+    tag: "1.3.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+    port: 3000
+    # Fixed node port for NodePort services; empty = picked by Kubernetes.
+    nodePort: ""
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+
+postgres:
+  image:
+    repository: postgres
+    tag: 17-alpine
+    pullPolicy: IfNotPresent
+  resources:
+    requests: { cpu: 100m, memory: 128Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  persistence:
+    # false = emptyDir: data is lost when the pod is recreated.
+    enabled: true
+    size: 1Gi
+    # Empty = the cluster's default StorageClass.
+    storageClass: ""
+
+ingress:
+  enabled: false
+  className: nginx
+  host: nesthub.local
+
+# Non-secret settings -> ConfigMap.
+config:
+  postgresDb: nesthub
+  postgresUser: nesthub
+  nodeEnv: production
+  jwtExpiresIn: "86400"
+  authTrustHost: "true"
+
+# Sensitive settings -> Secret. Leave empty: the chart generates a random value
+# on first install and keeps the existing one on upgrades. Set them only from
+# the command line (--set) or an untracked file, never commit real secrets.
+secrets:
+  postgresPassword: ""
+  jwtSecret: ""
+  staticSalt: ""
+  authSecret: ""
+
+# pre-upgrade hook: waits until the database accepts connections before the
+# new API pods start migrating it.
+hooks:
+  preUpgradeDbCheck:
+    enabled: true
+
+tests:
+  image: curlimages/curl:8.16.0

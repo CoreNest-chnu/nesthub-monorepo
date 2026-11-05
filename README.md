@@ -50,6 +50,7 @@ A full-stack e-commerce web application inspired by platforms like Rozetka — w
 - [Linting & Formatting](#-linting--formatting)
 - [CI/CD](#-cicd)
 - [Kubernetes (minikube)](#️-kubernetes-minikube)
+- [Helm chart](#-helm-chart)
 - [Scripts Reference](#-scripts-reference)
 - [Project Structure](#-project-structure)
 - [Team](#-team)
@@ -577,6 +578,20 @@ kubectl -n nesthub rollout undo deploy/api
 # Remove everything
 kubectl delete namespace nesthub
 ```
+
+---
+
+## ⎈ Helm chart
+
+The same stack is packaged as a Helm chart in [`helm/nesthub`](helm/nesthub). Default values describe the development environment; `values-dev.yaml` and `values-prod.yaml` hold the per-environment overrides.
+
+```bash
+helm install nesthub helm/nesthub -n nesthub --create-namespace -f helm/nesthub/values-dev.yaml
+helm upgrade nesthub helm/nesthub -n nesthub -f helm/nesthub/values-prod.yaml
+helm test nesthub -n nesthub
+```
+
+See the [chart README](helm/nesthub/README.md) for the values table, value priority, `version` vs `appVersion`, the lifecycle commands, and the hook and test.
 
 ---
 

@@ -1,0 +1,21 @@
+NestHub {{ .Chart.AppVersion }} is deployed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}" (revision {{ .Release.Revision }}).
+API image: {{ include "nesthub.image" (list . .Values.api.image) }}, replicas: {{ .Values.api.replicaCount }}
+Web image: {{ include "nesthub.image" (list . .Values.web.image) }}, replicas: {{ .Values.web.replicaCount }}
+
+Wait until all pods are ready:
+  kubectl -n {{ .Release.Namespace }} get pods -l app.kubernetes.io/instance={{ .Release.Name }} -w
+
+Open the app:
+{{- if .Values.ingress.enabled }}
+  1. Add "127.0.0.1 {{ .Values.ingress.host }}" to /etc/hosts
+  2. Run "minikube tunnel" in a separate terminal
+  3. Open http://{{ .Values.ingress.host }}
+{{- else if eq .Values.web.service.type "NodePort" }}
+  minikube service {{ include "nesthub.componentName" (list . "web") }} -n {{ .Release.Namespace }}
+{{- else }}
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "nesthub.componentName" (list . "web") }} 3000:{{ .Values.web.service.port }}
+  then open http://localhost:3000
+{{- end }}
+
+Check the release:
+  helm test {{ .Release.Name }} -n {{ .Release.Namespace }}

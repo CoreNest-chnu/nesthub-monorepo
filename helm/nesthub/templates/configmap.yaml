@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nesthub.configName" . }}
+  labels:
+    {{- include "nesthub.labels" . | nindent 4 }}
+data:
+  POSTGRES_DB: {{ .Values.config.postgresDb | quote }}
+  POSTGRES_USER: {{ .Values.config.postgresUser | quote }}
+  NODE_ENV: {{ .Values.config.nodeEnv | quote }}
+  PORT: {{ .Values.api.service.port | quote }}
+  JWT_EXPIRES_IN: {{ .Values.config.jwtExpiresIn | quote }}
+  AUTH_TRUST_HOST: {{ .Values.config.authTrustHost | quote }}
+  # The web pods proxy /api/* to the API Service of this release.
+  API_PROXY_TARGET: {{ printf "http://%s:%v" (include "nesthub.componentName" (list . "api")) .Values.api.service.port | quote }}

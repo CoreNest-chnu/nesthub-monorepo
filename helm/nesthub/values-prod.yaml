@@ -1,0 +1,30 @@
+# Production: more replicas, bigger resources, newer image, access via Ingress.
+api:
+  replicaCount: 3
+  image:
+    tag: "1.4.0"
+  resources:
+    requests: { cpu: 250m, memory: 256Mi }
+    limits: { cpu: "1", memory: 768Mi }
+
+web:
+  replicaCount: 2
+  image:
+    tag: "1.4.0"
+  service:
+    type: ClusterIP
+  resources:
+    requests: { cpu: 100m, memory: 192Mi }
+    limits: { cpu: "1", memory: 512Mi }
+
+postgres:
+  resources:
+    requests: { cpu: 250m, memory: 256Mi }
+    limits: { cpu: "1", memory: 1Gi }
+  # Disk size stays as in values.yaml: minikube's StorageClass cannot resize a
+  # bound PVC, so changing it would fail a dev -> prod upgrade.
+
+ingress:
+  enabled: true
+  className: nginx
+  host: nesthub.local
