@@ -1,0 +1,19 @@
+# Доступ до web усередині кластера (web:3000) і з хоста через NodePort 30080:
+#   minikube service web -n nesthub
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: nesthub
+  labels:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/part-of: nesthub
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: web
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+      nodePort: 30080

@@ -1,0 +1,23 @@
+# Доступ за доменом http://nesthub.local через addon ingress (nginx).
+# На macOS з драйвером docker потрібні `minikube tunnel` і рядок
+# `127.0.0.1 nesthub.local` у /etc/hosts.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nesthub
+  namespace: nesthub
+  labels:
+    app.kubernetes.io/part-of: nesthub
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: nesthub.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  name: http

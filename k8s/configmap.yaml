@@ -1,0 +1,18 @@
+# Несекретні параметри. Підключаються в контейнери як змінні оточення.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nesthub-config
+  namespace: nesthub
+  labels:
+    app.kubernetes.io/part-of: nesthub
+data:
+  # PostgreSQL
+  POSTGRES_DB: nesthub
+  POSTGRES_USER: nesthub
+  # API (NestJS)
+  NODE_ENV: production
+  PORT: "8000"
+  JWT_EXPIRES_IN: "86400"
+  # Web (Next.js): поза Vercel NextAuth приймає запити лише від довірених хостів.
+  AUTH_TRUST_HOST: "true"

@@ -26,6 +26,9 @@
     "turbo": "^2.8.16",
     "typescript": "5.9.2"
   },
+  "overrides": {
+    "proxy-addr": "^2.0.8"
+  },
   "engines": {
     "node": ">=18"
   },

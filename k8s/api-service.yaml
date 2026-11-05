@@ -1,0 +1,19 @@
+# Внутрішня адреса API: api:8000. Саме цю адресу вшито в web-образ
+# (API_PROXY_TARGET=http://api:8000), тож ім'я і порт мають збігатися.
+# Service розподіляє запити між усіма готовими подами API.
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: nesthub
+  labels:
+    app.kubernetes.io/name: api
+    app.kubernetes.io/part-of: nesthub
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http

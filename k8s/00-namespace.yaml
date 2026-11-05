@@ -1,0 +1,8 @@
+# Окремий namespace проєкту. Файл має префікс 00-, щоб `kubectl apply -f k8s/`
+# створив його раніше за решту об'єктів (файли застосовуються за алфавітом).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nesthub
+  labels:
+    app.kubernetes.io/part-of: nesthub
