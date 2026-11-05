@@ -85,11 +85,13 @@ spec:
             requests: { cpu: 100m, memory: 192Mi }
             limits: { cpu: 500m, memory: 512Mi }
           # Старт (міграції + запуск Nest) займає кілька секунд; до успіху
-          # startupProbe liveness і readiness не перевіряються.
+          # startupProbe liveness і readiness не перевіряються. Бюджет 5 хв:
+          # amd64-образ на arm64-вузлі (minikube на Apple Silicon) працює через
+          # емуляцію і при кількох подах одночасно стартує понад 2 хв.
           startupProbe:
             httpGet: { path: /health, port: http }
             periodSeconds: 2
-            failureThreshold: 60
+            failureThreshold: 150
           # Жива, якщо процес відповідає. БД не перевіряється, щоб її збій
           # не перезапускав усі поди API.
           livenessProbe:

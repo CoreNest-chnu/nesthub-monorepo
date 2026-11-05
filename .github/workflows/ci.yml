@@ -116,6 +116,8 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ${{ steps.image.outputs.name }}
+          # Without this, a semver tag also gets `latest`; keep `latest` for develop only.
+          flavor: latest=false
           tags: |
             type=sha,prefix=sha-
             type=ref,event=branch
