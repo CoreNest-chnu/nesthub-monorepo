@@ -48,15 +48,14 @@ services:
       context: .
       dockerfile: ./apps/web/Dockerfile
       target: prod
-      args:
-        # Baked into the Next.js rewrites at build time.
-        API_PROXY_TARGET: http://api:8000
     container_name: nest-hub-prod-web
     restart: unless-stopped
     environment:
       AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me}
       # Outside Vercel, NextAuth rejects requests unless the host is trusted.
       AUTH_TRUST_HOST: "true"
+      # Read at runtime by apps/web/src/proxy.ts.
+      API_PROXY_TARGET: http://api:8000
     ports:
       - "${WEB_PORT:-3000}:3000"
     depends_on:

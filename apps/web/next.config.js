@@ -1,8 +1,6 @@
 import { fileURLToPath } from 'node:url'
 
-// Where the Next server proxies /api/* requests. In Docker the API is reachable
-// via the compose service name (http://api:8000); locally it's localhost:8000.
-const API_PROXY_TARGET = process.env.API_PROXY_TARGET ?? 'http://localhost:8000'
+// /api/* is proxied to the backend at runtime by src/proxy.ts (API_PROXY_TARGET).
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -21,31 +19,6 @@ const nextConfig = {
         hostname: '**',
       },
     ],
-  },
-  async rewrites() {
-    return {
-      // Run BEFORE the filesystem — these paths never reach the
-      // /api/auth/[...nextauth] catch-all route.
-      beforeFiles: [
-        {
-          source: '/api/auth/register',
-          destination: `${API_PROXY_TARGET}/auth/register`,
-        },
-        {
-          source: '/api/auth/login',
-          destination: `${API_PROXY_TARGET}/auth/login`,
-        },
-      ],
-      afterFiles: [],
-      // Everything else under /api/* that doesn't match a local route
-      // falls through to the NestJS backend.
-      fallback: [
-        {
-          source: '/api/:path*',
-          destination: `${API_PROXY_TARGET}/:path*`,
-        },
-      ],
-    }
   },
 }
 

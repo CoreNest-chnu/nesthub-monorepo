@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nesthub.dbHost" . }}
+  labels:
+    {{- include "nesthub.componentLabels" (list . "postgres") | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "nesthub.selectorLabels" (list . "postgres") | nindent 4 }}
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
