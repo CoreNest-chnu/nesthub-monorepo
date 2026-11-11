@@ -51,6 +51,7 @@ A full-stack e-commerce web application inspired by platforms like Rozetka — w
 - [CI/CD](#-cicd)
 - [Kubernetes (minikube)](#️-kubernetes-minikube)
 - [Helm chart](#-helm-chart)
+- [GitOps (Argo CD)](#-gitops-argo-cd)
 - [Scripts Reference](#-scripts-reference)
 - [Project Structure](#-project-structure)
 - [Team](#-team)
@@ -583,15 +584,68 @@ kubectl delete namespace nesthub
 
 ## ⎈ Helm chart
 
-The same stack is packaged as a Helm chart in [`helm/nesthub`](helm/nesthub). Default values describe the development environment; `values-dev.yaml` and `values-prod.yaml` hold the per-environment overrides.
+The same stack is packaged as a Helm chart in [`charts/nesthub`](charts/nesthub). Default values describe the development environment; `values-dev.yaml` and `values-prod.yaml` hold the per-environment overrides.
 
 ```bash
-helm install nesthub helm/nesthub -n nesthub --create-namespace -f helm/nesthub/values-dev.yaml
-helm upgrade nesthub helm/nesthub -n nesthub -f helm/nesthub/values-prod.yaml
+helm install nesthub charts/nesthub -n nesthub --create-namespace -f charts/nesthub/values-dev.yaml
+helm upgrade nesthub charts/nesthub -n nesthub -f charts/nesthub/values-prod.yaml
 helm test nesthub -n nesthub
 ```
 
-See the [chart README](helm/nesthub/README.md) for the values table, value priority, `version` vs `appVersion`, the lifecycle commands, and the hook and test.
+See the [chart README](charts/nesthub/README.md) for the values table, value priority, `version` vs `appVersion`, the lifecycle commands, and the hook and test.
+
+---
+
+## 🔁 GitOps (Argo CD)
+
+The minikube cluster is deployed by **Argo CD**, not by hand: Git describes the desired state, and Argo CD keeps the cluster equal to it.
+
+```
+bootstrap/root.yaml        # root Application (App of Apps), applied by hand once
+argocd-apps/nesthub.yaml   # Application for the chart, managed by root
+charts/nesthub/            # Helm chart (lab 4) + values-minikube.yaml
+```
+
+Both Applications follow the `lab/dev-ops-5` branch (`develop` accepts only PRs). CI ignores changes in these directories (`paths-ignore`), so a GitOps commit does not rebuild images.
+
+### Setup
+
+```bash
+# Argo CD
+kubectl create namespace argocd
+kubectl apply -n argocd --server-side --force-conflicts \
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+brew install argocd
+
+# UI and CLI (keep the port-forward running)
+kubectl -n argocd port-forward svc/argocd-server 8080:443
+argocd admin initial-password -n argocd
+argocd login localhost:8080 --username admin --insecure
+argocd account update-password
+kubectl -n argocd delete secret argocd-initial-admin-secret
+
+# Secret values are not stored in Git: create the Secret once by hand
+kubectl create namespace nesthub
+kubectl -n nesthub create secret generic nesthub-secret \
+  --from-literal=POSTGRES_PASSWORD=$(openssl rand -hex 16) \
+  --from-literal=JWT_SECRET=$(openssl rand -hex 32) \
+  --from-literal=STATIC_SALT=$(openssl rand -hex 16) \
+  --from-literal=AUTH_SECRET=$(openssl rand -hex 32)
+
+# The only manual apply; everything else comes from Git
+kubectl apply -f bootstrap/root.yaml
+argocd app list
+```
+
+The UI is at https://localhost:8080 (self-signed certificate). The repository is public, so no `argocd repo add` is needed.
+
+### Release
+
+1. Tag a new version: `git tag v1.5.0 && git push origin v1.5.0`. CI builds and publishes the images.
+2. Set `tag: "1.5.0"` for `api` and `web` in `charts/nesthub/values-minikube.yaml`, commit and push.
+3. Argo CD syncs automatically (or `argocd app get nesthub --refresh`). The new version shows in `GET /api/health` and in the site footer.
+
+Roll back with `git revert <commit> && git push`, not `argocd app rollback`: with auto-sync on, Argo CD would immediately restore the state from Git.
 
 ---
 

@@ -3,7 +3,7 @@ name: nesthub
 description: NestHub e-commerce platform — NestJS API, Next.js web and PostgreSQL
 type: application
 # Version of the chart itself (templates, values). Bump it on every chart change.
-version: 0.1.0
+version: 0.2.0
 # Version of the application the chart deploys by default. Used as the image
 # tag when api.image.tag / web.image.tag are empty.
 appVersion: "1.4.0"

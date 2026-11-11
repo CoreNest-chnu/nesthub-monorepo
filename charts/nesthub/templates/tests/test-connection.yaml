@@ -1,5 +1,6 @@
 # `helm test <release>` runs this Pod. It goes through the whole chain:
 # web Service -> Next.js proxy -> API Service -> API -> PostgreSQL.
+{{- if .Values.tests.enabled }}
 apiVersion: v1
 kind: Pod
 metadata:
@@ -32,3 +33,4 @@ spec:
       resources:
         requests: { cpu: 10m, memory: 16Mi }
         limits: { cpu: 100m, memory: 64Mi }
+{{- end }}

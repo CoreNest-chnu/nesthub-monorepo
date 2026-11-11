@@ -3,11 +3,12 @@
 Deploys the whole NestHub stack: NestJS API, Next.js web and PostgreSQL. It creates the same set of objects as the plain manifests in [`k8s/`](../../k8s), but every name, image tag, replica count and setting comes from values.
 
 ```
-helm/nesthub/
+charts/nesthub/
 ├── Chart.yaml
 ├── values.yaml            # defaults = development
 ├── values-dev.yaml        # development overrides
 ├── values-prod.yaml       # production overrides
+├── values-minikube.yaml   # minikube cluster managed by Argo CD (lab 5)
 └── templates/
     ├── _helpers.tpl       # names, labels, image, secret helpers
     ├── NOTES.txt          # printed after install / upgrade
@@ -38,10 +39,10 @@ So a fix in a template is a new `version` with the same `appVersion`, and a new 
 
 ```bash
 # Development: 1 replica each, NodePort, no Ingress
-helm install nesthub helm/nesthub -n nesthub --create-namespace -f helm/nesthub/values-dev.yaml
+helm install nesthub charts/nesthub -n nesthub --create-namespace -f charts/nesthub/values-dev.yaml
 
 # Production: 3 API / 2 web replicas, bigger resources, image 1.4.0, Ingress on nesthub.local
-helm install nesthub helm/nesthub -n nesthub --create-namespace -f helm/nesthub/values-prod.yaml
+helm install nesthub charts/nesthub -n nesthub --create-namespace -f charts/nesthub/values-prod.yaml
 ```
 
 Then follow the instructions that `NOTES.txt` prints, and check the release with `helm test nesthub -n nesthub`.
@@ -49,7 +50,7 @@ Then follow the instructions that `NOTES.txt` prints, and check the release with
 Object names are built from the release name (`<release>-nesthub-api`, or `nesthub-api` when the release is called `nesthub`), so the chart can be installed several times in one cluster, even in one namespace:
 
 ```bash
-helm install demo helm/nesthub -n nesthub
+helm install demo charts/nesthub -n nesthub
 ```
 
 ## Values
@@ -83,7 +84,9 @@ helm install demo helm/nesthub -n nesthub
 | `config.authTrustHost` | `true` | | ConfigMap, NextAuth `AUTH_TRUST_HOST`. |
 | `secrets.postgresPassword`, `secrets.jwtSecret`, `secrets.staticSalt`, `secrets.authSecret` | `""` | | Secret. Empty = random value on first install, kept on upgrades. Never commit real values; pass them with `--set` if needed. |
 | `hooks.preUpgradeDbCheck.enabled` | `true` | | `pre-upgrade` Job that checks the database before an upgrade. |
+| `tests.enabled` | `true` | | Render the `helm test` pod (Argo CD does not run Helm tests). |
 | `tests.image` | `curlimages/curl:8.16.0` | | Image of the `helm test` pod. |
+| `existingSecret` | `""` | | Name of a Secret created by hand. When set, the chart does not render its own Secret. Used by Argo CD (`values-minikube.yaml`). |
 
 The web pods get `API_PROXY_TARGET=http://<release>-api:8000` from the ConfigMap. The web image reads it at runtime (`apps/web/src/proxy.ts`), so the same image works with any release name.
 
@@ -103,8 +106,8 @@ On `helm upgrade`, values from the previous revision are **not** kept unless `--
 
 ```bash
 diff -u \
-  <(helm template nesthub helm/nesthub -f helm/nesthub/values-dev.yaml) \
-  <(helm template nesthub helm/nesthub -f helm/nesthub/values-prod.yaml)
+  <(helm template nesthub charts/nesthub -f charts/nesthub/values-dev.yaml) \
+  <(helm template nesthub charts/nesthub -f charts/nesthub/values-prod.yaml)
 ```
 
 The Secret values differ on every render (they are random when nothing is installed), so ignore those lines.
@@ -112,16 +115,16 @@ The Secret values differ on every render (they are random when nothing is instal
 ## Release lifecycle
 
 ```bash
-helm lint helm/nesthub
-helm template nesthub helm/nesthub -f helm/nesthub/values-dev.yaml   # rendered manifests
-helm install nesthub helm/nesthub -n nesthub --create-namespace -f helm/nesthub/values-dev.yaml
+helm lint charts/nesthub
+helm template nesthub charts/nesthub -f charts/nesthub/values-dev.yaml   # rendered manifests
+helm install nesthub charts/nesthub -n nesthub --create-namespace -f charts/nesthub/values-dev.yaml
 helm list -n nesthub
 helm status nesthub -n nesthub
 helm get values nesthub -n nesthub          # values the release was installed with
 kubectl -n nesthub get secret -l owner=helm # where Helm stores release state
 
-helm upgrade nesthub helm/nesthub -n nesthub -f helm/nesthub/values-dev.yaml --set api.image.tag=1.4.0
-helm upgrade nesthub helm/nesthub -n nesthub -f helm/nesthub/values-prod.yaml
+helm upgrade nesthub charts/nesthub -n nesthub -f charts/nesthub/values-dev.yaml --set api.image.tag=1.4.0
+helm upgrade nesthub charts/nesthub -n nesthub -f charts/nesthub/values-prod.yaml
 helm history nesthub -n nesthub
 helm rollback nesthub 2 -n nesthub
 helm test nesthub -n nesthub

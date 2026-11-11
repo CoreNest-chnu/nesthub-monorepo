@@ -1,0 +1,30 @@
+# NestHub, deployed from the Helm chart in charts/nesthub with values-minikube.yaml.
+# The Application name is the Helm release name, so objects are called
+# nesthub-api, nesthub-web, ... exactly as after `helm install nesthub` in lab 4.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nesthub
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/CoreNest-chnu/nesthub-monorepo.git
+    targetRevision: lab/dev-ops-5
+    path: charts/nesthub
+    helm:
+      # Relative to `path`, not to the repository root.
+      valueFiles:
+        - values-minikube.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nesthub
+  syncPolicy:
+    automated:
+      # Objects removed from Git are removed from the cluster.
+      prune: true
+      # selfHeal is enabled in step 6 of the lab: until then a manual change in
+      # the cluster only shows up as OutOfSync and stays in place.
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
