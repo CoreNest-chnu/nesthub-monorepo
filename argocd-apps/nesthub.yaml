@@ -25,6 +25,6 @@ spec:
       prune: true
       # selfHeal is enabled in step 6 of the lab: until then a manual change in
       # the cluster only shows up as OutOfSync and stays in place.
-      selfHeal: false
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true
