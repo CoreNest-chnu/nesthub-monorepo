@@ -1,0 +1,24 @@
+# Root Application (App of Apps). The only object applied by hand, once:
+#   kubectl apply -f bootstrap/root.yaml
+# It watches argocd-apps/ and creates every Application found there. A new app
+# or cluster component is added by committing one more file to argocd-apps/.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/CoreNest-chnu/nesthub-monorepo.git
+    # Branch Argo CD follows. `develop` only accepts PRs (branch protection),
+    # so the lab follows its own branch to release by plain commit + push.
+    targetRevision: lab/dev-ops-5
+    path: argocd-apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -61,6 +61,12 @@ config:
   jwtExpiresIn: "86400"
   authTrustHost: "true"
 
+# Name of a Secret that already exists in the namespace (keys POSTGRES_PASSWORD,
+# JWT_SECRET, STATIC_SALT, AUTH_SECRET). When set, the chart does not render its
+# own Secret and the `secrets` block below is ignored. Used by GitOps (Argo CD),
+# where secret values must not live in Git.
+existingSecret: ""
+
 # Sensitive settings -> Secret. Leave empty: the chart generates a random value
 # on first install and keeps the existing one on upgrades. Set them only from
 # the command line (--set) or an untracked file, never commit real secrets.
@@ -77,4 +83,6 @@ hooks:
     enabled: true
 
 tests:
+  # Pod run by `helm test`. Argo CD does not run Helm test hooks.
+  enabled: true
   image: curlimages/curl:8.16.0

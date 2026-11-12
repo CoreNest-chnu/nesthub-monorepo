@@ -32,7 +32,11 @@ CMD ["bun", "run", "dev"]
 
 # ---- Build ----
 FROM dev AS build
-ENV NEXT_TELEMETRY_DISABLED=1
+# Версія образу (CI передає тег). Сторінки рендеряться під час збірки, тому
+# версія у футері задається саме тут.
+ARG APP_VERSION=dev
+ENV NEXT_TELEMETRY_DISABLED=1 \
+    APP_VERSION=$APP_VERSION
 # Без Node.js `bun run` виконує `next build` самим Bun, а воркери Next 16.3
 # на ньому падають (segfault / "Expected CommonJS module to have a function
 # wrapper"). З nodejs у PATH bun запускає next через справжній node.
@@ -42,13 +46,15 @@ RUN bun run build
 # ---- Production image ----
 FROM node:22-alpine AS prod
 WORKDIR /app
+ARG APP_VERSION=dev
 # Адресу API читає src/proxy.ts під час запуску, тож її можна перевизначити
 # змінною оточення; за замовчуванням — сервіс api з docker-compose і k8s/.
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
     HOSTNAME=0.0.0.0 \
-    API_PROXY_TARGET=http://api:8000
+    API_PROXY_TARGET=http://api:8000 \
+    APP_VERSION=$APP_VERSION
 
 COPY --from=build --chown=node:node /app/apps/web/.next/standalone ./
 COPY --from=build --chown=node:node /app/apps/web/.next/static ./apps/web/.next/static

@@ -69,6 +69,10 @@ export const Footer: React.FC = () => (
       <p className={'text-xs text-gray-400'}>
         {'© 2026 NestHub. Усі права захищені.'}
       </p>
+      {/* Image version (APP_VERSION build arg), shows which release is deployed. */}
+      <p className={'text-xs text-gray-300 mt-1'}>
+        {`v${process.env.APP_VERSION ?? 'dev'}`}
+      </p>
     </div>
   </footer>
 )

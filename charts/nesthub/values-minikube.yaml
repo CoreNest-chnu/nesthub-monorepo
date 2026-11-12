@@ -1,0 +1,37 @@
+# Values for the minikube cluster managed by Argo CD (argocd-apps/nesthub.yaml).
+# Changing this file and pushing it is how the app is released: Argo CD syncs
+# the cluster to whatever is committed here.
+
+api:
+  replicaCount: 2
+  image:
+    tag: "1.5.0"
+    pullPolicy: IfNotPresent
+
+web:
+  replicaCount: 1
+  image:
+    tag: "1.5.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+    nodePort: 30082
+
+ingress:
+  enabled: false
+
+# Secret values are not in Git. Create the Secret once by hand:
+#   kubectl -n nesthub create secret generic nesthub-secret \
+#     --from-literal=POSTGRES_PASSWORD=... --from-literal=JWT_SECRET=... \
+#     --from-literal=STATIC_SALT=... --from-literal=AUTH_SECRET=...
+# Argo CD never prunes it, because it is not part of the rendered chart.
+existingSecret: nesthub-secret
+
+# Argo CD maps Helm `pre-upgrade` hooks to PreSync, so the hook would run before
+# every sync, including the first one, when there is no database yet.
+hooks:
+  preUpgradeDbCheck:
+    enabled: false
+
+tests:
+  enabled: false

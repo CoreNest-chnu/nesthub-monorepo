@@ -62,7 +62,8 @@ app.kubernetes.io/component: {{ index . 1 }}
 {{- end }}
 
 {{- define "nesthub.configName" -}}{{ include "nesthub.componentName" (list . "config") }}{{- end }}
-{{- define "nesthub.secretName" -}}{{ include "nesthub.componentName" (list . "secret") }}{{- end }}
+{{/* Secret used by the pods: an existing one (created outside the chart) or the chart's own. */}}
+{{- define "nesthub.secretName" -}}{{ .Values.existingSecret | default (include "nesthub.componentName" (list . "secret")) }}{{- end }}
 {{- define "nesthub.dbHost" -}}{{ include "nesthub.componentName" (list . "db") }}{{- end }}
 
 {{/*

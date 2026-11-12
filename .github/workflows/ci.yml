@@ -6,8 +6,15 @@ on:
     branches: [main, develop, 'lab/**']
     # Version tags (git tag v1.1.0) publish images tagged 1.1.0.
     tags: ['v*']
+    # GitOps-only changes (Argo CD apps, chart, values) do not build images.
+    # Path filters are not applied to tag pushes, so releases still build.
+    paths-ignore: &gitops-paths
+      - 'bootstrap/**'
+      - 'argocd-apps/**'
+      - 'charts/**'
   pull_request:
     branches: [main, develop]
+    paths-ignore: *gitops-paths
 
 # A newer push to the same branch / PR cancels the run that is still going.
 concurrency:
