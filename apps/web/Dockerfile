@@ -2,7 +2,7 @@
 FROM oven/bun:1.3.7-alpine AS base
 WORKDIR /app
 
-RUN apk add --no-cache libc6-compat
+RUN apk upgrade --no-cache && apk add --no-cache libc6-compat
 
 # ---- Dependencies ----
 FROM base AS deps
