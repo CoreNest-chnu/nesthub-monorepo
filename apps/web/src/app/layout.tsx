@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import localFont from 'next/font/local'
 import './globals.css'
 import { Providers } from './providers'
@@ -36,7 +37,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Providers>
           <div className={'min-h-screen flex flex-col'}>
-            <Header />
+            <Suspense fallback={null}>
+              <Header />
+            </Suspense>
             <main className={'flex-1 flex flex-col'}>{children}</main>
             <Footer />
           </div>
