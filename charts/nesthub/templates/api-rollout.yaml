@@ -1,0 +1,23 @@
+{{- /*
+Argo Rollouts replacement for api-deployment.yaml (needs the Argo Rollouts
+controller and its CRDs in the cluster). Same pods, but a release goes through
+the steps in .Values.api.rollout.strategy and can be paused, promoted or aborted.
+*/}}
+{{- if .Values.api.rollout.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "nesthub.componentName" (list . "api") }}
+  labels:
+    {{- include "nesthub.componentLabels" (list . "api") | nindent 4 }}
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "nesthub.selectorLabels" (list . "api") | nindent 6 }}
+  template:
+    {{- include "nesthub.api.podTemplate" . | nindent 4 }}
+  strategy:
+    {{- toYaml .Values.api.rollout.strategy | nindent 4 }}
+{{- end }}

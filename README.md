@@ -601,12 +601,13 @@ See the [chart README](charts/nesthub/README.md) for the values table, value pri
 The minikube cluster is deployed by **Argo CD**, not by hand: Git describes the desired state, and Argo CD keeps the cluster equal to it.
 
 ```
-bootstrap/root.yaml        # root Application (App of Apps), applied by hand once
-argocd-apps/nesthub.yaml   # Application for the chart, managed by root
-charts/nesthub/            # Helm chart (lab 4) + values-minikube.yaml
+bootstrap/root.yaml             # root Application (App of Apps), applied by hand once
+argocd-apps/argo-rollouts.yaml  # Argo Rollouts controller (Helm chart), sync wave -1
+argocd-apps/nesthub.yaml        # Application for the chart, managed by root
+charts/nesthub/                 # Helm chart (lab 4) + values-minikube.yaml
 ```
 
-Both Applications follow the `lab/dev-ops-5` branch (`develop` accepts only PRs). CI ignores changes in these directories (`paths-ignore`), so a GitOps commit does not rebuild images.
+The Applications follow the `lab/dev-ops-6` branch (`develop` accepts only PRs). CI ignores changes in these directories (`paths-ignore`), so a GitOps commit does not rebuild images.
 
 ### Setup
 
@@ -646,6 +647,34 @@ The UI is at https://localhost:8080 (self-signed certificate). The repository is
 3. Argo CD syncs automatically (or `argocd app get nesthub --refresh`). The new version shows in `GET /api/health` and in the site footer.
 
 Roll back with `git revert <commit> && git push`, not `argocd app rollback`: with auto-sync on, Argo CD would immediately restore the state from Git.
+
+### Canary releases (Argo Rollouts)
+
+In `values-minikube.yaml` the API runs as an Argo Rollouts `Rollout` with 5 replicas instead of a Deployment (`api.rollout.enabled: true`). A new image tag goes out in steps:
+
+```
+setWeight 20 → pause (manual promote) → setWeight 60 → pause 30s → setWeight 80 → pause 30s → 100%
+```
+
+There is no traffic router: the `nesthub-api` Service selects pods of both versions, so the traffic share equals the share of pods (20% = 1 pod of 5).
+
+Canary fits the API: it is stateless, `GET /health` reports the version and the pod, and a bad release reaches only a part of the users. Blue-green would need twice the pods and a second Service. Both versions share one database, so a migration must stay compatible with the previous version.
+
+```bash
+brew install argoproj/tap/kubectl-argo-rollouts
+
+kubectl argo rollouts get rollout nesthub-api -n nesthub --watch
+kubectl argo rollouts dashboard                    # http://localhost:3100
+
+# Requests from inside the cluster (a port-forward goes to one pod only)
+kubectl -n nesthub run curl --rm -it --image=curlimages/curl -- \
+  sh -c 'while true; do curl -s http://nesthub-api:8000/health; echo; sleep 0.5; done'
+
+kubectl argo rollouts promote nesthub-api -n nesthub   # continue after the manual pause
+kubectl argo rollouts abort nesthub-api -n nesthub     # back to the stable version
+```
+
+After `abort`, the app is Synced (the cluster matches Git) but Degraded (the release was cancelled). Finish with `git revert <commit> && git push`.
 
 ---
 

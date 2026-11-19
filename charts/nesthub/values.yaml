@@ -17,6 +17,18 @@ api:
   resources:
     requests: { cpu: 100m, memory: 192Mi }
     limits: { cpu: 500m, memory: 512Mi }
+  # Progressive delivery with Argo Rollouts: true replaces the API Deployment
+  # with a Rollout (requires the Argo Rollouts controller and CRDs).
+  rollout:
+    enabled: false
+    # spec.strategy of the Rollout, passed through as is.
+    strategy:
+      canary:
+        steps:
+          - setWeight: 20
+          - pause: {}
+          - setWeight: 60
+          - pause: { duration: 30s }
 
 web:
   replicaCount: 1

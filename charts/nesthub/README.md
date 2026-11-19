@@ -11,13 +11,15 @@ charts/nesthub/
 ├── values-minikube.yaml   # minikube cluster managed by Argo CD (lab 5)
 └── templates/
     ├── _helpers.tpl       # names, labels, image, secret helpers
+    ├── _api-pod.tpl       # API pod template, shared by the Deployment and the Rollout
     ├── NOTES.txt          # printed after install / upgrade
     ├── configmap.yaml
     ├── secret.yaml
     ├── postgres-pvc.yaml  # only when postgres.persistence.enabled
     ├── postgres-deployment.yaml
     ├── postgres-service.yaml
-    ├── api-deployment.yaml
+    ├── api-deployment.yaml  # only when api.rollout.enabled is false
+    ├── api-rollout.yaml     # Argo Rollouts Rollout, only when api.rollout.enabled
     ├── api-service.yaml
     ├── web-deployment.yaml
     ├── web-service.yaml
@@ -64,6 +66,8 @@ helm install demo charts/nesthub -n nesthub
 | `api.image.pullPolicy` | `IfNotPresent` | | |
 | `api.service.type` / `api.service.port` | `ClusterIP` / `8000` | | API Service. |
 | `api.resources` | 100m / 192Mi → 500m / 512Mi | 250m / 256Mi → 1 / 768Mi | Requests → limits. |
+| `api.rollout.enabled` | `false` | | `true` = Argo Rollouts `Rollout` instead of the API Deployment. Needs the Argo Rollouts controller. `true` with 5 replicas in `values-minikube.yaml`. |
+| `api.rollout.strategy` | canary 20% → pause → 60% → 30 s | | `spec.strategy` of the Rollout, passed as is (canary or blueGreen). |
 | `web.replicaCount` | `1` | `2` | Web pods. |
 | `web.image.repository` | `ghcr.io/corenest-chnu/nesthub-web` | | Web image. |
 | `web.image.tag` | `1.3.0` | `1.4.0` | Web image tag; empty = `appVersion`. |

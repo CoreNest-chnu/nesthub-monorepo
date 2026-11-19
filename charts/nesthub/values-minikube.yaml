@@ -3,15 +3,29 @@
 # the cluster to whatever is committed here.
 
 api:
-  replicaCount: 2
+  # 5 pods so the canary weights map to whole pods: 20% = 1, 60% = 3, 80% = 4.
+  replicaCount: 5
   image:
-    tag: "1.5.0"
+    tag: "1.6.0"
     pullPolicy: IfNotPresent
+  # Canary release with Argo Rollouts. The Service selects pods of both versions,
+  # so traffic is split by the number of pods of each version.
+  rollout:
+    enabled: true
+    strategy:
+      canary:
+        steps:
+          - setWeight: 20
+          - pause: {}                  # wait for a manual promote
+          - setWeight: 60
+          - pause: { duration: 30s }
+          - setWeight: 80
+          - pause: { duration: 30s }
 
 web:
   replicaCount: 1
   image:
-    tag: "1.5.0"
+    tag: "1.6.0"
     pullPolicy: IfNotPresent
   service:
     type: NodePort
