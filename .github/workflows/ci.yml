@@ -120,13 +120,14 @@ jobs:
       # Блокуючий крок: знайдені критичні вразливості завершують job з помилкою.
       # Для суворішої перевірки зміни severity на CRITICAL,HIGH.
       - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: nesthub-${{ matrix.service }}:ci
-          format: table
-          severity: CRITICAL
-          ignore-unfixed: true
-          exit-code: "1"
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest image \
+              --severity CRITICAL \
+              --ignore-unfixed \
+              --exit-code 1 \
+              nesthub-${{ matrix.service }}:ci
 
   # ---------------------------------------------------------------------------
   # 3. Публікація образів у GitHub Container Registry (лише push, не PR)
