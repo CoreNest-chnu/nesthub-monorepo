@@ -1,0 +1,28 @@
+# Argo Rollouts controller and its CRDs (Rollout, AnalysisTemplate, ...),
+# installed from the official Helm chart. root picks this file up like any other
+# Application in argocd-apps/.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-rollouts
+  namespace: argocd
+  annotations:
+    # Before the apps (wave 0): the nesthub chart needs the Rollout CRD.
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-rollouts
+    # Latest chart version from `helm search repo argo/argo-rollouts`
+    # (controller v1.10.2).
+    targetRevision: 2.43.12
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-rollouts
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
