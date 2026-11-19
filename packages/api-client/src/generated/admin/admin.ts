@@ -540,17 +540,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getAdminControllerUpdateCategoryMutationOptions(options), queryClient);
     }
-    export type adminControllerDeleteCategoryResponse200 = {
-  data: void
-  status: 200
-}
-
-export type adminControllerDeleteCategoryResponse204 = {
+    export type adminControllerDeleteCategoryResponse204 = {
   data: void
   status: 204
 }
 
-export type adminControllerDeleteCategoryResponseSuccess = (adminControllerDeleteCategoryResponse200 | adminControllerDeleteCategoryResponse204) & {
+export type adminControllerDeleteCategoryResponseSuccess = (adminControllerDeleteCategoryResponse204) & {
   headers: Headers;
 };
 ;

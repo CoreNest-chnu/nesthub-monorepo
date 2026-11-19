@@ -403,17 +403,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       > => {
       return useMutation(getCartControllerUpdateItemMutationOptions(options), queryClient);
     }
-    export type cartControllerDeleteItemResponse200 = {
-  data: void
-  status: 200
-}
-
-export type cartControllerDeleteItemResponse204 = {
+    export type cartControllerDeleteItemResponse204 = {
   data: void
   status: 204
 }
 
-export type cartControllerDeleteItemResponseSuccess = (cartControllerDeleteItemResponse200 | cartControllerDeleteItemResponse204) & {
+export type cartControllerDeleteItemResponseSuccess = (cartControllerDeleteItemResponse204) & {
   headers: Headers;
 };
 ;

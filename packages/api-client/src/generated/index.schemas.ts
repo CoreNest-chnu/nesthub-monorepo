@@ -54,6 +54,12 @@ export interface ShippingAddressDto {
 export interface OrderItemModel {
   id: string;
   priceAtPurchase: string;
+  orderId: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AdminOrderUserModel {
@@ -80,6 +86,9 @@ export interface AdminOrderModel {
   totalAmount: string;
   Items: OrderItemModel[];
   User: AdminOrderUserModel;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type UpdateOrderStatusDtoStatus = typeof UpdateOrderStatusDtoStatus[keyof typeof UpdateOrderStatusDtoStatus];
@@ -123,7 +132,7 @@ export interface UserCreateDto {
   email: string;
   /**
    * @minLength 8
-   * @pattern /[A-Z]/
+   * @pattern [A-Z]
    */
   password: string;
 }
@@ -146,20 +155,6 @@ export interface UserLoginDTO {
   email: string;
   /** @minLength 8 */
   password: string;
-}
-
-export type UserLoginResponseDtoRole = typeof UserLoginResponseDtoRole[keyof typeof UserLoginResponseDtoRole];
-
-
-export const UserLoginResponseDtoRole = {
-  admin: 'admin',
-  user: 'user',
-} as const;
-
-export interface UserLoginResponseDto {
-  id: string;
-  role: UserLoginResponseDtoRole;
-  token: string;
 }
 
 /**

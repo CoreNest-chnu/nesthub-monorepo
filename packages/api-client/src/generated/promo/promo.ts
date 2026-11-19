@@ -35,12 +35,7 @@ export type promoControllerApplyResponse200 = {
   status: 200
 }
 
-export type promoControllerApplyResponse201 = {
-  data: PromoResultModel
-  status: 201
-}
-
-export type promoControllerApplyResponseSuccess = (promoControllerApplyResponse200 | promoControllerApplyResponse201) & {
+export type promoControllerApplyResponseSuccess = (promoControllerApplyResponse200) & {
   headers: Headers;
 };
 ;

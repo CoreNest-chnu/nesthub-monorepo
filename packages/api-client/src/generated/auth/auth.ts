@@ -17,8 +17,7 @@ import type {
 import type {
   UserCreateDto,
   UserCreateResponseDto,
-  UserLoginDTO,
-  UserLoginResponseDto
+  UserLoginDTO
 } from '../index.schemas';
 
 import { fetcher } from '../../fetcher';
@@ -113,12 +112,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
   status: 200
 }
 
-export type authControllerLoginUserResponse201 = {
-  data: UserLoginResponseDto
-  status: 201
-}
-
-export type authControllerLoginUserResponseSuccess = (authControllerLoginUserResponse200 | authControllerLoginUserResponse201) & {
+export type authControllerLoginUserResponseSuccess = (authControllerLoginUserResponse200) & {
   headers: Headers;
 };
 ;
