@@ -3,8 +3,7 @@ FROM oven/bun:1.3.7-alpine AS base
 WORKDIR /app
 
 # Потрібно для Prisma на Alpine (OpenSSL)
-RUN apk add --no-cache openssl libc6-compat
-
+RUN apk add --no-cache openssl libc6-compat nodejs
 # ---- Dependencies ----
 FROM base AS deps
 
