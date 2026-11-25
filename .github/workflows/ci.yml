@@ -12,6 +12,8 @@ on:
       - 'bootstrap/**'
       - 'argocd-apps/**'
       - 'charts/**'
+      # Lab 8 serverless API: deployed to LocalStack by its own script.
+      - 'serverless/**'
   pull_request:
     branches: [main, develop]
     paths-ignore: *gitops-paths
