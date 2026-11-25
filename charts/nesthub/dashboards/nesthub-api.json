@@ -153,7 +153,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum(rate(http_requests_total{namespace=\"nesthub\",status=~\"5..\"}[1m])) / sum(rate(http_requests_total{namespace=\"nesthub\"}[1m]))",
+          "expr": "(sum(rate(http_requests_total{namespace=\"nesthub\",status=~\"5..\"}[1m])) or vector(0)) / sum(rate(http_requests_total{namespace=\"nesthub\"}[1m]))",
           "legendFormat": "5xx share"
         }
       ]
@@ -260,7 +260,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "sum by (pod) (rate(http_requests_total{namespace=\"nesthub\",status=~\"5..\"}[1m]))",
+          "expr": "sum by (pod) (rate(http_requests_total{namespace=\"nesthub\",status=~\"5..\"}[1m])) or sum by (pod) (rate(http_requests_total{namespace=\"nesthub\"}[1m])) * 0",
           "legendFormat": "{{pod}}"
         }
       ]
