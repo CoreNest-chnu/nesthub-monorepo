@@ -6,7 +6,7 @@ api:
   # 5 pods so the canary weights map to whole pods: 20% = 1, 60% = 3, 80% = 4.
   replicaCount: 5
   image:
-    tag: "1.9.0"
+    tag: "1.10.0"
     pullPolicy: IfNotPresent
   # "0.5" = half of the requests fail with 500: a bad release for the demo.
   env:
@@ -38,7 +38,7 @@ api:
 web:
   replicaCount: 1
   image:
-    tag: "1.9.0"
+    tag: "1.10.0"
     pullPolicy: IfNotPresent
   service:
     type: NodePort
