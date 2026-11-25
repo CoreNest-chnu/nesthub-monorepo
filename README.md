@@ -52,6 +52,7 @@ A full-stack e-commerce web application inspired by platforms like Rozetka — w
 - [Kubernetes (minikube)](#️-kubernetes-minikube)
 - [Helm chart](#-helm-chart)
 - [GitOps (Argo CD)](#-gitops-argo-cd)
+- [Serverless reviews API (LocalStack)](#️-serverless-reviews-api-localstack)
 - [Scripts Reference](#-scripts-reference)
 - [Project Structure](#-project-structure)
 - [Team](#-team)
@@ -733,6 +734,18 @@ kubectl -n nesthub describe analysisrun <name>     # measured values and the rea
 
 ---
 
+## ☁️ Serverless reviews API (LocalStack)
+
+[`serverless/`](serverless) holds a small product reviews API built the AWS serverless way: **API Gateway → Lambda (Node.js 22) → DynamoDB**, run locally in LocalStack and deployed by one AWS CLI script. Architecture, API and the deployment sequence are in [`serverless/README.md`](serverless/README.md).
+
+```bash
+docker compose -f serverless/docker-compose.yaml up -d --wait
+./serverless/scripts/deploy.sh        # table, IAM role, function, REST API, stage
+./serverless/scripts/smoke-test.sh    # create / get / list / delete with curl
+```
+
+---
+
 ## 📜 Scripts Reference
 
 | Command | Description |
@@ -760,6 +773,7 @@ nesthub-monorepo/
 │   │   ├── prisma/           # Prisma schema, migrations & seed
 │   │   └── src/              # Modules: auth, products, cart, orders, admin
 │   └── web/                  # Next.js frontend (App Router)
+├── serverless/               # Reviews API: Lambda + API Gateway + DynamoDB on LocalStack
 ├── packages/
 │   ├── api-client/           # Auto-generated TanStack Query hooks
 │   │   ├── scripts/

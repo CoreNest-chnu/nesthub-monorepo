@@ -1,0 +1,20 @@
+# LocalStack: AWS APIs (Lambda, API Gateway, DynamoDB, IAM, CloudWatch Logs) on
+# http://localhost:4566. 4.14.0 is the last free Community release: newer
+# localstack/localstack images need a LocalStack account and auth token.
+#
+#   docker compose -f serverless/docker-compose.yaml up -d
+services:
+  localstack:
+    image: localstack/localstack:4.14.0
+    container_name: localstack
+    ports:
+      - "127.0.0.1:4566:4566"
+    environment:
+      SERVICES: lambda,apigateway,dynamodb,iam,sts,logs
+      # Region used by the deploy script and by the Lambda function.
+      AWS_DEFAULT_REGION: eu-central-1
+      DEBUG: "0"
+    volumes:
+      # LocalStack runs every Lambda function in its own container, started
+      # through the host Docker daemon.
+      - /var/run/docker.sock:/var/run/docker.sock
