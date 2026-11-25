@@ -1,0 +1,34 @@
+{{- /*
+Argo Rollouts analysis: asks Prometheus for the share of successful (non-5xx)
+API requests. The Rollout runs it as a step of the canary
+(values-minikube.yaml); when it fails, the Rollout aborts on its own and all
+traffic goes back to the stable version.
+The label filter comes from values, so the same template works for a canary
+(whole namespace) and for blue-green (service="<preview service>").
+*/}}
+{{- if .Values.api.rollout.analysis.enabled }}
+{{- $analysis := .Values.api.rollout.analysis }}
+{{- $sel := $analysis.selector }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "nesthub.componentName" (list . "api-success-rate") }}
+  labels:
+    {{- include "nesthub.componentLabels" (list . "api") | nindent 4 }}
+spec:
+  metrics:
+    - name: success-rate
+      # 4 measurements 30 s apart; the second failed one fails the analysis.
+      interval: 30s
+      count: 4
+      failureLimit: 1
+      successCondition: result[0] >= {{ $analysis.successThreshold }}
+      provider:
+        prometheus:
+          address: {{ $analysis.prometheusAddress }}
+          # No traffic gives 0/0 = NaN, which fails the check: keep load running.
+          query: |
+            sum(rate(http_requests_total{ {{- $sel -}},status!~"5.."}[1m]))
+            /
+            sum(rate(http_requests_total{ {{- $sel -}} }[1m]))
+{{- end }}

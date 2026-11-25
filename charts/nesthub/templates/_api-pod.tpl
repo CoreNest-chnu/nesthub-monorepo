@@ -42,6 +42,11 @@ spec:
         # $(VAR) expands the variables above: the password lives only in the Secret.
         - name: DATABASE_URL
           value: postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@{{ include "nesthub.dbHost" . }}:5432/$(POSTGRES_DB)?schema=public
+        {{- with .Values.api.env }}
+        # Extra variables from values (e.g. FAIL_RATE). A change here is a change
+        # of the pod template, so it is released like a new image.
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       # Keep serving for 10 s after removal from the Service endpoints.
       lifecycle:
         preStop:

@@ -9,6 +9,8 @@ charts/nesthub/
 ├── values-dev.yaml        # development overrides
 ├── values-prod.yaml       # production overrides
 ├── values-minikube.yaml   # minikube cluster managed by Argo CD (lab 5)
+├── dashboards/
+│   └── nesthub-api.json   # Grafana dashboard, exported from Grafana
 └── templates/
     ├── _helpers.tpl       # names, labels, image, secret helpers
     ├── _api-pod.tpl       # API pod template, shared by the Deployment and the Rollout
@@ -24,6 +26,10 @@ charts/nesthub/
     ├── web-deployment.yaml
     ├── web-service.yaml
     ├── ingress.yaml       # only when ingress.enabled
+    ├── servicemonitor.yaml    # Prometheus scrape of GET /metrics, only when metrics.enabled
+    ├── dashboard.yaml         # ConfigMap with the dashboard (grafana_dashboard: "1"), only when metrics.enabled
+    ├── prometheusrule.yaml    # 5xx alert, only when metrics.alerts.enabled
+    ├── analysistemplate.yaml  # Argo Rollouts success-rate analysis, only when api.rollout.analysis.enabled
     ├── hook-pre-upgrade-db-check.yaml
     └── tests/test-connection.yaml
 ```
@@ -68,6 +74,15 @@ helm install demo charts/nesthub -n nesthub
 | `api.resources` | 100m / 192Mi → 500m / 512Mi | 250m / 256Mi → 1 / 768Mi | Requests → limits. |
 | `api.rollout.enabled` | `false` | | `true` = Argo Rollouts `Rollout` instead of the API Deployment. Needs the Argo Rollouts controller. `true` with 5 replicas in `values-minikube.yaml`. |
 | `api.rollout.strategy` | canary 20% → pause → 60% → 30 s | | `spec.strategy` of the Rollout, passed as is (canary or blueGreen). |
+| `api.rollout.analysis.enabled` | `false` | | `true` = `AnalysisTemplate` `<fullname>-api-success-rate` (share of non-5xx requests from Prometheus). Reference it from a step of `api.rollout.strategy`. |
+| `api.rollout.analysis.prometheusAddress` | `http://kps-prometheus.monitoring:9090` | | Prometheus queried by the analysis. |
+| `api.rollout.analysis.selector` | `namespace="nesthub"` | | PromQL label filter of the analysed requests. |
+| `api.rollout.analysis.successThreshold` | `0.95` | | Minimum success rate. |
+| `api.env` | `[]` | | Extra env vars of the API container (list of EnvVar), e.g. `FAIL_RATE` (0..1, share of requests answered with 500). |
+| `metrics.enabled` | `false` | | `ServiceMonitor` and dashboard ConfigMap. Needs kube-prometheus-stack CRDs. |
+| `metrics.path` / `metrics.interval` | `/metrics` / `15s` | | Scrape path and interval. |
+| `metrics.alerts.enabled` | `false` | | `PrometheusRule` with `NesthubApiHighErrorRate`. |
+| `metrics.alerts.errorRateThreshold` / `for` | `0.05` / `1m` | | Alert threshold (share of 5xx) and duration. |
 | `web.replicaCount` | `1` | `2` | Web pods. |
 | `web.image.repository` | `ghcr.io/corenest-chnu/nesthub-web` | | Web image. |
 | `web.image.tag` | `1.3.0` | `1.4.0` | Web image tag; empty = `appVersion`. |

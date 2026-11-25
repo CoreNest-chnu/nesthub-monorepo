@@ -1,0 +1,18 @@
+{{- /*
+Grafana dashboard delivered from Git: the Grafana sidecar of kube-prometheus-stack
+loads every ConfigMap with the label grafana_dashboard: "1" (in all namespaces,
+see argocd-apps/kps.yaml). To change the dashboard, edit it in Grafana, export it
+(Share -> Export -> Save to file) over dashboards/nesthub-api.json and commit.
+*/}}
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nesthub.componentName" (list . "dashboard") }}
+  labels:
+    {{- include "nesthub.labels" . | nindent 4 }}
+    grafana_dashboard: "1"
+data:
+  nesthub-api.json: |-
+{{ .Files.Get "dashboards/nesthub-api.json" | indent 4 }}
+{{- end }}

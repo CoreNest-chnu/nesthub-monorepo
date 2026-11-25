@@ -6,17 +6,30 @@ api:
   # 5 pods so the canary weights map to whole pods: 20% = 1, 60% = 3, 80% = 4.
   replicaCount: 5
   image:
-    tag: "1.6.0"
+    tag: "1.10.0"
     pullPolicy: IfNotPresent
+  # "0.5" = half of the requests fail with 500: a bad release for the demo.
+  env:
+    - name: FAIL_RATE
+      value: "0"
   # Canary release with Argo Rollouts. The Service selects pods of both versions,
   # so traffic is split by the number of pods of each version.
   rollout:
     enabled: true
+    # Success rate from Prometheus decides instead of a manual promote: below
+    # 95% the Rollout aborts and goes back to the stable version on its own.
+    analysis:
+      enabled: true
+      prometheusAddress: http://kps-prometheus.monitoring:9090
+      selector: 'namespace="nesthub"'
     strategy:
       canary:
         steps:
           - setWeight: 20
-          - pause: {}                  # wait for a manual promote
+          - pause: { duration: 30s }   # let metrics of the canary pod accumulate
+          - analysis:
+              templates:
+                - templateName: nesthub-api-success-rate
           - setWeight: 60
           - pause: { duration: 30s }
           - setWeight: 80
@@ -25,7 +38,7 @@ api:
 web:
   replicaCount: 1
   image:
-    tag: "1.6.0"
+    tag: "1.10.0"
     pullPolicy: IfNotPresent
   service:
     type: NodePort
@@ -33,6 +46,13 @@ web:
 
 ingress:
   enabled: false
+
+# ServiceMonitor, Grafana dashboard and the 5xx alert (kube-prometheus-stack
+# from argocd-apps/kps.yaml).
+metrics:
+  enabled: true
+  alerts:
+    enabled: true
 
 # Secret values are not in Git. Create the Secret once by hand:
 #   kubectl -n nesthub create secret generic nesthub-secret \

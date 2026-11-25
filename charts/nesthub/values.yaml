@@ -17,10 +17,21 @@ api:
   resources:
     requests: { cpu: 100m, memory: 192Mi }
     limits: { cpu: 500m, memory: 512Mi }
+  # Extra environment variables of the API container, as a list of EnvVar.
+  # FAIL_RATE (0..1) = share of requests answered with 500 on purpose.
+  env: []
   # Progressive delivery with Argo Rollouts: true replaces the API Deployment
   # with a Rollout (requires the Argo Rollouts controller and CRDs).
   rollout:
     enabled: false
+    # AnalysisTemplate <fullname>-api-success-rate: share of non-5xx requests
+    # from Prometheus. Reference it from a step of the strategy below.
+    analysis:
+      enabled: false
+      prometheusAddress: http://kps-prometheus.monitoring:9090
+      # PromQL label filter of the requests to analyse.
+      selector: 'namespace="nesthub"'
+      successThreshold: 0.95
     # spec.strategy of the Rollout, passed through as is.
     strategy:
       canary:
@@ -59,6 +70,18 @@ postgres:
     size: 1Gi
     # Empty = the cluster's default StorageClass.
     storageClass: ""
+
+# Observability (needs kube-prometheus-stack CRDs): ServiceMonitor for GET
+# /metrics of the API, Grafana dashboard ConfigMap and an optional alert.
+metrics:
+  enabled: false
+  path: /metrics
+  interval: 15s
+  alerts:
+    enabled: false
+    # Share of 5xx responses (0..1) that fires NesthubApiHighErrorRate.
+    errorRateThreshold: 0.05
+    for: 1m
 
 ingress:
   enabled: false

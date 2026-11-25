@@ -603,15 +603,22 @@ The minikube cluster is deployed by **Argo CD**, not by hand: Git describes the 
 ```
 bootstrap/root.yaml             # root Application (App of Apps), applied by hand once
 argocd-apps/argo-rollouts.yaml  # Argo Rollouts controller (Helm chart), sync wave -1
+argocd-apps/kps.yaml            # kube-prometheus-stack: Prometheus, Alertmanager, Grafana, sync wave -1
+argocd-apps/loki.yaml           # Loki, single binary, sync wave -1
+argocd-apps/alloy.yaml          # Grafana Alloy: pod logs -> Loki
 argocd-apps/nesthub.yaml        # Application for the chart, managed by root
 charts/nesthub/                 # Helm chart (lab 4) + values-minikube.yaml
 ```
 
-The Applications follow the `lab/dev-ops-6` branch (`develop` accepts only PRs). CI ignores changes in these directories (`paths-ignore`), so a GitOps commit does not rebuild images.
+The Applications follow the `lab/dev-ops-7` branch (`develop` accepts only PRs). CI ignores changes in these directories (`paths-ignore`), so a GitOps commit does not rebuild images.
 
 ### Setup
 
+The monitoring stack is heavy: give minikube at least 4 CPUs and 8 GB (Docker Desktop needs more than that, e.g. 12 GB).
+
 ```bash
+minikube start --cpus 4 --memory 8192
+
 # Argo CD
 kubectl create namespace argocd
 kubectl apply -n argocd --server-side --force-conflicts \
@@ -633,6 +640,12 @@ kubectl -n nesthub create secret generic nesthub-secret \
   --from-literal=STATIC_SALT=$(openssl rand -hex 16) \
   --from-literal=AUTH_SECRET=$(openssl rand -hex 32)
 
+# Grafana admin password, also not in Git (the chart would generate a new one on
+# every Argo CD render)
+kubectl create namespace monitoring
+kubectl -n monitoring create secret generic grafana-admin \
+  --from-literal=admin-user=admin --from-literal=admin-password=<password>
+
 # The only manual apply; everything else comes from Git
 kubectl apply -f bootstrap/root.yaml
 argocd app list
@@ -653,8 +666,10 @@ Roll back with `git revert <commit> && git push`, not `argocd app rollback`: wit
 In `values-minikube.yaml` the API runs as an Argo Rollouts `Rollout` with 5 replicas instead of a Deployment (`api.rollout.enabled: true`). A new image tag goes out in steps:
 
 ```
-setWeight 20 → pause (manual promote) → setWeight 60 → pause 30s → setWeight 80 → pause 30s → 100%
+setWeight 20 → pause 30s → analysis (success rate ≥ 95%) → setWeight 60 → pause 30s → setWeight 80 → pause 30s → 100%
 ```
+
+The analysis step replaced the manual promote: see [Observability](#observability) below.
 
 There is no traffic router: the `nesthub-api` Service selects pods of both versions, so the traffic share equals the share of pods (20% = 1 pod of 5).
 
@@ -670,11 +685,51 @@ kubectl argo rollouts dashboard                    # http://localhost:3100
 kubectl -n nesthub run curl --rm -it --image=curlimages/curl -- \
   sh -c 'while true; do curl -s http://nesthub-api:8000/health; echo; sleep 0.5; done'
 
-kubectl argo rollouts promote nesthub-api -n nesthub   # continue after the manual pause
+kubectl argo rollouts promote nesthub-api -n nesthub   # skip the current pause
 kubectl argo rollouts abort nesthub-api -n nesthub     # back to the stable version
 ```
 
 After `abort`, the app is Synced (the cluster matches Git) but Degraded (the release was cancelled). Finish with `git revert <commit> && git push`.
+
+### Observability
+
+| Signal | Where it comes from | Where to look |
+| ------ | ------------------- | ------------- |
+| Metrics | API `GET /metrics` (`prom-client`): `http_requests_total{method,route,status}` and `http_request_duration_seconds{method,route}`. `route` is the route template (`/products/:id`), 404s are `unmatched`; probes and `/metrics` are not counted. | Prometheus, scraped through the chart's `ServiceMonitor` |
+| Logs | One JSON object per line on stdout: `time, level, msg, method, route, status, duration_ms, version, pod` (Nest's own logs are JSON too). | Loki (collected by Alloy), Grafana → Explore |
+| Dashboard | `charts/nesthub/dashboards/nesthub-api.json` in a ConfigMap with `grafana_dashboard: "1"` | Grafana → Dashboards → NestHub API |
+| Alert | `PrometheusRule` `NesthubApiHighErrorRate`: more than 5% 5xx for 1 minute | Prometheus → Alerts, Alertmanager |
+
+```bash
+kubectl -n monitoring port-forward svc/kps-grafana 3000:80          # http://localhost:3000, admin / your password
+kubectl -n monitoring port-forward svc/kps-prometheus 9090:9090     # http://localhost:9090
+kubectl -n monitoring port-forward svc/kps-alertmanager 9093:9093
+```
+
+PromQL and LogQL examples:
+
+```
+sum by (status) (rate(http_requests_total{namespace="nesthub"}[1m]))
+histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{namespace="nesthub"}[1m])))
+{namespace="nesthub", app="nesthub-api"} | json | status >= 500
+sum by (pod) (count_over_time({namespace="nesthub"} | json | status >= 500 [1m]))
+```
+
+Load (outside the chart, in `default`):
+
+```bash
+kubectl create deployment load --image=curlimages/curl -- \
+  sh -c 'while true; do curl -s -o /dev/null http://nesthub-api.nesthub.svc:8000/products; sleep 0.05; done'
+kubectl scale deployment load --replicas=3
+kubectl delete deployment load
+```
+
+**Rollback by metrics.** The canary step `analysis` runs the `AnalysisTemplate` `nesthub-api-success-rate`: every 30 s it asks Prometheus for the share of non-5xx requests in the namespace; the second result below 95% fails it, and the Rollout aborts on its own. A bad release for the demo is `FAIL_RATE: "0.5"` in `api.env` of `values-minikube.yaml` (half of the requests of the new pods fail with 500; probes never fail, so the pods stay Ready). The analysis needs traffic: with no requests the query returns NaN and fails even a good release, so keep the load running.
+
+```bash
+kubectl -n nesthub get analysisrun
+kubectl -n nesthub describe analysisrun <name>     # measured values and the reason
+```
 
 ---
 
