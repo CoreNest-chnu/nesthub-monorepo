@@ -1,0 +1,21 @@
+{{- /*
+Tells the Prometheus Operator (kube-prometheus-stack) to scrape GET /metrics of
+every API pod behind the API Service. Needs the ServiceMonitor CRD in the cluster.
+*/}}
+{{- if .Values.metrics.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "nesthub.componentName" (list . "api") }}
+  labels:
+    {{- include "nesthub.componentLabels" (list . "api") | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "nesthub.selectorLabels" (list . "api") | nindent 6 }}
+  endpoints:
+    # Name of the port in api-service.yaml, not the number.
+    - port: http
+      path: {{ .Values.metrics.path }}
+      interval: {{ .Values.metrics.interval }}
+{{- end }}

@@ -1,0 +1,27 @@
+{{- /*
+Alert when more than 5% of API responses are 5xx for a minute. Visible in
+Prometheus -> Alerts (Pending -> Firing) and in Alertmanager.
+*/}}
+{{- if and .Values.metrics.enabled .Values.metrics.alerts.enabled }}
+{{- $ns := .Release.Namespace }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "nesthub.componentName" (list . "api-alerts") }}
+  labels:
+    {{- include "nesthub.componentLabels" (list . "api") | nindent 4 }}
+spec:
+  groups:
+    - name: nesthub-api
+      rules:
+        - alert: NesthubApiHighErrorRate
+          expr: |
+            sum(rate(http_requests_total{namespace="{{ $ns }}",status=~"5.."}[1m]))
+              / sum(rate(http_requests_total{namespace="{{ $ns }}"}[1m])) > {{ .Values.metrics.alerts.errorRateThreshold }}
+          for: {{ .Values.metrics.alerts.for }}
+          labels:
+            severity: warning
+          annotations:
+            summary: "nesthub-api: more than {{ mulf .Values.metrics.alerts.errorRateThreshold 100 }}% of responses are 5xx"
+            description: "{{ "{{" }} $value | humanizePercentage {{ "}}" }} of requests to the API in namespace {{ $ns }} failed with 5xx over the last minute."
+{{- end }}

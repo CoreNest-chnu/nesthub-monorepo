@@ -9,6 +9,7 @@ import { PromoModule } from './promo/promo.module'
 import { PaymentModule } from './payment/payment.module'
 import { AdminModule } from './admin/admin.module'
 import { HealthModule } from './health/health.module'
+import { ObservabilityModule } from './observability/observability.module'
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { HealthModule } from './health/health.module'
     PromoModule,
     PaymentModule,
     HealthModule,
+    ObservabilityModule,
   ],
   controllers: [],
   providers: [],

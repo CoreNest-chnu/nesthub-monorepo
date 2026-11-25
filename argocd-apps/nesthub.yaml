@@ -10,7 +10,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/CoreNest-chnu/nesthub-monorepo.git
-    targetRevision: lab/dev-ops-6
+    targetRevision: lab/dev-ops-7
     path: charts/nesthub
     helm:
       # Relative to `path`, not to the repository root.

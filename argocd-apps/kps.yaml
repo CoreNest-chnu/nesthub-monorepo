@@ -1,0 +1,74 @@
+# kube-prometheus-stack: Prometheus Operator, Prometheus, Alertmanager, Grafana,
+# kube-state-metrics and node-exporter. The Application name is the Helm release
+# name; with fullnameOverride the Services get short names (kps-prometheus,
+# kps-grafana, kps-alertmanager).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kps
+  namespace: argocd
+  annotations:
+    # Before the apps (wave 0): the nesthub chart needs the ServiceMonitor and
+    # PrometheusRule CRDs.
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    # Latest chart version from `helm search repo prometheus-community/kube-prometheus-stack`.
+    targetRevision: 93.11.0
+    helm:
+      valuesObject:
+        fullnameOverride: kps
+        # minikube control plane components cannot be scraped: disabled to avoid
+        # permanently failing targets and alerts.
+        kubeEtcd: { enabled: false }
+        kubeControllerManager: { enabled: false }
+        kubeScheduler: { enabled: false }
+        kubeProxy: { enabled: false }
+        # Fewer moving parts: no admission webhook and no TLS jobs for it.
+        prometheusOperator:
+          admissionWebhooks: { enabled: false }
+          tls: { enabled: false }
+        prometheus:
+          prometheusSpec:
+            retention: 2d
+            # Pick up every ServiceMonitor / PodMonitor / PrometheusRule, not only
+            # the ones labelled release=kps.
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+        grafana:
+          # Admin credentials come from a Secret created by hand (not in Git):
+          #   kubectl -n monitoring create secret generic grafana-admin \
+          #     --from-literal=admin-user=admin --from-literal=admin-password=...
+          # The chart would otherwise generate a random password on every render,
+          # and Argo CD renders on every sync.
+          admin:
+            existingSecret: grafana-admin
+            userKey: admin-user
+            passwordKey: admin-password
+          sidecar:
+            dashboards:
+              # Load dashboard ConfigMaps (label grafana_dashboard: "1") from
+              # every namespace, e.g. the one shipped with the nesthub chart.
+              searchNamespace: ALL
+          additionalDataSources:
+            - name: Loki
+              uid: loki
+              type: loki
+              access: proxy
+              url: http://loki-gateway.monitoring
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      # The chart's CRDs are too large for the last-applied annotation of a
+      # client-side apply.
+      - ServerSideApply=true
